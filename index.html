@@ -222,7 +222,11 @@ tr.target .rank-num{color:var(--accent);font-weight:700;}
 /* ── DIARIO ── */
 .diario-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .diario-toolbar select{flex:1;min-width:200px;}
-.diario-summary{display:flex;gap:20px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;}
+.diario-summary{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:12px;}
+.diario-filter-pills{display:flex;gap:4px;flex-wrap:wrap;}
+.diario-filter-pill{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.diario-filter-pill:hover{border-color:var(--text);color:var(--text);}
+.diario-filter-pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
 .diario-kpi{display:flex;flex-direction:column;gap:1px;}
 .diario-kpi-key{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
 .diario-kpi-val{font-size:13px;font-weight:700;font-family:var(--mono);}
@@ -258,6 +262,28 @@ td.hito-cell{max-width:260px;min-width:120px;}
 .banner-change-val{font-size:34px;font-weight:700;font-family:var(--mono);line-height:1;}
 .banner-from{font-size:11px;color:var(--muted);margin-top:5px;}
 .up{color:var(--green);}.down{color:var(--red);}.same{color:var(--muted);}
+
+/* ── CHANGELOG MODAL ── */
+.changelog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;animation:fadeIn .2s ease;}
+.changelog-overlay.visible{display:flex;}
+.changelog-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:480px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 16px 48px var(--shadow);overflow:hidden;}
+.changelog-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.changelog-header h2{font-size:15px;font-weight:700;}
+.changelog-close{width:28px;height:28px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.changelog-close:hover{background:var(--surface2);color:var(--text);}
+.changelog-close svg{width:16px;height:16px;stroke-width:1.75;}
+.changelog-body{padding:20px 22px;overflow-y:auto;flex:1;}
+.cl-version{margin-bottom:20px;}
+.cl-version:last-child{margin-bottom:0;}
+.cl-tag{font-size:11px;font-weight:700;font-family:var(--mono);color:var(--accent);background:var(--accent-dim);padding:3px 9px;border-radius:20px;display:inline-block;margin-bottom:8px;}
+.cl-date{font-size:11px;color:var(--muted);margin-left:8px;}
+.cl-list{list-style:none;padding:0;}
+.cl-list li{font-size:12.5px;line-height:1.6;color:var(--text);padding:2px 0 2px 18px;position:relative;}
+.cl-list li::before{content:'';position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.cl-list li.fix::before{background:var(--blue);}
+.cl-list li span.cl-type{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-right:5px;}
+.cl-list li span.cl-type.new{color:var(--green);}
+.cl-list li span.cl-type.fix{color:var(--blue);}
 
 @media(max-width:640px){
   .two-col,.kpi-row,.modules-grid{grid-template-columns:1fr;}
@@ -301,6 +327,9 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
   </button>
   <input type="file" id="loadBackupInput" accept=".json" onchange="loadBackup(event)">
+  <button class="sb-action tip" data-tip="Novedades" onclick="toggleChangelog()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+  </button>
   <div class="sb-div"></div>
   <button class="nav-item tip" data-panel="settings" data-tip="Configuración" onclick="navigate(this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -319,7 +348,7 @@ td.hito-cell{max-width:260px;min-width:120px;}
   <div class="kpi-row">
     <div class="kpi-card"><div class="kpi-label">Días registrados</div><div class="kpi-value" id="homeKpiDays">—</div><div class="kpi-sub" id="homeKpiRange">sin datos</div></div>
     <div class="kpi-card"><div class="kpi-label">Módulos activos</div><div class="kpi-value">04</div><div class="kpi-sub">de 5 planificados</div></div>
-    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.8</div><div class="kpi-sub">early access</div></div>
+    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.9</div><div class="kpi-sub">early access</div></div>
   </div>
   <div class="section-label">Módulos</div>
   <div class="modules-grid">
@@ -348,30 +377,18 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg></div>
     <div><div class="panel-title">Actualización de 4WKS</div><div class="panel-subtitle">Registro histórico completo + incorporación de días cerrados</div></div>
   </div>
-  <div class="two-col">
-    <div class="card pad">
-      <div class="card-header"><span class="card-label">Registro diario (CSV)</span><span class="badge" id="updBadgeCSV">Sin cargar</span></div>
-      <div class="drop-zone" id="updDropZone" ondragover="updDzDrag(event,true)" ondragleave="updDzDrag(event,false)" ondrop="updDzDrop(event)">
-        <input type="file" accept=".csv" onchange="updFileChange(event)">
-        <div class="dz-icon" id="updDzIcon">📂</div>
-        <div class="dz-text" id="updDzText">Arrastra el CSV o <em>selecciona el archivo</em></div>
-      </div>
-      <div class="card-footer"><span class="status-text" id="updStatusCSV">Carga el registro diario exportado</span><button class="btn-reset" onclick="resetUpdCSV()">✕ Reset</button></div>
-    </div>
-    <div class="card pad">
-      <div class="card-header"><span class="card-label">Incorporar día cerrado</span><span class="badge info" id="updBadgeDay">Sin incorporar</span></div>
-      <div class="date-row"><label>Fecha</label><input type="date" id="updDayDate"></div>
-      <textarea id="updDayInput" style="height:96px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;590&#9;1,724&#9;148&#9;6&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..."></textarea>
-      <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
-      <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
-    </div>
+  <div class="card pad" style="margin-bottom:12px">
+    <div class="card-header"><span class="card-label">Incorporar día cerrado</span><span class="badge info" id="updBadgeDay">Sin incorporar</span></div>
+    <div class="date-row"><label>Fecha</label><input type="date" id="updDayDate"></div>
+    <textarea id="updDayInput" style="height:96px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;590&#9;1,724&#9;148&#9;6&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..."></textarea>
+    <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
+    <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
   </div>
   <div class="wks-card" id="wksCard">
     <div class="wks-stats">
       <div class="wks-stat"><span class="wks-stat-key">Días en BD</span><span class="wks-stat-val" id="wksDays">—</span></div>
       <div class="wks-stat"><span class="wks-stat-key">Rango</span><span class="wks-stat-val" id="wksRange">—</span></div>
       <div class="wks-stat"><span class="wks-stat-key">Semanas</span><span class="wks-stat-val" id="wksWeeks">—</span></div>
-      <div style="margin-left:auto"><button class="btn-secondary" onclick="sendToSimulator()">→ Enviar al Simulador</button></div>
     </div>
     <div class="wks-mode-bar">
       <span class="mode-group-label">4WKS</span>
@@ -412,6 +429,18 @@ td.hito-cell{max-width:260px;min-width:120px;}
   <div class="diario-toolbar">
     <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Tienda</label>
     <select id="diarioStore" onchange="renderDiario()"></select>
+    <span style="width:1px;height:20px;background:var(--border);flex-shrink:0;"></span>
+    <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Día</label>
+    <div class="diario-filter-pills" id="diarioDayFilter">
+      <button class="diario-filter-pill active" data-day="" onclick="filterDiarioDay(this)">Todos</button>
+      <button class="diario-filter-pill" data-day="Saturday" onclick="filterDiarioDay(this)">Sáb</button>
+      <button class="diario-filter-pill" data-day="Sunday" onclick="filterDiarioDay(this)">Dom</button>
+      <button class="diario-filter-pill" data-day="Monday" onclick="filterDiarioDay(this)">Lun</button>
+      <button class="diario-filter-pill" data-day="Tuesday" onclick="filterDiarioDay(this)">Mar</button>
+      <button class="diario-filter-pill" data-day="Wednesday" onclick="filterDiarioDay(this)">Mié</button>
+      <button class="diario-filter-pill" data-day="Thursday" onclick="filterDiarioDay(this)">Jue</button>
+      <button class="diario-filter-pill" data-day="Friday" onclick="filterDiarioDay(this)">Vie</button>
+    </div>
   </div>
 
   <!-- SUMMARY -->
@@ -429,17 +458,17 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <div class="table-card visible" id="diarioTableCard">
       <table id="diarioTable">
         <thead><tr>
-          <th>WK</th>
-          <th>Fecha</th>
+          <th class="sortable" data-dcol="wk" onclick="sortDiario('wk')">WK <em class="sort-arrow" id="dArr-wk"></em></th>
+          <th class="sortable sort-active" data-dcol="date" onclick="sortDiario('date')">Fecha <em class="sort-arrow" id="dArr-date">▼</em></th>
           <th>Día</th>
-          <th class="r">Ranking</th>
-          <th class="r">Net Sales</th>
-          <th class="r">Buys</th>
-          <th class="r">Cash Buys</th>
-          <th class="r">Exch. Buys</th>
-          <th class="r">Refunds</th>
-          <th class="r">Members</th>
-          <th class="r">V+C</th>
+          <th class="r sortable" data-dcol="ranking" onclick="sortDiario('ranking')">Ranking <em class="sort-arrow" id="dArr-ranking"></em></th>
+          <th class="r sortable" data-dcol="sales" onclick="sortDiario('sales')">Net Sales <em class="sort-arrow" id="dArr-sales"></em></th>
+          <th class="r sortable" data-dcol="buys" onclick="sortDiario('buys')">Buys <em class="sort-arrow" id="dArr-buys"></em></th>
+          <th class="r sortable" data-dcol="cashBuys" onclick="sortDiario('cashBuys')">Cash Buys <em class="sort-arrow" id="dArr-cashBuys"></em></th>
+          <th class="r sortable" data-dcol="exchBuys" onclick="sortDiario('exchBuys')">Exch. Buys <em class="sort-arrow" id="dArr-exchBuys"></em></th>
+          <th class="r sortable" data-dcol="refunds" onclick="sortDiario('refunds')">Refunds <em class="sort-arrow" id="dArr-refunds"></em></th>
+          <th class="r sortable" data-dcol="members" onclick="sortDiario('members')">Members <em class="sort-arrow" id="dArr-members"></em></th>
+          <th class="r sortable" data-dcol="vc" onclick="sortDiario('vc')">V+C <em class="sort-arrow" id="dArr-vc"></em></th>
           <th class="r">7 últimos</th>
           <th class="r">Media 7</th>
           <th>Hitos</th>
@@ -485,23 +514,12 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
     <div><div class="panel-title">Simulador rápido del 4WKS</div><div class="panel-subtitle">Proyección en tiempo real · Base 4WKS + facturación de hoy</div></div>
   </div>
-  <div class="two-col">
-    <div class="card pad">
-      <div class="card-header"><span class="card-label">4WKS base</span><span class="badge" id="badge4w">Sin cargar</span></div>
-      <div class="drop-zone" id="dropZone" ondragover="dzDrag(event,true)" ondragleave="dzDrag(event,false)" ondrop="dzDrop(event)">
-        <input type="file" accept=".csv" onchange="onFileChange(event)">
-        <div class="dz-icon" id="dzIcon">📂</div>
-        <div class="dz-text" id="dzText">Arrastra el CSV o <em>selecciona el archivo</em></div>
-      </div>
-      <div class="card-footer"><span class="status-text" id="status4w">Carga el archivo 4WKS exportado</span><button class="btn-reset" onclick="reset4w()">✕ Reset</button></div>
-    </div>
-    <div class="card pad">
-      <div class="card-header"><span class="card-label">Facturación de hoy</span><span class="badge" id="badgeToday">Sin datos</span></div>
-      <textarea id="todayInput" style="height:120px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
-      <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
-    </div>
+  <div class="card pad" style="margin-bottom:12px">
+    <div class="card-header"><span class="card-label">Facturación de hoy</span><span class="badge" id="badgeToday">Sin datos</span><span class="badge" id="badge4w" style="margin-left:6px">Sin base</span></div>
+    <textarea id="todayInput" style="height:100px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
+    <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
   </div>
-  <div class="selector-card"><label>Tienda</label><select id="targetStore" onchange="recalc()" disabled><option value="">— carga el 4WKS primero —</option></select></div>
+  <div class="selector-card"><label>Tienda</label><select id="targetStore" onchange="recalc()"><option value="">— sin datos 4WKS —</option></select></div>
   <div class="banner" id="banner">
     <div class="banner-left">
       <div class="banner-eyebrow" id="bLabel">Posición proyectada</div>
@@ -538,6 +556,44 @@ td.hito-cell{max-width:260px;min-width:120px;}
 </main>
 <div class="toast" id="toast"></div>
 
+<!-- ── CHANGELOG MODAL ── -->
+<div class="changelog-overlay" id="changelogOverlay" onclick="if(event.target===this)toggleChangelog()">
+  <div class="changelog-modal">
+    <div class="changelog-header">
+      <h2>Novedades</h2>
+      <button class="changelog-close" onclick="toggleChangelog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="changelog-body">
+
+      <div class="cl-version">
+        <span class="cl-tag">v0.9</span><span class="cl-date">11 abr 2026</span>
+        <ul class="cl-list">
+          <li><span class="cl-type new">nuevo</span>Persistencia automática — los datos se guardan en el navegador, sin necesidad de cargar backup</li>
+          <li><span class="cl-type new">nuevo</span>Diario de tienda ordenable por cualquier columna (fecha desc. por defecto)</li>
+          <li><span class="cl-type new">nuevo</span>Filtro por día de la semana en el diario de tienda</li>
+          <li><span class="cl-type new">nuevo</span>Changelog accesible desde el botón «Novedades»</li>
+          <li class="fix"><span class="cl-type fix">fix</span>Los días incorporados manualmente ahora muestran su día de la semana</li>
+          <li class="fix"><span class="cl-type fix">fix</span>Flechas de navegación semanal corregidas</li>
+          <li class="fix"><span class="cl-type fix">fix</span>KPIs del resumen del diario distribuidos uniformemente</li>
+        </ul>
+      </div>
+
+      <div class="cl-version">
+        <span class="cl-tag">v0.8</span><span class="cl-date">Versión inicial</span>
+        <ul class="cl-list">
+          <li><span class="cl-type new">nuevo</span>Actualización de 4WKS con registro diario CSV e incorporación manual de días</li>
+          <li><span class="cl-type new">nuevo</span>Diario de tienda con rodante 7 días y campo de hitos</li>
+          <li><span class="cl-type new">nuevo</span>Ranking semanal ordenable por columna</li>
+          <li><span class="cl-type new">nuevo</span>Simulador rápido con proyección de posición</li>
+          <li><span class="cl-type new">nuevo</span>Modo claro / oscuro</li>
+          <li><span class="cl-type new">nuevo</span>Backup y restauración manual (JSON)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════
 //  STATE
@@ -547,11 +603,13 @@ let dailyData={}, dailyCSVRaw='', dailyCSVName='', manualLog=[];
 // hitoData[date] = string  (store-agnostic — could extend to per-store if needed)
 let hitoData={};
 
-let BASE=[], todayMap={}, base4wRaw='', base4wName='';
+let BASE=[], todayMap={};
 let cexYearStart='2025-12-29';
 let updMode='consolidated', updCustomEnd=null;
 let updSortCol='vc', updSortDir=-1;
 let wkSortCol='vc',  wkSortDir=-1;
+let diarioSortCol='date', diarioSortDir=-1;
+let diarioDayFilter='';
 let diarioStoreSel='Madrid Islazul';
 
 // ══════════════════════════════════════════════════════
@@ -651,9 +709,11 @@ function navigate(el){
   if(nb)nb.classList.add('active');if(pb)pb.classList.add('active');
   if(target==='weekly')renderWeekly();
   if(target==='diario')renderDiario();
+  if(target==='simulator')syncSimulator();
   if(target==='settings')renderSettingsNote();
 }
 function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
+function toggleChangelog(){document.getElementById('changelogOverlay').classList.toggle('visible');}
 function toast(msg,type=''){
   const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;
   clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);
@@ -723,6 +783,25 @@ function rebuildDiarioStore(){
   diarioStoreSel=sel.value;
 }
 
+function filterDiarioDay(btn){
+  diarioDayFilter=btn.dataset.day;
+  document.querySelectorAll('#diarioDayFilter .diario-filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
+  renderDiario();
+}
+
+function sortDiario(col){
+  if(diarioSortCol===col)diarioSortDir*=-1;
+  else{diarioSortCol=col;diarioSortDir= col==='date'||col==='wk'? -1 : -1;}
+  const allCols=['wk','date','ranking','sales','buys','cashBuys','exchBuys','refunds','members','vc'];
+  document.querySelectorAll('[data-dcol]').forEach(th=>{
+    const c=th.dataset.dcol;
+    th.classList.toggle('sort-active',c===col);
+    const arrow=document.getElementById('dArr-'+c);
+    if(arrow)arrow.textContent=c===col?(diarioSortDir===-1?'▼':'▲'):'';
+  });
+  renderDiario();
+}
+
 function renderDiario(){
   diarioStoreSel=document.getElementById('diarioStore').value;
   const store=diarioStoreSel;
@@ -734,10 +813,10 @@ function renderDiario(){
     return;
   }
 
-  // Collect all days for this store, sorted chronologically
+  // Collect all days for this store, sorted chronologically for rolling calc
   const days=Object.entries(dailyData)
     .filter(([,stores])=>stores[store])
-    .map(([date,stores])=>({date,...stores[store]}))
+    .map(([date,stores])=>({date,...stores[store],wk:weekStart(date)}))
     .sort((a,b)=>a.date.localeCompare(b.date));
 
   if(!days.length){
@@ -746,30 +825,45 @@ function renderDiario(){
     return;
   }
 
-  // Summary stats
-  const totalVC=days.reduce((s,d)=>s+d.vc,0);
-  const bestRank=Math.min(...days.filter(d=>d.ranking>0).map(d=>d.ranking));
-  const avgVC=Math.round(totalVC/days.length);
-  const topDay=days.reduce((a,b)=>b.vc>a.vc?b:a);
-  const hitoCount=days.filter(d=>hitoData[d.date]).length;
+  // Precompute rolling 7 in chronological order (always on full dataset)
+  days.forEach((d,i)=>{
+    const slice=days.slice(Math.max(0,i-6),i+1);
+    d._roll7=slice.reduce((s,x)=>s+x.vc,0);
+    d._avg7=Math.round(d._roll7/slice.length);
+    d._full7=slice.length===7;
+    d._wkTag=weekTag(d.wk);
+  });
+
+  // Apply day filter
+  const filtered=diarioDayFilter?days.filter(d=>d.day===diarioDayFilter):days;
+
+  // Summary stats (on filtered set)
+  const totalVC=filtered.reduce((s,d)=>s+d.vc,0);
+  const rankedDays=filtered.filter(d=>d.ranking>0);
+  const bestRank=rankedDays.length?Math.min(...rankedDays.map(d=>d.ranking)):0;
+  const avgVC=filtered.length?Math.round(totalVC/filtered.length):0;
+  const topDay=filtered.length?filtered.reduce((a,b)=>b.vc>a.vc?b:a):null;
+  const hitoCount=filtered.filter(d=>hitoData[d.date]).length;
   document.getElementById('diarioSummary').style.display='flex';
-  document.getElementById('dSum-days').textContent=days.length;
+  document.getElementById('dSum-days').textContent=filtered.length;
   document.getElementById('dSum-vc').textContent=fmt(totalVC);
-  document.getElementById('dSum-best').textContent=`#${bestRank}`;
+  document.getElementById('dSum-best').textContent=bestRank?`#${bestRank}`:'—';
   document.getElementById('dSum-avg').textContent=fmt(avgVC);
-  document.getElementById('dSum-top').textContent=`${fmtDate(topDay.date)} · ${fmt(topDay.vc)}`;
+  document.getElementById('dSum-top').textContent=topDay?`${fmtDate(topDay.date)} · ${fmt(topDay.vc)}`:'—';
   document.getElementById('dSum-hitos').textContent=hitoCount;
 
+  // Sort by active column
+  const sorted=[...filtered];
+  const col=diarioSortCol, dir=diarioSortDir;
+  sorted.sort((a,b)=>{
+    let va,vb;
+    if(col==='date'){va=a.date;vb=b.date;return va<vb?-dir:va>vb?dir:0;}
+    if(col==='wk'){va=a.wk;vb=b.wk;return va<vb?-dir:va>vb?dir:a.date.localeCompare(b.date);}
+    va=a[col]??0;vb=b[col]??0;return(va-vb)*dir;
+  });
+
   tbody.innerHTML='';
-  days.forEach((d,i)=>{
-    const ws=weekStart(d.date), wn=weekTag(ws);
-
-    // Rolling 7 days V+C (last 7 days including today)
-    const slice=days.slice(Math.max(0,i-6),i+1);
-    const roll7=slice.reduce((s,x)=>s+x.vc,0);
-    const avg7=Math.round(roll7/slice.length);
-    const isFull7=slice.length===7;
-
+  sorted.forEach(d=>{
     // Day class
     const dayLow=(d.day||'').toLowerCase();
     let rowClass='';
@@ -786,7 +880,7 @@ function renderDiario(){
     const tr=document.createElement('tr');
     if(rowClass)tr.className=rowClass;
     tr.innerHTML=`
-      <td><span class="wk-label">${wn}</span></td>
+      <td><span class="wk-label">${d._wkTag}</span></td>
       <td><span class="stat-val">${fmtDate(d.date)}</span></td>
       <td><span class="stat-val">${DAY_ES[d.day]||d.day||'—'}</span></td>
       <td class="r">${rankCell}</td>
@@ -797,8 +891,8 @@ function renderDiario(){
       <td class="r"><span class="stat-val">${fmt(d.refunds)}</span></td>
       <td class="r"><span class="stat-val">${fmtN(d.members)}</span></td>
       <td class="r"><span class="stat-val vc">${fmt(d.vc)}</span></td>
-      <td class="r"><span class="rolling-val${isFull7?' highlight':''}">${fmt(roll7)}</span></td>
-      <td class="r"><span class="rolling-val${isFull7?' highlight':''}">${fmt(avg7)}</span></td>
+      <td class="r"><span class="rolling-val${d._full7?' highlight':''}">${fmt(d._roll7)}</span></td>
+      <td class="r"><span class="rolling-val${d._full7?' highlight':''}">${fmt(d._avg7)}</span></td>
       <td class="hito-cell"><input class="hito-input" type="text" placeholder="Anotar hito…" value="${(hitoData[d.date]||'').replace(/"/g,'&quot;')}" data-date="${d.date}" onchange="saveHito(this)" onblur="saveHito(this)"></td>`;
     tbody.appendChild(tr);
   });
@@ -882,34 +976,11 @@ function updateHomeKPI(){
   document.getElementById('homeKpiRange').textContent=dates.length?`${fmtDate(dates[0])} → ${fmtDate(dates[dates.length-1])}`:'sin datos';
 }
 
-// ── File handling ──
-function updDzDrag(e,on){e.preventDefault();document.getElementById('updDropZone').classList.toggle('drag-over',on);}
-function updDzDrop(e){e.preventDefault();updDzDrag(e,false);const f=e.dataTransfer.files[0];if(f)updReadCSV(f);}
-function updFileChange(e){const f=e.target.files[0];if(f)updReadCSV(f);}
-function updReadCSV(file){const r=new FileReader();r.onload=e=>{dailyCSVRaw=e.target.result;dailyCSVName=file.name;applyRegistroCSV(dailyCSVRaw,dailyCSVName);};r.readAsText(file,'UTF-8');}
-
 function applyRegistroCSV(text,fname){
-  const{data,rows,days,stores}=parseRegistroCSV(text);
-  if(!rows){toast('⚠ No se han podido leer registros del CSV','err');return;}
+  const{data,rows}=parseRegistroCSV(text);
+  if(!rows)return;
   dailyData=data;dailyCSVRaw=text;dailyCSVName=fname||'';
-  for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
-  document.getElementById('updStatusCSV').textContent=`✓ ${days} días · ${stores} tiendas`;
-  document.getElementById('updStatusCSV').className='status-text ok';
-  document.getElementById('updBadgeCSV').textContent=(fname||'CSV').replace('.csv','');
-  document.getElementById('updBadgeCSV').className='badge loaded';
-  document.getElementById('updDzIcon').textContent='✅';
-  document.getElementById('updDzText').textContent=fname||'Archivo cargado';
-  document.getElementById('updDropZone').classList.add('has-file');
-  renderUpdater();renderLog();
-}
-function resetUpdCSV(){
-  dailyData={};dailyCSVRaw='';dailyCSVName='';manualLog=[];hitoData={};
-  document.getElementById('updStatusCSV').textContent='Carga el registro diario exportado';
-  document.getElementById('updStatusCSV').className='status-text';
-  document.getElementById('updBadgeCSV').textContent='Sin cargar';document.getElementById('updBadgeCSV').className='badge';
-  document.getElementById('updDzIcon').textContent='📂';document.getElementById('updDzText').innerHTML='Arrastra el CSV o <em>selecciona el archivo</em>';
-  document.getElementById('updDropZone').classList.remove('has-file','drag-over');
-  document.getElementById('updDropZone').querySelector('input[type=file]').value='';
+  for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
   renderUpdater();renderLog();
 }
 function incorporateDay(){
@@ -919,6 +990,8 @@ function incorporateDay(){
   if(!text){toast('⚠ Pega los datos del día','err');return;}
   const{map,count}=parseDayPaste(text);
   if(!count){toast('⚠ No se han detectado filas válidas','err');return;}
+  const dayName=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(dateVal+'T12:00:00Z').getUTCDay()];
+  for(const s of Object.values(map))s.day=dayName;
   if(!dailyData[dateVal])dailyData[dateVal]={};
   Object.assign(dailyData[dateVal],map);
   const idx=manualLog.findIndex(e=>e.date===dateVal);
@@ -935,19 +1008,6 @@ function renderLog(){
   if(!manualLog.length){c.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div>';return;}
   c.innerHTML=manualLog.slice(0,8).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
 }
-function sendToSimulator(){
-  const{ranking}=compute4WKS();
-  if(!ranking.length){toast('⚠ Sin datos que enviar','err');return;}
-  BASE=ranking.map((s,i)=>({r:i+1,store:s.store,vc:s.vc}));
-  const sel=document.getElementById('targetStore'),prev=sel.value;sel.innerHTML='';
-  BASE.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
-  sel.disabled=false;base4wRaw='';base4wName='[desde Actualización]';
-  document.getElementById('badge4w').textContent='desde Actualización';document.getElementById('badge4w').className='badge loaded';
-  document.getElementById('dzIcon').textContent='📊';document.getElementById('dzText').textContent='4WKS calculado desde Registro Diario';
-  document.getElementById('dropZone').classList.add('has-file');
-  document.getElementById('status4w').textContent=`✓ ${BASE.length} tiendas`;document.getElementById('status4w').className='status-text ok';
-  recalc();navigate(document.querySelector('[data-panel=simulator]'));toast('✓ 4WKS enviado al Simulador','ok');
-}
 
 // ══════════════════════════════════════════════════════
 //  WEEKLY
@@ -962,7 +1022,8 @@ function rebuildWeekSelect(){
 }
 function wkStep(delta){
   const sel=document.getElementById('wkSelect'),opts=Array.from(sel.options);
-  const idx=opts.findIndex(o=>o.value===sel.value),next=idx+delta;
+  // Options are reverse-chronological (newest=0), so ← (prev) = +1 index, → (next) = -1 index
+  const idx=opts.findIndex(o=>o.value===sel.value),next=idx-delta;
   if(next>=0&&next<opts.length){sel.value=opts[next].value;renderWeekly();}
 }
 function updateWkNav(){
@@ -1001,16 +1062,6 @@ function renderWeekly(){
 // ══════════════════════════════════════════════════════
 //  SIMULATOR
 // ══════════════════════════════════════════════════════
-function parse4wCSV(text){
-  const result=[];
-  for(const line of text.trim().split('\n')){
-    if(!line.trim()||line.startsWith('RANKING')||line.startsWith('70,'))continue;
-    const cols=parseCSVLine(line);if(cols.length<3)continue;
-    const r=parseInt(cols[0],10),store=(cols[1]||'').trim(),vc=pN(cols[2]);
-    if(!store||isNaN(r)||vc===0)continue;result.push({r,store,vc});
-  }
-  return result;
-}
 function parseToday(text){
   const map={};let count=0;
   for(const line of text.trim().split('\n')){
@@ -1063,31 +1114,21 @@ function recalc(){
   document.getElementById('tableCard').classList.add('visible');
   setTimeout(()=>{const r=document.querySelector('#tableCard tr.target');if(r)r.scrollIntoView({behavior:'smooth',block:'nearest'});},100);
 }
-function dzDrag(e,on){e.preventDefault();document.getElementById('dropZone').classList.toggle('drag-over',on);}
-function dzDrop(e){e.preventDefault();dzDrag(e,false);const f=e.dataTransfer.files[0];if(f)readCSV(f);}
-function onFileChange(e){const f=e.target.files[0];if(f)readCSV(f);}
-function readCSV(file){const r=new FileReader();r.onload=e=>{base4wRaw=e.target.result;base4wName=file.name;apply4w(base4wRaw,base4wName);};r.readAsText(file,'UTF-8');}
-function apply4w(text,fname,sel2){
-  const parsed=parse4wCSV(text);
-  if(!parsed.length){document.getElementById('status4w').textContent='⚠️ No se han podido leer tiendas.';document.getElementById('status4w').className='status-text warn';return;}
-  BASE=parsed;base4wRaw=text;base4wName=fname||'';
-  document.getElementById('status4w').textContent=`✓ ${parsed.length} tiendas`;document.getElementById('status4w').className='status-text ok';
-  document.getElementById('badge4w').textContent=(fname||'4WKS').replace('.csv','');document.getElementById('badge4w').className='badge loaded';
-  document.getElementById('dzIcon').textContent='✅';document.getElementById('dzText').textContent=fname||'Cargado';
-  document.getElementById('dropZone').classList.add('has-file');
-  const sel=document.getElementById('targetStore'),prev=sel2||sel.value;sel.innerHTML='';
+function syncSimulator(){
+  const{ranking}=compute4WKS();
+  if(!ranking.length){
+    BASE=[];
+    document.getElementById('badge4w').textContent='Sin base';document.getElementById('badge4w').className='badge';
+    document.getElementById('targetStore').innerHTML='<option value="">— sin datos 4WKS —</option>';
+    document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');
+    return;
+  }
+  BASE=ranking.map((s,i)=>({r:i+1,store:s.store,vc:s.vc}));
+  const sel=document.getElementById('targetStore'),prev=sel.value;sel.innerHTML='';
   BASE.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
-  sel.disabled=false;recalc();
-}
-function reset4w(){
-  BASE=[];base4wRaw='';base4wName='';
-  document.getElementById('status4w').textContent='Carga el archivo 4WKS exportado';document.getElementById('status4w').className='status-text';
-  document.getElementById('badge4w').textContent='Sin cargar';document.getElementById('badge4w').className='badge';
-  document.getElementById('dzIcon').textContent='📂';document.getElementById('dzText').innerHTML='Arrastra el CSV o <em>selecciona el archivo</em>';
-  document.getElementById('dropZone').classList.remove('has-file','drag-over');
-  document.getElementById('dropZone').querySelector('input[type=file]').value='';
-  const sel=document.getElementById('targetStore');sel.innerHTML='<option value="">— carga el 4WKS primero —</option>';sel.disabled=true;
-  document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');
+  const last4=getSelected4Weeks();
+  if(last4.length){const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);document.getElementById('badge4w').textContent=last4.length===1?a:`${b}–${a}`;document.getElementById('badge4w').className='badge loaded';}
+  recalc();
 }
 function onTodayInput(){
   const text=document.getElementById('todayInput').value;
@@ -1112,7 +1153,6 @@ function saveBackup(){
     cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
     targetStore:document.getElementById('targetStore').value,
-    base4wRaw,base4wName,
     todayRaw:document.getElementById('todayInput').value,
     dailyCSVRaw,dailyCSVName,manualLog,
     updTargetStore:document.getElementById('updTargetStore').value,
@@ -1141,14 +1181,14 @@ function loadBackup(event){
       if(b.dailyCSVRaw){
         manualLog=b.manualLog||[];
         applyRegistroCSV(b.dailyCSVRaw,b.dailyCSVName||'backup');
-        for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
+        for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
         renderUpdater();renderLog();
         if(b.updTargetStore){const s=document.getElementById('updTargetStore');if([...s.options].some(o=>o.value===b.updTargetStore)){s.value=b.updTargetStore;renderUpdTable();}}
         if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
         const ds=document.getElementById('diarioStore');if(b.diarioStoreSel&&[...ds.options].some(o=>o.value===b.diarioStoreSel))ds.value=b.diarioStoreSel;
       }
-      if(b.base4wRaw)apply4w(b.base4wRaw,b.base4wName||'backup',b.targetStore);
       if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;onTodayInput();}
+      syncSimulator();
       if(b.activePanel){const nb=document.querySelector(`.nav-item[data-panel="${b.activePanel}"]`);if(nb)navigate(nb);}
       toast('✓ Backup restaurado','ok');
     }catch{toast('⚠ Error al leer el backup','err');}
@@ -1158,6 +1198,93 @@ function loadBackup(event){
 }
 
 // ══════════════════════════════════════════════════════
+//  PERSISTENCE (localStorage)
+// ══════════════════════════════════════════════════════
+const LS_KEY='4wks_state';
+
+function persistState(){
+  try{
+    const s={
+      version:5,savedAt:new Date().toISOString(),
+      theme:document.documentElement.dataset.theme,
+      activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
+      cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
+      diarioSortCol,diarioSortDir,diarioDayFilter,
+      diarioStoreSel,hitoData,
+      targetStore:document.getElementById('targetStore').value,
+      todayRaw:document.getElementById('todayInput').value,
+      dailyCSVRaw,dailyCSVName,manualLog,
+      updTargetStore:document.getElementById('updTargetStore').value,
+      wkWeek:document.getElementById('wkSelect').value,
+    };
+    localStorage.setItem(LS_KEY,JSON.stringify(s));
+  }catch(e){/* quota exceeded — silent */}
+}
+
+function restoreState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    const b=JSON.parse(raw);if(!b.version)return;
+    if(b.theme)document.documentElement.dataset.theme=b.theme;
+    if(b.cexYearStart)cexYearStart=b.cexYearStart;
+    if(b.updMode){updMode=b.updMode;setUpdMode(updMode);}
+    if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
+    if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
+    if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
+    if(b.diarioSortCol){diarioSortCol=b.diarioSortCol;diarioSortDir=b.diarioSortDir??-1;}
+    if(b.diarioDayFilter!=null){
+      diarioDayFilter=b.diarioDayFilter;
+      document.querySelectorAll('#diarioDayFilter .diario-filter-pill').forEach(btn=>btn.classList.toggle('active',btn.dataset.day===diarioDayFilter));
+    }
+    if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
+    if(b.hitoData)hitoData=b.hitoData;
+    document.getElementById('settingsCexStart').value=cexYearStart;
+    if(b.dailyCSVRaw){
+      manualLog=b.manualLog||[];
+      applyRegistroCSV(b.dailyCSVRaw,b.dailyCSVName||'auto');
+      for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
+      renderUpdater();renderLog();
+      if(b.updTargetStore){const s=document.getElementById('updTargetStore');if([...s.options].some(o=>o.value===b.updTargetStore)){s.value=b.updTargetStore;renderUpdTable();}}
+      if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
+      const ds=document.getElementById('diarioStore');if(b.diarioStoreSel&&[...ds.options].some(o=>o.value===b.diarioStoreSel))ds.value=b.diarioStoreSel;
+    }
+    if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;}
+    syncSimulator();
+    if(b.targetStore){const s=document.getElementById('targetStore');if([...s.options].some(o=>o.value===b.targetStore))s.value=b.targetStore;}
+    if(b.todayRaw)onTodayInput();
+    if(b.activePanel){const nb=document.querySelector(`.nav-item[data-panel="${b.activePanel}"]`);if(nb)navigate(nb);}
+  }catch(e){/* corrupted state — ignore */}
+}
+
+// Auto-save on every meaningful change (debounced)
+let _persistTimer;
+function schedulePersist(){clearTimeout(_persistTimer);_persistTimer=setTimeout(persistState,500);}
+
+// Hook into all state-changing functions
+const _origNav=navigate;
+navigate=function(el){_origNav(el);schedulePersist();};
+const _origToggle=toggleTheme;
+toggleTheme=function(){_origToggle();schedulePersist();};
+const _origSortUpd=sortUpd;
+sortUpd=function(c){_origSortUpd(c);schedulePersist();};
+const _origSortWk=sortWk;
+sortWk=function(c){_origSortWk(c);schedulePersist();};
+const _origSortDiario=sortDiario;
+sortDiario=function(c){_origSortDiario(c);schedulePersist();};
+const _origFilterDay=filterDiarioDay;
+filterDiarioDay=function(b){_origFilterDay(b);schedulePersist();};
+const _origSetMode=setUpdMode;
+setUpdMode=function(m){_origSetMode(m);schedulePersist();};
+const _origCexStart=onCexStartChange;
+onCexStartChange=function(){_origCexStart();schedulePersist();};
+const _origSaveHito=saveHito;
+saveHito=function(i){_origSaveHito(i);schedulePersist();};
+const _origRenderUpd=renderUpdater;
+renderUpdater=function(){_origRenderUpd();schedulePersist();};
+const _origRecalc=recalc;
+recalc=function(){_origRecalc();schedulePersist();};
+
+// ══════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════
 document.getElementById('updDayDate').value=new Date().toISOString().slice(0,10);
@@ -1165,6 +1292,7 @@ document.getElementById('settingsCexStart').value=cexYearStart;
 renderSettingsNote();
 rebuildWeekSelect();
 rebuildDiarioStore();
+restoreState();
 </script>
 </body>
 </html>
