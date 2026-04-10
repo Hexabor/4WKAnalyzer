@@ -1,1 +1,1170 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4WKS · Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0f0f11;--sidebar:#131316;--surface:#1a1a1f;--surface2:#222228;
+  --border:#2a2a32;--text:#e8e8ec;--muted:#64646e;
+  --accent:#e8784a;--accent-dim:#3d2115;
+  --green:#4caf85;--red:#e05c5c;--blue:#5b8dee;
+  --sat-bg:rgba(138,99,210,.12);--sun-bg:rgba(91,141,238,.1);
+  --shadow:rgba(0,0,0,.4);
+  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+  --sidebar-w:58px;--radius:10px;
+}
+[data-theme="light"]{
+  --bg:#f4f3f0;--sidebar:#fff;--surface:#fff;--surface2:#f0eeeb;
+  --border:#e2dfd9;--text:#1a1a1f;--muted:#8a8880;
+  --accent:#d96535;--accent-dim:#fdeee7;
+  --green:#2d7a55;--red:#c0392b;--blue:#2563eb;
+  --sat-bg:rgba(138,99,210,.08);--sun-bg:rgba(91,141,238,.07);
+  --shadow:rgba(0,0,0,.1);
+}
+html,body{height:100%;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;overflow:hidden;transition:background .25s,color .25s;}
 
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;flex-shrink:0;z-index:10;transition:background .25s,border-color .25s;}
+.sb-logo{width:32px;height:32px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.sb-logo svg{width:22px;height:22px;}
+.nav-item{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .15s,color .15s;border:none;background:transparent;color:var(--muted);}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);}
+.nav-item svg{width:18px;height:18px;stroke-width:1.6;}
+.nav-item.disabled{opacity:.3;cursor:default;pointer-events:none;}
+.tip::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--surface2);color:var(--text);font-size:11px;font-weight:600;font-family:var(--font);padding:5px 10px;border-radius:6px;border:1px solid var(--border);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;letter-spacing:.3px;z-index:100;}
+.tip:hover::after{opacity:1;}
+.sb-spacer{flex:1;}.sb-div{width:28px;height:1px;background:var(--border);margin:6px 0;flex-shrink:0;}
+.theme-wrap{width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;border-radius:9px;transition:background .15s;}
+.theme-wrap:hover{background:var(--surface2);}
+.theme-switch{width:36px;height:20px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;position:relative;pointer-events:none;transition:background .25s;}
+.theme-switch::after{content:'';width:14px;height:14px;background:var(--muted);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .25s,background .25s;}
+[data-theme="light"] .theme-switch::after{transform:translateX(16px);background:var(--accent);}
+.sb-action{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .15s,color .15s;border:none;background:transparent;color:var(--muted);}
+.sb-action:hover{background:var(--surface2);color:var(--text);}
+.sb-action svg{width:17px;height:17px;stroke-width:1.6;}
+#loadBackupInput{display:none;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;box-shadow:0 4px 20px var(--shadow);z-index:999;transition:transform .3s,opacity .3s;opacity:0;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
+
+/* ── PANELS ── */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.panel{display:none;flex:1;overflow-y:auto;padding:32px 36px;animation:fadeIn .2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.panel::-webkit-scrollbar{width:4px;}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* ── SHARED CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:background .25s,border-color .25s;}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.card-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.badge.loaded{background:rgba(76,175,133,.12);color:var(--green);border-color:rgba(76,175,133,.25);}
+.badge.info{background:rgba(91,141,238,.12);color:var(--blue);border-color:rgba(91,141,238,.25);}
+.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.status-text{font-size:11px;color:var(--muted);flex:1;}
+.status-text.ok{color:var(--green);font-weight:600;}
+.status-text.warn{color:var(--red);}
+.btn-reset{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;font-family:var(--font);transition:border-color .15s,color .15s;margin-left:8px;}
+.btn-reset:hover{border-color:var(--red);color:var(--red);}
+.btn-primary{font-size:12px;padding:8px 16px;border:none;border-radius:7px;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;font-family:var(--font);transition:opacity .15s;width:100%;margin-top:10px;}
+.btn-primary:hover{opacity:.85;}
+.btn-secondary{font-size:11px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;font-family:var(--font);transition:border-color .15s,color .15s;white-space:nowrap;}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── INPUTS ── */
+.drop-zone{border:1.5px dashed var(--border);border-radius:7px;background:var(--surface2);padding:18px 12px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;margin-bottom:8px;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-dim);}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-zone .dz-icon{font-size:20px;margin-bottom:5px;}
+.drop-zone .dz-text{font-size:11.5px;color:var(--muted);}
+.drop-zone .dz-text em{color:var(--accent);font-style:normal;font-weight:600;}
+.drop-zone.has-file{border-color:var(--green);border-style:solid;background:rgba(76,175,133,.07);}
+.drop-zone.has-file .dz-text{color:var(--green);}
+textarea{width:100%;font-family:var(--mono);font-size:10.5px;line-height:1.6;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;resize:vertical;color:var(--text);background:var(--surface2);transition:border-color .2s,background .25s;caret-color:var(--accent);}
+textarea:focus{outline:none;border-color:var(--accent);}
+textarea::placeholder{color:var(--muted);}
+input[type="date"]{padding:8px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);transition:border-color .2s;width:100%;}
+input[type="date"]:focus{outline:none;border-color:var(--accent);}
+input[type="date"]::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer;}
+select{flex:1;padding:7px 10px;font-size:13px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:pointer;transition:background .25s,border-color .25s;}
+select:focus{outline:none;border-color:var(--accent);}
+select:disabled{color:var(--muted);opacity:.5;}
+
+/* ── PANEL HEADER ── */
+.panel-header{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+.panel-icon{width:38px;height:38px;background:var(--accent-dim);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;}
+.panel-icon svg{width:18px;height:18px;stroke-width:1.6;}
+.panel-title{font-size:17px;font-weight:700;}
+.panel-subtitle{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* ── TABLE SHARED ── */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:none;transition:background .25s,border-color .25s;}
+.table-card.visible{display:block;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--surface2);padding:9px 10px;text-align:left;font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
+thead th.r{text-align:right;}
+thead th.sortable{cursor:pointer;user-select:none;transition:color .15s;}
+thead th.sortable:hover{color:var(--text);}
+thead th.sort-active{color:var(--accent);}
+.sort-arrow{margin-left:3px;font-size:9px;font-style:normal;opacity:0;}
+thead th.sort-active .sort-arrow{opacity:1;}
+td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
+td.r{text-align:right;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface2);}
+tr.target td{background:rgba(232,120,74,.06);}
+tr.target:hover td{background:rgba(232,120,74,.1);}
+/* day coloring */
+tr.day-sat td{background:var(--sat-bg);}
+tr.day-sun td{background:var(--sun-bg);}
+tr.day-sat:hover td{filter:brightness(.97);}
+tr.day-sun:hover td{filter:brightness(.97);}
+.rank-num{font-family:var(--mono);font-weight:500;font-size:12px;}
+tr.target .rank-num{color:var(--accent);font-weight:700;}
+.chg{font-size:11px;font-weight:700;font-family:var(--mono);min-width:28px;display:inline-block;text-align:center;}
+.chg.up{color:var(--green);}.chg.down{color:var(--red);}.chg.same{color:var(--muted);}
+.pill{font-size:10px;font-weight:600;font-family:var(--mono);padding:2px 7px;border-radius:20px;background:rgba(76,175,133,.12);color:var(--green);border:1px solid rgba(76,175,133,.2);}
+.pill-zero{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.store-name{color:var(--text);}.target-name{color:var(--accent);font-weight:600;}
+.stat-val{font-family:var(--mono);font-size:12px;}
+.stat-val.vc{color:var(--accent);font-weight:700;}
+.dist-wrap{display:flex;align-items:center;gap:8px;}
+.dist-bar-track{flex:1;height:4px;border-radius:2px;background:var(--surface2);overflow:hidden;min-width:44px;}
+.dist-bar-fill{height:100%;border-radius:2px;}
+.dist-bar-fill.above{background:var(--red);}.dist-bar-fill.below{background:var(--green);}
+.dist-val{font-size:11px;font-weight:600;font-family:var(--mono);white-space:nowrap;min-width:68px;text-align:right;}
+.dist-val.above{color:var(--red);}.dist-val.below{color:var(--green);}.dist-val.self{color:var(--muted);font-weight:400;font-style:italic;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;display:block;}
+
+/* ── RANKING BADGE ── */
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:20px;border-radius:5px;font-family:var(--mono);font-weight:700;font-size:11px;}
+.rank-badge.top1{background:rgba(255,215,0,.2);color:#b8860b;}
+.rank-badge.top3{background:rgba(76,175,133,.15);color:var(--green);}
+.rank-badge.top10{background:rgba(91,141,238,.12);color:var(--blue);}
+.rank-badge.other{background:var(--surface2);color:var(--muted);}
+
+/* ── HOME ── */
+.home-header{margin-bottom:40px;}
+.home-eyebrow{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.home-title{font-size:32px;font-weight:700;line-height:1.15;letter-spacing:-.5px;}
+.home-title span{color:var(--muted);font-weight:300;}
+.home-sub{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6;max-width:460px;}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;position:relative;overflow:hidden;transition:background .25s,border-color .25s;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.5;}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.kpi-value{font-size:26px;font-weight:700;font-family:var(--mono);letter-spacing:-1px;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px;}
+.section-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.module-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:flex-start;gap:16px;}
+.module-card:hover{border-color:var(--accent);background:var(--surface2);}
+.module-card.coming-soon{opacity:.4;cursor:default;pointer-events:none;}
+.module-icon{width:38px;height:38px;background:var(--accent-dim);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);}
+.module-icon.dim{background:var(--surface2);color:var(--muted);}
+.module-icon svg{width:18px;height:18px;stroke-width:1.6;}
+.module-name{font-size:13px;font-weight:600;margin-bottom:5px;}
+.module-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+.module-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:20px;margin-top:8px;display:inline-block;}
+
+/* ── UPDATER ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.pad{padding:16px 18px;}
+.date-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.date-row label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:48px;}
+.log-list{margin-top:10px;display:flex;flex-direction:column;gap:4px;max-height:100px;overflow-y:auto;}
+.log-item{font-size:10.5px;color:var(--muted);font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+.log-item:last-child{border-bottom:none;}
+.log-item .li-date{color:var(--text);font-weight:500;}
+
+/* ── 4WKS CONTROL CARD ── */
+.wks-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;display:none;}
+.wks-card.visible{display:block;}
+.wks-stats{display:flex;align-items:center;gap:28px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.wks-stat{display:flex;flex-direction:column;gap:1px;}
+.wks-stat-key{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.wks-stat-val{font-size:13px;font-weight:700;font-family:var(--mono);}
+.wks-mode-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap;}
+.mode-group-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.mode-pills{display:flex;gap:4px;}
+.mode-pill{font-size:11px;font-weight:600;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.mode-pill:hover{border-color:var(--text);color:var(--text);}
+.mode-pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.mode-custom-sel{font-size:12px;font-weight:600;font-family:var(--font);padding:5px 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:pointer;display:none;}
+.mode-custom-sel:focus{outline:none;border-color:var(--accent);}
+.wks-result-tag{margin-left:auto;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--blue);background:rgba(91,141,238,.1);border:1px solid rgba(91,141,238,.25);padding:4px 12px;border-radius:20px;white-space:nowrap;}
+
+/* ── SELECTOR CARD ── */
+.selector-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;transition:background .25s,border-color .25s;}
+.selector-card label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+
+/* ── WEEKLY NAV ── */
+.wk-nav{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.wk-nav select{flex:1;}
+.wk-nav-btn{width:32px;height:32px;flex-shrink:0;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.wk-nav-btn:hover:not(:disabled){background:var(--surface2);color:var(--text);}
+.wk-nav-btn:disabled{opacity:.3;cursor:default;}
+.wk-nav-btn svg{width:14px;height:14px;stroke-width:2;}
+.wk-meta{font-size:11px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+
+/* ── DIARIO ── */
+.diario-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.diario-toolbar select{flex:1;min-width:200px;}
+.diario-summary{display:flex;gap:20px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;}
+.diario-kpi{display:flex;flex-direction:column;gap:1px;}
+.diario-kpi-key{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.diario-kpi-val{font-size:13px;font-weight:700;font-family:var(--mono);}
+.diario-table-wrap{overflow-x:auto;}
+/* HITO editable cell */
+.hito-input{background:transparent;border:none;outline:none;font-family:var(--font);font-size:11.5px;color:var(--muted);width:200px;min-width:120px;cursor:text;padding:0;}
+.hito-input:focus{color:var(--text);}
+.hito-input::placeholder{color:var(--border);}
+td.hito-cell{max-width:260px;min-width:120px;}
+/* rolling val */
+.rolling-val{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+.rolling-val.highlight{color:var(--green);font-weight:600;}
+.wk-label{font-family:var(--mono);font-size:11px;color:var(--muted);}
+
+/* ── SETTINGS ── */
+.settings-field{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;}
+.settings-field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.settings-desc{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.settings-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;}
+.settings-note strong{color:var(--text);}
+
+/* ── BANNER ── */
+.banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:12px;display:none;align-items:center;gap:20px;position:relative;overflow:hidden;transition:background .25s,border-color .25s;}
+.banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);}
+.banner.visible{display:flex;}
+.banner-left{flex:1;}
+.banner-eyebrow{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.banner-pos{font-size:52px;font-weight:700;font-family:var(--mono);line-height:1;letter-spacing:-2px;}
+.banner-vc{font-size:12px;color:var(--muted);margin-top:6px;}
+.banner-today{font-size:12px;color:var(--muted);margin-top:2px;}
+.banner-right{text-align:right;}
+.banner-change-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.banner-change-val{font-size:34px;font-weight:700;font-family:var(--mono);line-height:1;}
+.banner-from{font-size:11px;color:var(--muted);margin-top:5px;}
+.up{color:var(--green);}.down{color:var(--red);}.same{color:var(--muted);}
+
+@media(max-width:640px){
+  .two-col,.kpi-row,.modules-grid{grid-template-columns:1fr;}
+  .panel{padding:24px 18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  </div>
+  <button class="nav-item active tip" data-panel="home" data-tip="Home" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+  </button>
+  <button class="nav-item tip" data-panel="updater" data-tip="Actualización 4WKS" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>
+  </button>
+  <button class="nav-item tip" data-panel="diario" data-tip="Diario de tienda" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
+    </svg>
+  </button>
+  <button class="nav-item tip" data-panel="weekly" data-tip="Ranking semanal" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg>
+  </button>
+  <button class="nav-item tip" data-panel="simulator" data-tip="Simulador rápido" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+  </button>
+  <div class="sb-spacer"></div>
+  <div class="sb-div"></div>
+  <div class="theme-wrap tip" data-tip="Modo claro / oscuro" onclick="toggleTheme()"><div class="theme-switch"></div></div>
+  <div class="sb-div"></div>
+  <button class="sb-action tip" data-tip="Guardar backup" onclick="saveBackup()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+  <button class="sb-action tip" data-tip="Cargar backup" onclick="document.getElementById('loadBackupInput').click()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  </button>
+  <input type="file" id="loadBackupInput" accept=".json" onchange="loadBackup(event)">
+  <div class="sb-div"></div>
+  <button class="nav-item tip" data-panel="settings" data-tip="Configuración" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  </button>
+</nav>
+
+<main class="main">
+
+<!-- ══ HOME ══ -->
+<section class="panel active" id="panel-home">
+  <div class="home-header">
+    <div class="home-eyebrow">4WKS Analytics</div>
+    <h1 class="home-title">Bienvenido<span> de nuevo.</span></h1>
+    <p class="home-sub">Panel de seguimiento del ranking en tiempo real. Carga los datos, elige tu tienda y monitoriza la posición al cierre de semana.</p>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">Días registrados</div><div class="kpi-value" id="homeKpiDays">—</div><div class="kpi-sub" id="homeKpiRange">sin datos</div></div>
+    <div class="kpi-card"><div class="kpi-label">Módulos activos</div><div class="kpi-value">04</div><div class="kpi-sub">de 5 planificados</div></div>
+    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.8</div><div class="kpi-sub">early access</div></div>
+  </div>
+  <div class="section-label">Módulos</div>
+  <div class="modules-grid">
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=updater]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg></div>
+      <div><div class="module-name">Actualización de 4WKS</div><div class="module-desc">Carga el registro diario e incorpora días cerrados. Calcula el 4WKS real con todas las métricas.</div></div>
+    </div>
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=diario]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
+      <div><div class="module-name">Diario de tienda</div><div class="module-desc">Vista día a día de una tienda con ranking, métricas, rodante 7 días e hitos anotables.</div></div>
+    </div>
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=weekly]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg></div>
+      <div><div class="module-name">Ranking semanal</div><div class="module-desc">Clasificación de cualquier semana por V+C, ventas, compras, socios o devoluciones.</div></div>
+    </div>
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=simulator]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div><div class="module-name">Simulador rápido del 4WKS</div><div class="module-desc">Proyección en tiempo real de dónde termina tu tienda en el ranking al cierre de semana.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ACTUALIZACIÓN 4WKS ══ -->
+<section class="panel" id="panel-updater">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg></div>
+    <div><div class="panel-title">Actualización de 4WKS</div><div class="panel-subtitle">Registro histórico completo + incorporación de días cerrados</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card pad">
+      <div class="card-header"><span class="card-label">Registro diario (CSV)</span><span class="badge" id="updBadgeCSV">Sin cargar</span></div>
+      <div class="drop-zone" id="updDropZone" ondragover="updDzDrag(event,true)" ondragleave="updDzDrag(event,false)" ondrop="updDzDrop(event)">
+        <input type="file" accept=".csv" onchange="updFileChange(event)">
+        <div class="dz-icon" id="updDzIcon">📂</div>
+        <div class="dz-text" id="updDzText">Arrastra el CSV o <em>selecciona el archivo</em></div>
+      </div>
+      <div class="card-footer"><span class="status-text" id="updStatusCSV">Carga el registro diario exportado</span><button class="btn-reset" onclick="resetUpdCSV()">✕ Reset</button></div>
+    </div>
+    <div class="card pad">
+      <div class="card-header"><span class="card-label">Incorporar día cerrado</span><span class="badge info" id="updBadgeDay">Sin incorporar</span></div>
+      <div class="date-row"><label>Fecha</label><input type="date" id="updDayDate"></div>
+      <textarea id="updDayInput" style="height:96px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;590&#9;1,724&#9;148&#9;6&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..."></textarea>
+      <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
+      <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
+    </div>
+  </div>
+  <div class="wks-card" id="wksCard">
+    <div class="wks-stats">
+      <div class="wks-stat"><span class="wks-stat-key">Días en BD</span><span class="wks-stat-val" id="wksDays">—</span></div>
+      <div class="wks-stat"><span class="wks-stat-key">Rango</span><span class="wks-stat-val" id="wksRange">—</span></div>
+      <div class="wks-stat"><span class="wks-stat-key">Semanas</span><span class="wks-stat-val" id="wksWeeks">—</span></div>
+      <div style="margin-left:auto"><button class="btn-secondary" onclick="sendToSimulator()">→ Enviar al Simulador</button></div>
+    </div>
+    <div class="wks-mode-bar">
+      <span class="mode-group-label">4WKS</span>
+      <div class="mode-pills">
+        <button class="mode-pill active" id="modeConsolidated" onclick="setUpdMode('consolidated')">4 últimas consolidadas</button>
+        <button class="mode-pill" id="modeCurrent" onclick="setUpdMode('current')">Incl. semana actual</button>
+        <button class="mode-pill" id="modeCustom" onclick="setUpdMode('custom')">Personalizada</button>
+      </div>
+      <select class="mode-custom-sel" id="updCustomEndSel" onchange="onCustomEndChange()"></select>
+      <span class="wks-result-tag" id="wksResultTag">—</span>
+    </div>
+  </div>
+  <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><select id="updTargetStore" onchange="renderUpdTable()"></select></div>
+  <div class="table-card visible" id="updTableCard">
+    <table>
+      <thead><tr>
+        <th style="width:36px">#</th><th>Tienda</th>
+        <th class="r sortable sort-active" data-col="vc"      onclick="sortUpd('vc')">V+C 4WKS <em class="sort-arrow" id="updArr-vc">▼</em></th>
+        <th class="r sortable"            data-col="sales"   onclick="sortUpd('sales')">Ventas <em class="sort-arrow" id="updArr-sales"></em></th>
+        <th class="r sortable"            data-col="buys"    onclick="sortUpd('buys')">Compras <em class="sort-arrow" id="updArr-buys"></em></th>
+        <th class="r sortable"            data-col="members" onclick="sortUpd('members')">Socios <em class="sort-arrow" id="updArr-members"></em></th>
+        <th class="r sortable"            data-col="refunds" onclick="sortUpd('refunds')">Devol. <em class="sort-arrow" id="updArr-refunds"></em></th>
+        <th class="r" id="updDistHeader">Distancia</th>
+      </tr></thead>
+      <tbody id="updRankingBody"><tr><td colspan="8"><span class="empty-state">Carga el registro diario para calcular el 4WKS</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ DIARIO DE TIENDA ══ -->
+<section class="panel" id="panel-diario">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
+    <div><div class="panel-title">Diario de tienda</div><div class="panel-subtitle">Rendimiento día a día · Rodante 7 días · Hitos</div></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="diario-toolbar">
+    <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Tienda</label>
+    <select id="diarioStore" onchange="renderDiario()"></select>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="diario-summary" id="diarioSummary" style="display:none">
+    <div class="diario-kpi"><span class="diario-kpi-key">Días</span><span class="diario-kpi-val" id="dSum-days">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">V+C total</span><span class="diario-kpi-val" id="dSum-vc">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Mejor ranking</span><span class="diario-kpi-val" id="dSum-best">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Media V+C/día</span><span class="diario-kpi-val" id="dSum-avg">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Mejor día V+C</span><span class="diario-kpi-val" id="dSum-top">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Hitos</span><span class="diario-kpi-val" id="dSum-hitos">—</span></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="diario-table-wrap">
+    <div class="table-card visible" id="diarioTableCard">
+      <table id="diarioTable">
+        <thead><tr>
+          <th>WK</th>
+          <th>Fecha</th>
+          <th>Día</th>
+          <th class="r">Ranking</th>
+          <th class="r">Net Sales</th>
+          <th class="r">Buys</th>
+          <th class="r">Cash Buys</th>
+          <th class="r">Exch. Buys</th>
+          <th class="r">Refunds</th>
+          <th class="r">Members</th>
+          <th class="r">V+C</th>
+          <th class="r">7 últimos</th>
+          <th class="r">Media 7</th>
+          <th>Hitos</th>
+        </tr></thead>
+        <tbody id="diarioBody">
+          <tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el diario de tienda</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══ RANKING SEMANAL ══ -->
+<section class="panel" id="panel-weekly">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg></div>
+    <div><div class="panel-title">Ranking semanal</div><div class="panel-subtitle">Sábado → Viernes · Semana CEX · Ordenable por columna</div></div>
+  </div>
+  <div class="wk-nav">
+    <button class="wk-nav-btn" id="wkPrev" onclick="wkStep(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <select id="wkSelect" onchange="renderWeekly()"></select>
+    <button class="wk-nav-btn" id="wkNext" onclick="wkStep(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <span class="wk-meta" id="wkMeta"></span>
+  </div>
+  <div class="table-card visible">
+    <table>
+      <thead><tr>
+        <th style="width:36px">#</th><th>Tienda</th>
+        <th class="r sortable sort-active" data-col="vc"      onclick="sortWk('vc')">V+C <em class="sort-arrow" id="wkArr-vc">▼</em></th>
+        <th class="r sortable"            data-col="sales"   onclick="sortWk('sales')">Ventas <em class="sort-arrow" id="wkArr-sales"></em></th>
+        <th class="r sortable"            data-col="buys"    onclick="sortWk('buys')">Compras <em class="sort-arrow" id="wkArr-buys"></em></th>
+        <th class="r sortable"            data-col="members" onclick="sortWk('members')">Socios <em class="sort-arrow" id="wkArr-members"></em></th>
+        <th class="r sortable"            data-col="refunds" onclick="sortWk('refunds')">Devol. <em class="sort-arrow" id="wkArr-refunds"></em></th>
+      </tr></thead>
+      <tbody id="wkBody"><tr><td colspan="7"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el ranking semanal</span></td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ SIMULADOR ══ -->
+<section class="panel" id="panel-simulator">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+    <div><div class="panel-title">Simulador rápido del 4WKS</div><div class="panel-subtitle">Proyección en tiempo real · Base 4WKS + facturación de hoy</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card pad">
+      <div class="card-header"><span class="card-label">4WKS base</span><span class="badge" id="badge4w">Sin cargar</span></div>
+      <div class="drop-zone" id="dropZone" ondragover="dzDrag(event,true)" ondragleave="dzDrag(event,false)" ondrop="dzDrop(event)">
+        <input type="file" accept=".csv" onchange="onFileChange(event)">
+        <div class="dz-icon" id="dzIcon">📂</div>
+        <div class="dz-text" id="dzText">Arrastra el CSV o <em>selecciona el archivo</em></div>
+      </div>
+      <div class="card-footer"><span class="status-text" id="status4w">Carga el archivo 4WKS exportado</span><button class="btn-reset" onclick="reset4w()">✕ Reset</button></div>
+    </div>
+    <div class="card pad">
+      <div class="card-header"><span class="card-label">Facturación de hoy</span><span class="badge" id="badgeToday">Sin datos</span></div>
+      <textarea id="todayInput" style="height:120px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
+      <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
+    </div>
+  </div>
+  <div class="selector-card"><label>Tienda</label><select id="targetStore" onchange="recalc()" disabled><option value="">— carga el 4WKS primero —</option></select></div>
+  <div class="banner" id="banner">
+    <div class="banner-left">
+      <div class="banner-eyebrow" id="bLabel">Posición proyectada</div>
+      <div class="banner-pos" id="bPos">—</div>
+      <div class="banner-vc" id="bVc"></div>
+      <div class="banner-today" id="bToday"></div>
+    </div>
+    <div class="banner-right">
+      <div class="banner-change-label">Cambio</div>
+      <div class="banner-change-val" id="bChange">—</div>
+      <div class="banner-from" id="bFrom"></div>
+    </div>
+  </div>
+  <div class="table-card" id="tableCard">
+    <table><thead><tr><th style="width:36px">#</th><th style="width:44px">±</th><th>Tienda</th><th class="r">V+C proy.</th><th class="r">Hoy</th><th class="r" id="distHeader">Distancia</th></tr></thead>
+    <tbody id="rankingBody"><tr><td colspan="6"><span class="empty-state">Carga el 4WKS base para empezar</span></td></tr></tbody></table>
+  </div>
+</section>
+
+<!-- ══ CONFIGURACIÓN ══ -->
+<section class="panel" id="panel-settings">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+    <div><div class="panel-title">Configuración</div><div class="panel-subtitle">Preferencias del sistema · Se guardan en el backup</div></div>
+  </div>
+  <p class="settings-desc">Define el inicio del año fiscal CEX. Las semanas van de sábado a viernes y se numeran WK01…WK52. Tras la WK52 siempre empieza WK01 del año siguiente.</p>
+  <div class="settings-field">
+    <label>Inicio de año CEX</label>
+    <input type="date" id="settingsCexStart" onchange="onCexStartChange()">
+    <div class="settings-note" id="settingsCexNote"></div>
+  </div>
+</section>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+// dailyData[date][store] = {vc,sales,buys,cashBuys,exchBuys,members,refunds,ranking,day}
+let dailyData={}, dailyCSVRaw='', dailyCSVName='', manualLog=[];
+// hitoData[date] = string  (store-agnostic — could extend to per-store if needed)
+let hitoData={};
+
+let BASE=[], todayMap={}, base4wRaw='', base4wName='';
+let cexYearStart='2025-12-29';
+let updMode='consolidated', updCustomEnd=null;
+let updSortCol='vc', updSortDir=-1;
+let wkSortCol='vc',  wkSortDir=-1;
+let diarioStoreSel='Madrid Islazul';
+
+// ══════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════
+const pN  = s => parseInt(String(s??'').replace(/[€\s]/g,'').replace(/,/g,''),10)||0;
+const fmt = n => n.toLocaleString('es-ES')+' €';
+const fmtN= n => n.toLocaleString('es-ES');
+
+function parseCSVLine(line){
+  const cols=[]; let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){cols.push(cur);cur='';continue;}cur+=c;}
+  cols.push(cur); return cols;
+}
+const ddmmyyyy=s=>{const p=s.trim().split('/');if(p.length!==3)return null;return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;};
+const fmtDate =iso=>{const p=iso.split('-');return `${p[2]}/${p[1]}`;};
+
+function weekStart(dateStr){
+  const d=new Date(dateStr+'T12:00:00Z'),dow=d.getUTCDay(),dfs=dow===6?0:dow+1;
+  const sat=new Date(d);sat.setUTCDate(sat.getUTCDate()-dfs);return sat.toISOString().slice(0,10);
+}
+function weekEnd(satStr){
+  const d=new Date(satStr+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+6);return d.toISOString().slice(0,10);
+}
+function cexWeekNum(satStr){
+  const wk1=weekStart(cexYearStart);
+  const d1=new Date(wk1+'T12:00:00Z'),d2=new Date(satStr+'T12:00:00Z');
+  const dw=Math.round((d2-d1)/(7*864e5));
+  return ((dw%52)+52)%52+1;
+}
+function weekLabel(satStr){
+  const n=cexWeekNum(satStr),we=weekEnd(satStr);
+  return `WK${String(n).padStart(2,'0')} · Sáb ${fmtDate(satStr)} → Vie ${fmtDate(we)}`;
+}
+function weekTag(satStr){return `WK${String(cexWeekNum(satStr)).padStart(2,'0')}`;}
+
+const DAY_ES={Saturday:'Sábado',Sunday:'Domingo',Monday:'Lunes',Tuesday:'Martes',Wednesday:'Miércoles',Thursday:'Jueves',Friday:'Viernes'};
+
+// ══════════════════════════════════════════════════════
+//  4WKS SELECTION
+// ══════════════════════════════════════════════════════
+function getWeeks(){const ws=new Set();for(const d of Object.keys(dailyData))ws.add(weekStart(d));return Array.from(ws).sort();}
+
+function getSelected4Weeks(){
+  const allWeeks=getWeeks(); if(!allWeeks.length)return[];
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(updMode==='consolidated'){const done=allWeeks.filter(ws=>weekEnd(ws)<todayStr);return done.slice(-4);}
+  if(updMode==='current'){return allWeeks.slice(-4);}
+  const end=updCustomEnd||allWeeks[allWeeks.length-1];
+  const idx=allWeeks.indexOf(end);
+  if(idx<0)return allWeeks.slice(-4);
+  return allWeeks.slice(Math.max(0,idx-3),idx+1);
+}
+
+function compute4WKS(){
+  const last4=getSelected4Weeks();
+  const agg={};
+  for(const [d,stores] of Object.entries(dailyData)){
+    if(!last4.includes(weekStart(d)))continue;
+    for(const [store,s] of Object.entries(stores)){
+      if(!agg[store])agg[store]={vc:0,sales:0,buys:0,members:0,refunds:0};
+      agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].members+=s.members;agg[store].refunds+=s.refunds;
+    }
+  }
+  const ranking=Object.entries(agg).map(([store,s])=>({store,...s})).sort((a,b)=>b.vc-a.vc).map((s,i)=>({...s,r:i+1}));
+  return{ranking,last4};
+}
+
+// ══════════════════════════════════════════════════════
+//  MODE UI
+// ══════════════════════════════════════════════════════
+function setUpdMode(mode){
+  updMode=mode;
+  ['consolidated','current','custom'].forEach(m=>{
+    document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active',m===mode);
+  });
+  document.getElementById('updCustomEndSel').style.display=mode==='custom'?'block':'none';
+  renderUpdater();
+}
+function onCustomEndChange(){updCustomEnd=document.getElementById('updCustomEndSel').value||null;renderUpdater();}
+function rebuildCustomSel(){
+  const sel=document.getElementById('updCustomEndSel'),prev=sel.value||updCustomEnd;
+  const weeks=getWeeks();sel.innerHTML='';
+  [...weeks].reverse().forEach(ws=>{const o=document.createElement('option');o.value=ws;o.textContent=weekLabel(ws);if(ws===prev)o.selected=true;sel.appendChild(o);});
+  if(!updCustomEnd&&weeks.length)updCustomEnd=weeks[weeks.length-1];
+}
+
+// ══════════════════════════════════════════════════════
+//  NAV / THEME / TOAST
+// ══════════════════════════════════════════════════════
+function navigate(el){
+  const target=el.dataset.panel;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const nb=document.querySelector(`.nav-item[data-panel="${target}"]`);
+  const pb=document.getElementById(`panel-${target}`);
+  if(nb)nb.classList.add('active');if(pb)pb.classList.add('active');
+  if(target==='weekly')renderWeekly();
+  if(target==='diario')renderDiario();
+  if(target==='settings')renderSettingsNote();
+}
+function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';}
+function toast(msg,type=''){
+  const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${type} show`;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ══════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════
+function onCexStartChange(){const v=document.getElementById('settingsCexStart').value;if(v){cexYearStart=v;renderSettingsNote();rebuildWeekSelect();renderWeekly();renderUpdater();}}
+function renderSettingsNote(){
+  const el=document.getElementById('settingsCexNote');
+  const wk1=weekStart(cexYearStart),n=cexWeekNum(weekStart(new Date().toISOString().slice(0,10)));
+  el.innerHTML=`WK01 empieza el <strong>Sáb ${fmtDate(wk1)}</strong>. Semana actual: <strong>WK${String(n).padStart(2,'0')}</strong>.`;
+  document.getElementById('settingsCexStart').value=cexYearStart;
+}
+
+// ══════════════════════════════════════════════════════
+//  PARSERS
+// ══════════════════════════════════════════════════════
+// CSV: WK,FECHA,DÍA,RANKING,TIENDA,COMPAÑÍA,NET SALES,BUYS,CASH BUYS,EXCH.BUYS,REFUNDS,MEMBERS,V+C
+function parseRegistroCSV(text){
+  const data={};let rows=0;const days=new Set(),stores=new Set();
+  for(const line of text.trim().split('\n')){
+    if(!line.trim()||line.startsWith('WK')||line.startsWith(','))continue;
+    const cols=parseCSVLine(line);if(cols.length<13)continue;
+    const fecha=(cols[1]||'').trim(),store=(cols[4]||'').trim();
+    const ranking=parseInt(cols[3],10)||0;
+    const day=(cols[2]||'').trim();
+    const sales=pN(cols[6]),buys=pN(cols[7]),cashBuys=pN(cols[8]),exchBuys=pN(cols[9]);
+    const refunds=pN(cols[10]),members=pN(cols[11]),vc=pN(cols[12]);
+    if(!fecha||!store||vc===0)continue;
+    const iso=ddmmyyyy(fecha);if(!iso)continue;
+    if(!data[iso])data[iso]={};
+    data[iso][store]={vc,sales,buys,cashBuys,exchBuys,members,refunds,ranking,day};
+    stores.add(store);days.add(iso);rows++;
+  }
+  return{data,rows,days:days.size,stores:stores.size};
+}
+
+// Daily paste: rank, store, company, netSales, buys, cashBuys, exchBuys, refunds, members
+function parseDayPaste(text){
+  const map={};let count=0;
+  for(const line of text.trim().split('\n')){
+    if(!line.trim())continue;const cols=line.split('\t');if(cols.length<5)continue;
+    const store=(cols[1]||'').trim();if(!store)continue;
+    const ranking=parseInt(cols[0],10)||0;
+    const sales=pN(cols[3]),buys=pN(cols[4]);
+    const cashBuys=pN(cols[5]??0),exchBuys=pN(cols[6]??0);
+    const refunds=pN(cols[7]??0),members=pN(cols[8]??0);
+    map[store]={vc:sales+buys,sales,buys,cashBuys,exchBuys,members,refunds,ranking,day:''};count++;
+  }
+  return{map,count};
+}
+
+// ══════════════════════════════════════════════════════
+//  DIARIO DE TIENDA
+// ══════════════════════════════════════════════════════
+function rebuildDiarioStore(){
+  const sel=document.getElementById('diarioStore');
+  const prev=sel.value||diarioStoreSel;
+  const stores=new Set();
+  for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
+  const sorted=[...stores].sort();
+  sel.innerHTML='';
+  if(!sorted.length){sel.innerHTML='<option value="">— sin datos —</option>';return;}
+  sorted.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===prev)o.selected=true;sel.appendChild(o);});
+  diarioStoreSel=sel.value;
+}
+
+function renderDiario(){
+  diarioStoreSel=document.getElementById('diarioStore').value;
+  const store=diarioStoreSel;
+  const tbody=document.getElementById('diarioBody');
+
+  if(!store||!Object.keys(dailyData).length){
+    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el diario de tienda</span></td></tr>';
+    document.getElementById('diarioSummary').style.display='none';
+    return;
+  }
+
+  // Collect all days for this store, sorted chronologically
+  const days=Object.entries(dailyData)
+    .filter(([,stores])=>stores[store])
+    .map(([date,stores])=>({date,...stores[store]}))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+
+  if(!days.length){
+    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">No hay datos para esta tienda</span></td></tr>';
+    document.getElementById('diarioSummary').style.display='none';
+    return;
+  }
+
+  // Summary stats
+  const totalVC=days.reduce((s,d)=>s+d.vc,0);
+  const bestRank=Math.min(...days.filter(d=>d.ranking>0).map(d=>d.ranking));
+  const avgVC=Math.round(totalVC/days.length);
+  const topDay=days.reduce((a,b)=>b.vc>a.vc?b:a);
+  const hitoCount=days.filter(d=>hitoData[d.date]).length;
+  document.getElementById('diarioSummary').style.display='flex';
+  document.getElementById('dSum-days').textContent=days.length;
+  document.getElementById('dSum-vc').textContent=fmt(totalVC);
+  document.getElementById('dSum-best').textContent=`#${bestRank}`;
+  document.getElementById('dSum-avg').textContent=fmt(avgVC);
+  document.getElementById('dSum-top').textContent=`${fmtDate(topDay.date)} · ${fmt(topDay.vc)}`;
+  document.getElementById('dSum-hitos').textContent=hitoCount;
+
+  tbody.innerHTML='';
+  days.forEach((d,i)=>{
+    const ws=weekStart(d.date), wn=weekTag(ws);
+
+    // Rolling 7 days V+C (last 7 days including today)
+    const slice=days.slice(Math.max(0,i-6),i+1);
+    const roll7=slice.reduce((s,x)=>s+x.vc,0);
+    const avg7=Math.round(roll7/slice.length);
+    const isFull7=slice.length===7;
+
+    // Day class
+    const dayLow=(d.day||'').toLowerCase();
+    let rowClass='';
+    if(dayLow==='saturday')rowClass='day-sat';
+    else if(dayLow==='sunday')rowClass='day-sun';
+
+    // Rank badge
+    let rankClass='other';
+    if(d.ranking===1)rankClass='top1';
+    else if(d.ranking<=3)rankClass='top3';
+    else if(d.ranking<=10)rankClass='top10';
+    const rankCell=d.ranking>0?`<span class="rank-badge ${rankClass}">${d.ranking}</span>`:'—';
+
+    const tr=document.createElement('tr');
+    if(rowClass)tr.className=rowClass;
+    tr.innerHTML=`
+      <td><span class="wk-label">${wn}</span></td>
+      <td><span class="stat-val">${fmtDate(d.date)}</span></td>
+      <td><span class="stat-val">${DAY_ES[d.day]||d.day||'—'}</span></td>
+      <td class="r">${rankCell}</td>
+      <td class="r"><span class="stat-val">${fmt(d.sales)}</span></td>
+      <td class="r"><span class="stat-val">${fmt(d.buys)}</span></td>
+      <td class="r"><span class="stat-val">${d.cashBuys?fmt(d.cashBuys):'—'}</span></td>
+      <td class="r"><span class="stat-val">${d.exchBuys?fmt(d.exchBuys):'—'}</span></td>
+      <td class="r"><span class="stat-val">${fmt(d.refunds)}</span></td>
+      <td class="r"><span class="stat-val">${fmtN(d.members)}</span></td>
+      <td class="r"><span class="stat-val vc">${fmt(d.vc)}</span></td>
+      <td class="r"><span class="rolling-val${isFull7?' highlight':''}">${fmt(roll7)}</span></td>
+      <td class="r"><span class="rolling-val${isFull7?' highlight':''}">${fmt(avg7)}</span></td>
+      <td class="hito-cell"><input class="hito-input" type="text" placeholder="Anotar hito…" value="${(hitoData[d.date]||'').replace(/"/g,'&quot;')}" data-date="${d.date}" onchange="saveHito(this)" onblur="saveHito(this)"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function saveHito(input){
+  const date=input.dataset.date, val=input.value.trim();
+  if(val) hitoData[date]=val; else delete hitoData[date];
+  // Refresh hito count in summary without full re-render
+  const store=diarioStoreSel;
+  const days=Object.keys(dailyData).filter(d=>dailyData[d][store]);
+  document.getElementById('dSum-hitos').textContent=days.filter(d=>hitoData[d]).length;
+}
+
+// ══════════════════════════════════════════════════════
+//  UPDATER
+// ══════════════════════════════════════════════════════
+function renderUpdater(){
+  const dates=Object.keys(dailyData).sort();
+  const wksCard=document.getElementById('wksCard');
+  if(!dates.length){
+    wksCard.classList.remove('visible');
+    document.getElementById('updSelectorCard').style.display='none';
+    document.getElementById('updRankingBody').innerHTML='<tr><td colspan="8"><span class="empty-state">Carga el registro diario para calcular el 4WKS</span></td></tr>';
+    updateHomeKPI();rebuildWeekSelect();return;
+  }
+  wksCard.classList.add('visible');
+  const allWeeks=getWeeks();
+  document.getElementById('wksDays').textContent=dates.length;
+  document.getElementById('wksRange').textContent=`${fmtDate(dates[0])} → ${fmtDate(dates[dates.length-1])}`;
+  document.getElementById('wksWeeks').textContent=allWeeks.length;
+  rebuildCustomSel();
+  const{ranking,last4}=compute4WKS();
+  if(last4.length){
+    const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);
+    document.getElementById('wksResultTag').textContent=last4.length===1?a:`${b} – ${a}`;
+  }
+  const sel=document.getElementById('updTargetStore'),prev=sel.value;sel.innerHTML='';
+  ranking.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
+  document.getElementById('updSelectorCard').style.display='flex';
+  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();
+}
+
+function applySortHeaders(prefix,col,dir,cols){
+  cols.forEach(c=>{
+    const th=document.querySelector(`[data-col="${c}"]`);
+    const arr=document.getElementById(`${prefix}Arr-${c}`);
+    if(!th||!arr)return;
+    if(c===col){th.classList.add('sort-active');arr.style.opacity='1';arr.textContent=dir===-1?'▼':'▲';}
+    else{th.classList.remove('sort-active');arr.style.opacity='0';}
+  });
+}
+
+function sortUpd(col){if(updSortCol===col)updSortDir*=-1;else{updSortCol=col;updSortDir=-1;}renderUpdTable();}
+
+function renderUpdTable(){
+  const{ranking}=compute4WKS();
+  const targetName=document.getElementById('updTargetStore').value;
+  const sorted=[...ranking].sort((a,b)=>(b[updSortCol]-a[updSortCol])*updSortDir);
+  applySortHeaders('upd',updSortCol,updSortDir,['vc','sales','buys','members','refunds']);
+  const targetRow=sorted.find(s=>s.store===targetName);
+  const targetVC=targetRow?targetRow.vc:0;
+  const maxDist=Math.max(...sorted.map(s=>Math.abs(s.vc-targetVC)))||1;
+  document.getElementById('updDistHeader').textContent=`Dist. ${targetName.split(' ').slice(-1)[0]}`;
+  const tbody=document.getElementById('updRankingBody');tbody.innerHTML='';
+  sorted.forEach((s,i)=>{
+    const isTgt=s.store===targetName;
+    const diff=targetVC-s.vc,pct=Math.min(100,Math.round(Math.abs(diff)/maxDist*100));
+    let dist;
+    if(isTgt){dist=`<span class="dist-val self">— tú —</span>`;}
+    else{const cls=diff<0?'above':'below',sign=diff<0?`−${fmt(Math.abs(diff))}`:`+${fmt(diff)}`;dist=`<div class="dist-wrap"><div class="dist-bar-track"><div class="dist-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="dist-val ${cls}">${sign}</span></div>`;}
+    const tr=document.createElement('tr');if(isTgt)tr.className='target';
+    tr.innerHTML=`<td><span class="rank-num">${i+1}</span></td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td><td style="min-width:150px">${dist}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateHomeKPI(){
+  const dates=Object.keys(dailyData).sort();
+  document.getElementById('homeKpiDays').textContent=dates.length||'—';
+  document.getElementById('homeKpiRange').textContent=dates.length?`${fmtDate(dates[0])} → ${fmtDate(dates[dates.length-1])}`:'sin datos';
+}
+
+// ── File handling ──
+function updDzDrag(e,on){e.preventDefault();document.getElementById('updDropZone').classList.toggle('drag-over',on);}
+function updDzDrop(e){e.preventDefault();updDzDrag(e,false);const f=e.dataTransfer.files[0];if(f)updReadCSV(f);}
+function updFileChange(e){const f=e.target.files[0];if(f)updReadCSV(f);}
+function updReadCSV(file){const r=new FileReader();r.onload=e=>{dailyCSVRaw=e.target.result;dailyCSVName=file.name;applyRegistroCSV(dailyCSVRaw,dailyCSVName);};r.readAsText(file,'UTF-8');}
+
+function applyRegistroCSV(text,fname){
+  const{data,rows,days,stores}=parseRegistroCSV(text);
+  if(!rows){toast('⚠ No se han podido leer registros del CSV','err');return;}
+  dailyData=data;dailyCSVRaw=text;dailyCSVName=fname||'';
+  for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
+  document.getElementById('updStatusCSV').textContent=`✓ ${days} días · ${stores} tiendas`;
+  document.getElementById('updStatusCSV').className='status-text ok';
+  document.getElementById('updBadgeCSV').textContent=(fname||'CSV').replace('.csv','');
+  document.getElementById('updBadgeCSV').className='badge loaded';
+  document.getElementById('updDzIcon').textContent='✅';
+  document.getElementById('updDzText').textContent=fname||'Archivo cargado';
+  document.getElementById('updDropZone').classList.add('has-file');
+  renderUpdater();renderLog();
+}
+function resetUpdCSV(){
+  dailyData={};dailyCSVRaw='';dailyCSVName='';manualLog=[];hitoData={};
+  document.getElementById('updStatusCSV').textContent='Carga el registro diario exportado';
+  document.getElementById('updStatusCSV').className='status-text';
+  document.getElementById('updBadgeCSV').textContent='Sin cargar';document.getElementById('updBadgeCSV').className='badge';
+  document.getElementById('updDzIcon').textContent='📂';document.getElementById('updDzText').innerHTML='Arrastra el CSV o <em>selecciona el archivo</em>';
+  document.getElementById('updDropZone').classList.remove('has-file','drag-over');
+  document.getElementById('updDropZone').querySelector('input[type=file]').value='';
+  renderUpdater();renderLog();
+}
+function incorporateDay(){
+  const dateVal=document.getElementById('updDayDate').value;
+  const text=document.getElementById('updDayInput').value.trim();
+  if(!dateVal){toast('⚠ Elige una fecha','err');return;}
+  if(!text){toast('⚠ Pega los datos del día','err');return;}
+  const{map,count}=parseDayPaste(text);
+  if(!count){toast('⚠ No se han detectado filas válidas','err');return;}
+  if(!dailyData[dateVal])dailyData[dateVal]={};
+  Object.assign(dailyData[dateVal],map);
+  const idx=manualLog.findIndex(e=>e.date===dateVal);
+  const entry={date:dateVal,count,rawText:text};
+  if(idx>=0)manualLog[idx]=entry;else manualLog.unshift(entry);
+  document.getElementById('updBadgeDay').textContent=`${manualLog.length} días`;
+  document.getElementById('updBadgeDay').className='badge loaded';
+  document.getElementById('updDayInput').value='';
+  renderUpdater();renderLog();
+  toast(`✓ ${fmtDate(dateVal)} incorporado (${count} tiendas)`,'ok');
+}
+function renderLog(){
+  const c=document.getElementById('updLog');
+  if(!manualLog.length){c.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div>';return;}
+  c.innerHTML=manualLog.slice(0,8).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
+}
+function sendToSimulator(){
+  const{ranking}=compute4WKS();
+  if(!ranking.length){toast('⚠ Sin datos que enviar','err');return;}
+  BASE=ranking.map((s,i)=>({r:i+1,store:s.store,vc:s.vc}));
+  const sel=document.getElementById('targetStore'),prev=sel.value;sel.innerHTML='';
+  BASE.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
+  sel.disabled=false;base4wRaw='';base4wName='[desde Actualización]';
+  document.getElementById('badge4w').textContent='desde Actualización';document.getElementById('badge4w').className='badge loaded';
+  document.getElementById('dzIcon').textContent='📊';document.getElementById('dzText').textContent='4WKS calculado desde Registro Diario';
+  document.getElementById('dropZone').classList.add('has-file');
+  document.getElementById('status4w').textContent=`✓ ${BASE.length} tiendas`;document.getElementById('status4w').className='status-text ok';
+  recalc();navigate(document.querySelector('[data-panel=simulator]'));toast('✓ 4WKS enviado al Simulador','ok');
+}
+
+// ══════════════════════════════════════════════════════
+//  WEEKLY
+// ══════════════════════════════════════════════════════
+function rebuildWeekSelect(){
+  const sel=document.getElementById('wkSelect'),prev=sel.value;
+  const weeks=getWeeks();sel.innerHTML='';
+  if(!weeks.length){sel.innerHTML='<option value="">— sin datos —</option>';document.getElementById('wkBody').innerHTML='<tr><td colspan="7"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el ranking semanal</span></td></tr>';return;}
+  [...weeks].reverse().forEach(ws=>{const o=document.createElement('option');o.value=ws;o.textContent=weekLabel(ws);if(ws===prev)o.selected=true;sel.appendChild(o);});
+  if(!prev||!weeks.includes(prev))sel.value=[...weeks].reverse()[0];
+  updateWkNav();
+}
+function wkStep(delta){
+  const sel=document.getElementById('wkSelect'),opts=Array.from(sel.options);
+  const idx=opts.findIndex(o=>o.value===sel.value),next=idx+delta;
+  if(next>=0&&next<opts.length){sel.value=opts[next].value;renderWeekly();}
+}
+function updateWkNav(){
+  const sel=document.getElementById('wkSelect'),opts=Array.from(sel.options);
+  const idx=opts.findIndex(o=>o.value===sel.value);
+  document.getElementById('wkPrev').disabled=idx>=opts.length-1;
+  document.getElementById('wkNext').disabled=idx<=0;
+}
+function sortWk(col){if(wkSortCol===col)wkSortDir*=-1;else{wkSortCol=col;wkSortDir=-1;}renderWeekly();}
+function renderWeekly(){
+  const sel=document.getElementById('wkSelect'),ws=sel.value;
+  updateWkNav();
+  applySortHeaders('wk',wkSortCol,wkSortDir,['vc','sales','buys','members','refunds']);
+  if(!ws)return;
+  const agg={};
+  for(const [d,stores] of Object.entries(dailyData)){
+    if(weekStart(d)!==ws)continue;
+    for(const [store,s] of Object.entries(stores)){
+      if(!agg[store])agg[store]={vc:0,sales:0,buys:0,members:0,refunds:0};
+      agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].members+=s.members;agg[store].refunds+=s.refunds;
+    }
+  }
+  const rows=Object.entries(agg).map(([store,s])=>({store,...s}));
+  rows.sort((a,b)=>(b[wkSortCol]-a[wkSortCol])*wkSortDir);
+  const daysInWeek=Object.keys(dailyData).filter(d=>weekStart(d)===ws).length;
+  document.getElementById('wkMeta').textContent=`${rows.length} tiendas · ${daysInWeek}/7 días`;
+  const tbody=document.getElementById('wkBody');tbody.innerHTML='';
+  rows.forEach((s,i)=>{
+    const isTgt=s.store==='Madrid Islazul';
+    const tr=document.createElement('tr');if(isTgt)tr.className='target';
+    tr.innerHTML=`<td><span class="rank-num">${i+1}</span></td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SIMULATOR
+// ══════════════════════════════════════════════════════
+function parse4wCSV(text){
+  const result=[];
+  for(const line of text.trim().split('\n')){
+    if(!line.trim()||line.startsWith('RANKING')||line.startsWith('70,'))continue;
+    const cols=parseCSVLine(line);if(cols.length<3)continue;
+    const r=parseInt(cols[0],10),store=(cols[1]||'').trim(),vc=pN(cols[2]);
+    if(!store||isNaN(r)||vc===0)continue;result.push({r,store,vc});
+  }
+  return result;
+}
+function parseToday(text){
+  const map={};let count=0;
+  for(const line of text.trim().split('\n')){
+    if(!line.trim())continue;const cols=line.split('\t');if(cols.length<5)continue;
+    const store=(cols[1]||'').trim();if(!store)continue;
+    map[store]={vc:pN(cols[3])+pN(cols[4])};count++;
+  }
+  return{map,count};
+}
+function calculate(){
+  const list=BASE.map(s=>({...s}));
+  for(const s of list){const t=todayMap[s.store];s.todayVC=t?t.vc:0;s.projVC=s.vc+s.todayVC;s.hasToday=!!t;}
+  list.sort((a,b)=>b.projVC-a.projVC);list.forEach((s,i)=>s.newR=i+1);return list;
+}
+function renderBanner(td,name){
+  const banner=document.getElementById('banner');
+  if(!td){banner.classList.remove('visible');return;}
+  banner.classList.add('visible');
+  const delta=(td.r??td.newR)-td.newR;let ch,cc;
+  if(delta>0){ch=`↑${delta}`;cc='up';}else if(delta<0){ch=`↓${Math.abs(delta)}`;cc='down';}else{ch='=';cc='same';}
+  document.getElementById('bLabel').textContent=`Posición proyectada · ${name}`;
+  document.getElementById('bPos').textContent=`#${td.newR}`;
+  document.getElementById('bVc').textContent=`V+C proyectado: ${fmt(td.projVC)}`;
+  document.getElementById('bToday').textContent=td.hasToday?`Aportación de hoy: +${fmt(td.todayVC)}`:'🔴 festivo — sin ventas hoy';
+  const bch=document.getElementById('bChange');bch.textContent=ch;bch.className=`banner-change-val ${cc}`;
+  document.getElementById('bFrom').textContent=td.r?`antes #${td.r}`:'tienda nueva';
+}
+function renderSimTable(list,targetName,targetVC){
+  const tbody=document.getElementById('rankingBody');tbody.innerHTML='';
+  const maxDist=Math.max(...list.map(s=>Math.abs(s.projVC-targetVC)))||1;
+  document.getElementById('distHeader').textContent=`Dist. ${targetName.split(' ').slice(-1)[0]}`;
+  for(const s of list){
+    const isTgt=s.store===targetName;
+    const delta=(s.r??s.newR)-s.newR;let ct,cc;
+    if(delta>0){ct=`↑${delta}`;cc='up';}else if(delta<0){ct=`↓${Math.abs(delta)}`;cc='down';}else{ct='—';cc='same';}
+    const tc=s.hasToday?`<span class="pill">+${fmt(s.todayVC)}</span>`:`<span class="pill pill-zero">🔴 festivo</span>`;
+    let dist;
+    if(isTgt){dist=`<span class="dist-val self">— tú —</span>`;}
+    else{const diff=targetVC-s.projVC,pct=Math.min(100,Math.round(Math.abs(diff)/maxDist*100));const cls=diff<0?'above':'below',sign=diff<0?`−${fmt(Math.abs(diff))}`:`+${fmt(diff)}`;dist=`<div class="dist-wrap"><div class="dist-bar-track"><div class="dist-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="dist-val ${cls}">${sign}</span></div>`;}
+    const tr=document.createElement('tr');if(isTgt)tr.className='target';
+    tr.innerHTML=`<td><span class="rank-num">${s.newR}</span></td><td><span class="chg ${cc}">${ct}</span></td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r">${fmt(s.projVC)}</td><td class="r">${tc}</td><td style="min-width:150px">${dist}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+function recalc(){
+  const sel=document.getElementById('targetStore');
+  if(!BASE.length){document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');return;}
+  const name=sel.value,list=calculate(),td=list.find(s=>s.store===name);
+  renderBanner(td,name);renderSimTable(list,name,td?td.projVC:0);
+  document.getElementById('tableCard').classList.add('visible');
+  setTimeout(()=>{const r=document.querySelector('#tableCard tr.target');if(r)r.scrollIntoView({behavior:'smooth',block:'nearest'});},100);
+}
+function dzDrag(e,on){e.preventDefault();document.getElementById('dropZone').classList.toggle('drag-over',on);}
+function dzDrop(e){e.preventDefault();dzDrag(e,false);const f=e.dataTransfer.files[0];if(f)readCSV(f);}
+function onFileChange(e){const f=e.target.files[0];if(f)readCSV(f);}
+function readCSV(file){const r=new FileReader();r.onload=e=>{base4wRaw=e.target.result;base4wName=file.name;apply4w(base4wRaw,base4wName);};r.readAsText(file,'UTF-8');}
+function apply4w(text,fname,sel2){
+  const parsed=parse4wCSV(text);
+  if(!parsed.length){document.getElementById('status4w').textContent='⚠️ No se han podido leer tiendas.';document.getElementById('status4w').className='status-text warn';return;}
+  BASE=parsed;base4wRaw=text;base4wName=fname||'';
+  document.getElementById('status4w').textContent=`✓ ${parsed.length} tiendas`;document.getElementById('status4w').className='status-text ok';
+  document.getElementById('badge4w').textContent=(fname||'4WKS').replace('.csv','');document.getElementById('badge4w').className='badge loaded';
+  document.getElementById('dzIcon').textContent='✅';document.getElementById('dzText').textContent=fname||'Cargado';
+  document.getElementById('dropZone').classList.add('has-file');
+  const sel=document.getElementById('targetStore'),prev=sel2||sel.value;sel.innerHTML='';
+  BASE.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
+  sel.disabled=false;recalc();
+}
+function reset4w(){
+  BASE=[];base4wRaw='';base4wName='';
+  document.getElementById('status4w').textContent='Carga el archivo 4WKS exportado';document.getElementById('status4w').className='status-text';
+  document.getElementById('badge4w').textContent='Sin cargar';document.getElementById('badge4w').className='badge';
+  document.getElementById('dzIcon').textContent='📂';document.getElementById('dzText').innerHTML='Arrastra el CSV o <em>selecciona el archivo</em>';
+  document.getElementById('dropZone').classList.remove('has-file','drag-over');
+  document.getElementById('dropZone').querySelector('input[type=file]').value='';
+  const sel=document.getElementById('targetStore');sel.innerHTML='<option value="">— carga el 4WKS primero —</option>';sel.disabled=true;
+  document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');
+}
+function onTodayInput(){
+  const text=document.getElementById('todayInput').value;
+  if(!text.trim()){todayMap={};resetTodayUI();recalc();return;}
+  const{map,count}=parseToday(text);todayMap=map;
+  const matched=Object.keys(map).filter(k=>BASE.some(b=>b.store===k)).length;
+  document.getElementById('statusToday').textContent=`✓ ${count} tiendas · ${matched} coinciden`;document.getElementById('statusToday').className='status-text ok';
+  document.getElementById('badgeToday').textContent=`${count} tiendas`;document.getElementById('badgeToday').className='badge loaded';
+  recalc();
+}
+function resetTodayUI(){document.getElementById('statusToday').textContent='Pega el ranking del día (sin cabecera)';document.getElementById('statusToday').className='status-text';document.getElementById('badgeToday').textContent='Sin datos';document.getElementById('badgeToday').className='badge';}
+function resetToday(){document.getElementById('todayInput').value='';todayMap={};resetTodayUI();recalc();}
+
+// ══════════════════════════════════════════════════════
+//  BACKUP
+// ══════════════════════════════════════════════════════
+function saveBackup(){
+  const b={
+    version:5,savedAt:new Date().toISOString(),
+    theme:document.documentElement.dataset.theme,
+    activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
+    cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
+    diarioStoreSel,hitoData,
+    targetStore:document.getElementById('targetStore').value,
+    base4wRaw,base4wName,
+    todayRaw:document.getElementById('todayInput').value,
+    dailyCSVRaw,dailyCSVName,manualLog,
+    updTargetStore:document.getElementById('updTargetStore').value,
+    wkWeek:document.getElementById('wkSelect').value,
+  };
+  const blob=new Blob([JSON.stringify(b,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`4wks_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);
+  toast('✓ Backup guardado','ok');
+}
+function loadBackup(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const b=JSON.parse(e.target.result);if(!b.version)throw new Error();
+      if(b.theme)document.documentElement.dataset.theme=b.theme;
+      if(b.cexYearStart)cexYearStart=b.cexYearStart;
+      if(b.updMode){updMode=b.updMode;setUpdMode(updMode);}
+      if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
+      if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
+      if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
+      if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
+      if(b.hitoData)hitoData=b.hitoData;
+      document.getElementById('settingsCexStart').value=cexYearStart;
+      if(b.dailyCSVRaw){
+        manualLog=b.manualLog||[];
+        applyRegistroCSV(b.dailyCSVRaw,b.dailyCSVName||'backup');
+        for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
+        renderUpdater();renderLog();
+        if(b.updTargetStore){const s=document.getElementById('updTargetStore');if([...s.options].some(o=>o.value===b.updTargetStore)){s.value=b.updTargetStore;renderUpdTable();}}
+        if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
+        const ds=document.getElementById('diarioStore');if(b.diarioStoreSel&&[...ds.options].some(o=>o.value===b.diarioStoreSel))ds.value=b.diarioStoreSel;
+      }
+      if(b.base4wRaw)apply4w(b.base4wRaw,b.base4wName||'backup',b.targetStore);
+      if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;onTodayInput();}
+      if(b.activePanel){const nb=document.querySelector(`.nav-item[data-panel="${b.activePanel}"]`);if(nb)navigate(nb);}
+      toast('✓ Backup restaurado','ok');
+    }catch{toast('⚠ Error al leer el backup','err');}
+    event.target.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+document.getElementById('updDayDate').value=new Date().toISOString().slice(0,10);
+document.getElementById('settingsCexStart').value=cexYearStart;
+renderSettingsNote();
+rebuildWeekSelect();
+rebuildDiarioStore();
+</script>
+</body>
+</html>
