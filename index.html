@@ -95,9 +95,43 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 textarea{width:100%;font-family:var(--mono);font-size:10.5px;line-height:1.6;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;resize:vertical;color:var(--text);background:var(--surface2);transition:border-color .2s,background .25s;caret-color:var(--accent);}
 textarea:focus{outline:none;border-color:var(--accent);}
 textarea::placeholder{color:var(--muted);}
-input[type="date"]{padding:8px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);transition:border-color .2s;width:100%;}
-input[type="date"]:focus{outline:none;border-color:var(--accent);}
-input[type="date"]::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer;}
+.dp-btn{display:inline-flex;align-items:center;gap:10px;padding:7px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:pointer;transition:border-color .15s,background .25s;min-width:150px;justify-content:space-between;}
+.dp-btn:hover,.dp-btn:focus{outline:none;border-color:var(--accent);}
+.dp-btn.empty .dp-val{color:var(--muted);font-weight:500;}
+.dp-val{font-family:var(--mono);font-size:12px;letter-spacing:.3px;}
+.dp-caret{width:14px;height:14px;flex-shrink:0;color:var(--muted);stroke-width:1.8;}
+.dp-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:0 12px 40px var(--shadow);z-index:300;display:none;width:256px;}
+.dp-popup.show{display:block;}
+.dp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
+.dp-title{font-size:12.5px;font-weight:700;font-family:var(--font);flex:1;text-align:center;}
+.dp-nav{width:28px;height:28px;border:none;background:var(--surface2);border-radius:6px;color:var(--muted);cursor:pointer;transition:background .15s,color .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dp-nav:hover{background:var(--accent-dim);color:var(--accent);}
+.dp-nav svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.dp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:10px;font-weight:700;color:var(--muted);text-align:center;letter-spacing:1px;padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:4px;}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.dp-cell{height:30px;border:none;background:transparent;border-radius:5px;font-size:11.5px;font-family:var(--mono);font-weight:500;color:var(--text);cursor:pointer;transition:background .15s,color .15s;padding:0;}
+.dp-cell:hover:not(:disabled):not(.dp-disabled){background:var(--surface2);}
+.dp-cell.dp-other{color:var(--muted);opacity:.4;}
+.dp-cell.dp-today:not(.dp-selected){border:1px solid var(--accent);}
+.dp-cell.dp-selected{background:var(--accent);color:#fff;font-weight:700;}
+.dp-cell.dp-selected:hover{background:var(--accent);}
+.dp-cell.dp-disabled,.dp-cell:disabled{opacity:.2;cursor:not-allowed;}
+
+/* ── SEARCHABLE SELECT ── */
+.ss-wrap{position:relative;display:inline-flex;align-items:center;flex:1;min-width:180px;}
+.ss-input{flex:1;padding:7px 30px 7px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:text;transition:background .25s,border-color .15s;width:100%;}
+.ss-input:focus{outline:none;border-color:var(--accent);}
+.ss-input::placeholder{color:var(--muted);font-weight:500;}
+.ss-caret{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:12px;height:12px;color:var(--muted);pointer-events:none;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.ss-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:7px;box-shadow:0 8px 24px var(--shadow);z-index:50;max-height:280px;overflow-y:auto;display:none;}
+.ss-dropdown.show{display:block;}
+.ss-dropdown::-webkit-scrollbar{width:6px;}
+.ss-dropdown::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.ss-option{padding:8px 12px;font-size:12.5px;font-weight:500;font-family:var(--font);color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;}
+.ss-option:last-child{border-bottom:none;}
+.ss-option:hover,.ss-option.ss-highlight{background:var(--surface2);}
+.ss-option.ss-selected{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+.ss-empty{padding:14px;text-align:center;font-size:12px;color:var(--muted);font-style:italic;}
 select{flex:1;padding:7px 10px;font-size:13px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:pointer;transition:background .25s,border-color .25s;}
 select:focus{outline:none;border-color:var(--accent);}
 select:disabled{color:var(--muted);opacity:.5;}
@@ -221,7 +255,7 @@ tr.target .rank-num{color:var(--accent);font-weight:700;}
 
 /* ── DIARIO ── */
 .diario-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.diario-toolbar select{flex:1;min-width:200px;}
+.diario-toolbar select,.diario-toolbar .ss-wrap{flex:1;min-width:200px;}
 .diario-summary{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:12px;}
 .diario-filter-pills{display:flex;gap:4px;flex-wrap:wrap;}
 .diario-filter-pill{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
@@ -240,6 +274,54 @@ td.hito-cell{max-width:260px;min-width:120px;}
 .rolling-val{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
 .rolling-val.highlight{color:var(--green);font-weight:600;}
 .wk-label{font-family:var(--mono);font-size:11px;color:var(--muted);}
+
+/* ── ANALYSIS ── */
+.analysis-toolbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.analysis-toolbar label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.analysis-toolbar select,.analysis-toolbar .ss-wrap{flex:0 1 200px;min-width:160px;}
+.analysis-toolbar .dp-btn{min-width:146px;padding:6px 10px;}
+.analysis-toolbar .sep{width:1px;height:20px;background:var(--border);flex-shrink:0;}
+.presets-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.presets-bar .presets-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;margin-right:4px;}
+.presets-list{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;}
+.preset-pill{font-size:11px;font-weight:600;padding:4px 6px 4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);display:inline-flex;align-items:center;gap:4px;transition:all .15s;}
+.preset-pill .pp-name{cursor:pointer;padding:1px 2px;}
+.preset-pill:hover{border-color:var(--accent);color:var(--accent);}
+.preset-pill .pp-del{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);font-size:13px;line-height:1;cursor:pointer;transition:background .15s,color .15s;}
+.preset-pill .pp-del:hover{background:var(--red);color:#fff;}
+.preset-pill.empty{font-style:italic;opacity:.6;padding:4px 12px;}
+.preset-pill.empty:hover{border-color:var(--border);color:var(--muted);}
+.preset-save-btn{font-size:11px;padding:5px 12px;border:1px dashed var(--border);border-radius:20px;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.preset-save-btn:hover{border-color:var(--accent);color:var(--accent);border-style:solid;}
+.analysis-summary{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:12px;}
+.analysis-kpi{display:flex;flex-direction:column;gap:1px;}
+.analysis-kpi-key{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.analysis-kpi-val{font-size:13px;font-weight:700;font-family:var(--mono);}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;position:relative;transition:background .25s,border-color .25s;}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.chart-wrap{position:relative;}
+.chart-svg{width:100%;display:block;overflow:visible;}
+#aChartsWrap{display:flex;flex-direction:column;gap:12px;}
+.chart-svg .axis-line{stroke:var(--border);stroke-width:1;}
+.chart-svg .grid-line{stroke:var(--border);stroke-width:1;stroke-dasharray:2 3;opacity:.45;}
+.chart-svg .axis-label{fill:var(--muted);font-size:10px;font-family:var(--mono);}
+.chart-svg .bar-label-day{fill:var(--text);font-size:10px;font-family:var(--mono);font-weight:500;}
+.chart-svg .bar-label-dow{fill:var(--muted);font-size:9px;font-family:var(--mono);font-weight:600;}
+.chart-svg .bar-label-dow.weekend{fill:var(--accent);font-weight:700;}
+.chart-svg .month-label{fill:var(--text);font-size:11.5px;font-family:var(--font);font-weight:700;letter-spacing:.5px;opacity:.9;text-transform:uppercase;}
+.chart-svg .month-divider{stroke:var(--muted);stroke-width:1.5;opacity:.65;}
+.chart-svg .bar-value{fill:var(--text);font-size:9.5px;font-family:var(--mono);font-weight:600;opacity:.8;pointer-events:none;}
+.chart-svg .week-divider{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 2;opacity:.5;}
+.chart-svg .bar{fill:var(--accent);transition:opacity .15s;cursor:pointer;}
+.chart-svg .bar:hover{opacity:.78;}
+.chart-svg .bar.sat{fill:#8a63d2;}
+.chart-svg .bar.sun{fill:var(--blue);}
+.chart-svg .mean-line{stroke:var(--text);stroke-width:1.2;stroke-dasharray:4 3;opacity:.55;}
+.chart-svg .mean-label{fill:var(--text);font-size:10px;font-family:var(--mono);font-weight:600;opacity:.75;}
+.chart-tooltip{position:absolute;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:11px;font-family:var(--mono);pointer-events:none;opacity:0;transition:opacity .1s;white-space:nowrap;box-shadow:0 4px 14px var(--shadow);z-index:5;}
+.chart-tooltip.show{opacity:1;}
+.chart-tooltip .tt-date{font-weight:700;color:var(--accent);margin-bottom:2px;font-size:11.5px;}
+.chart-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:13px;}
 
 /* ── SETTINGS ── */
 .settings-field{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;}
@@ -310,6 +392,11 @@ td.hito-cell{max-width:260px;min-width:120px;}
       <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
     </svg>
   </button>
+  <button class="nav-item tip" data-panel="analysis" data-tip="Análisis por rango" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/>
+    </svg>
+  </button>
   <button class="nav-item tip" data-panel="weekly" data-tip="Ranking semanal" onclick="navigate(this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg>
   </button>
@@ -347,8 +434,8 @@ td.hito-cell{max-width:260px;min-width:120px;}
   </div>
   <div class="kpi-row">
     <div class="kpi-card"><div class="kpi-label">Días registrados</div><div class="kpi-value" id="homeKpiDays">—</div><div class="kpi-sub" id="homeKpiRange">sin datos</div></div>
-    <div class="kpi-card"><div class="kpi-label">Módulos activos</div><div class="kpi-value">04</div><div class="kpi-sub">de 5 planificados</div></div>
-    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.9</div><div class="kpi-sub">early access</div></div>
+    <div class="kpi-card"><div class="kpi-label">Módulos activos</div><div class="kpi-value">05</div><div class="kpi-sub">de 5 completos</div></div>
+    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.10</div><div class="kpi-sub">early access</div></div>
   </div>
   <div class="section-label">Módulos</div>
   <div class="modules-grid">
@@ -359,6 +446,10 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <div class="module-card" onclick="navigate(document.querySelector('[data-panel=diario]'))">
       <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
       <div><div class="module-name">Diario de tienda</div><div class="module-desc">Vista día a día de una tienda con ranking, métricas, rodante 7 días e hitos anotables.</div></div>
+    </div>
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=analysis]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/></svg></div>
+      <div><div class="module-name">Análisis por rango</div><div class="module-desc">Gráfica de barras de cualquier métrica para el rango de fechas que elijas, con presets personalizados.</div></div>
     </div>
     <div class="module-card" onclick="navigate(document.querySelector('[data-panel=weekly]'))">
       <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/></svg></div>
@@ -379,7 +470,7 @@ td.hito-cell{max-width:260px;min-width:120px;}
   </div>
   <div class="card pad" style="margin-bottom:12px">
     <div class="card-header"><span class="card-label">Incorporar día cerrado</span><span class="badge info" id="updBadgeDay">Sin incorporar</span></div>
-    <div class="date-row"><label>Fecha</label><input type="date" id="updDayDate"></div>
+    <div class="date-row"><label>Fecha</label><input type="hidden" id="updDayDate"><button type="button" class="dp-btn" data-target="updDayDate" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
     <textarea id="updDayInput" style="height:96px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;590&#9;1,724&#9;148&#9;6&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..."></textarea>
     <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
     <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
@@ -401,7 +492,7 @@ td.hito-cell{max-width:260px;min-width:120px;}
       <span class="wks-result-tag" id="wksResultTag">—</span>
     </div>
   </div>
-  <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><select id="updTargetStore" onchange="renderUpdTable()"></select></div>
+  <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="updTargetStore" onchange="renderUpdTable()"><input type="text" class="ss-input" data-ss-for="updTargetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
   <div class="table-card visible" id="updTableCard">
     <table>
       <thead><tr>
@@ -428,7 +519,7 @@ td.hito-cell{max-width:260px;min-width:120px;}
   <!-- TOOLBAR -->
   <div class="diario-toolbar">
     <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Tienda</label>
-    <select id="diarioStore" onchange="renderDiario()"></select>
+    <div class="ss-wrap"><input type="hidden" id="diarioStore" onchange="renderDiario()"><input type="text" class="ss-input" data-ss-for="diarioStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div>
     <span style="width:1px;height:20px;background:var(--border);flex-shrink:0;"></span>
     <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Día</label>
     <div class="diario-filter-pills" id="diarioDayFilter">
@@ -481,6 +572,74 @@ td.hito-cell{max-width:260px;min-width:120px;}
   </div>
 </section>
 
+<!-- ══ ANÁLISIS POR RANGO ══ -->
+<section class="panel" id="panel-analysis">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/></svg></div>
+    <div><div class="panel-title">Análisis por rango</div><div class="panel-subtitle">Gráfica de cualquier métrica · Rango de fechas libre · Presets personalizables</div></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="analysis-toolbar">
+    <label>Tienda</label>
+    <div class="ss-wrap"><input type="hidden" id="aStore" onchange="onAnalysisStoreChange()"><input type="text" class="ss-input" data-ss-for="aStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div>
+    <span class="sep"></span>
+    <label>Desde</label>
+    <input type="hidden" id="aStart" onchange="onAnalysisRangeChange()">
+    <button type="button" class="dp-btn" data-target="aStart" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+    <label>Hasta</label>
+    <input type="hidden" id="aEnd" onchange="onAnalysisRangeChange()">
+    <button type="button" class="dp-btn" data-target="aEnd" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+    <span class="sep"></span>
+    <label>Día</label>
+    <div class="diario-filter-pills" id="aDayFilter">
+      <button class="diario-filter-pill active" data-day="" onclick="filterAnalysisDay(this)">Todos</button>
+      <button class="diario-filter-pill" data-day="Saturday" onclick="filterAnalysisDay(this)">Sáb</button>
+      <button class="diario-filter-pill" data-day="Sunday" onclick="filterAnalysisDay(this)">Dom</button>
+      <button class="diario-filter-pill" data-day="Monday" onclick="filterAnalysisDay(this)">Lun</button>
+      <button class="diario-filter-pill" data-day="Tuesday" onclick="filterAnalysisDay(this)">Mar</button>
+      <button class="diario-filter-pill" data-day="Wednesday" onclick="filterAnalysisDay(this)">Mié</button>
+      <button class="diario-filter-pill" data-day="Thursday" onclick="filterAnalysisDay(this)">Jue</button>
+      <button class="diario-filter-pill" data-day="Friday" onclick="filterAnalysisDay(this)">Vie</button>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="analysis-toolbar">
+    <label>Métricas</label>
+    <div class="diario-filter-pills" id="aMetricPills">
+      <button type="button" class="diario-filter-pill" data-metric="vc" onclick="toggleAnalysisMetric(this)">V+C</button>
+      <button type="button" class="diario-filter-pill" data-metric="sales" onclick="toggleAnalysisMetric(this)">Net Sales</button>
+      <button type="button" class="diario-filter-pill" data-metric="buys" onclick="toggleAnalysisMetric(this)">Buys</button>
+      <button type="button" class="diario-filter-pill" data-metric="cashBuys" onclick="toggleAnalysisMetric(this)">Cash Buys</button>
+      <button type="button" class="diario-filter-pill" data-metric="exchBuys" onclick="toggleAnalysisMetric(this)">Exch. Buys</button>
+      <button type="button" class="diario-filter-pill" data-metric="refunds" onclick="toggleAnalysisMetric(this)">Refunds</button>
+      <button type="button" class="diario-filter-pill" data-metric="members" onclick="toggleAnalysisMetric(this)">Members</button>
+      <button type="button" class="diario-filter-pill" data-metric="ranking" onclick="toggleAnalysisMetric(this)">Ranking</button>
+    </div>
+  </div>
+
+  <!-- PRESETS -->
+  <div class="presets-bar">
+    <span class="presets-label">Presets</span>
+    <div class="presets-list" id="aPresetsList"></div>
+    <button class="preset-save-btn" onclick="saveAnalysisPreset()">+ Guardar rango actual</button>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="analysis-summary" id="aSummary" style="display:none">
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Días</span><span class="analysis-kpi-val" id="aSum-days">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Total</span><span class="analysis-kpi-val" id="aSum-total">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Media/día</span><span class="analysis-kpi-val" id="aSum-avg">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Mejor día</span><span class="analysis-kpi-val" id="aSum-best">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Peor día</span><span class="analysis-kpi-val" id="aSum-worst">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key">Desv. típica</span><span class="analysis-kpi-val" id="aSum-std">—</span></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div id="aChartsWrap"></div>
+</section>
+
 <!-- ══ RANKING SEMANAL ══ -->
 <section class="panel" id="panel-weekly">
   <div class="panel-header">
@@ -519,7 +678,7 @@ td.hito-cell{max-width:260px;min-width:120px;}
     <textarea id="todayInput" style="height:100px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
     <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
   </div>
-  <div class="selector-card"><label>Tienda</label><select id="targetStore" onchange="recalc()"><option value="">— sin datos 4WKS —</option></select></div>
+  <div class="selector-card"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="targetStore" onchange="recalc()"><input type="text" class="ss-input" data-ss-for="targetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
   <div class="banner" id="banner">
     <div class="banner-left">
       <div class="banner-eyebrow" id="bLabel">Posición proyectada</div>
@@ -548,7 +707,8 @@ td.hito-cell{max-width:260px;min-width:120px;}
   <p class="settings-desc">Define el inicio del año fiscal CEX. Las semanas van de sábado a viernes y se numeran WK01…WK52. Tras la WK52 siempre empieza WK01 del año siguiente.</p>
   <div class="settings-field">
     <label>Inicio de año CEX</label>
-    <input type="date" id="settingsCexStart" onchange="onCexStartChange()">
+    <input type="hidden" id="settingsCexStart" onchange="onCexStartChange()">
+    <button type="button" class="dp-btn" data-target="settingsCexStart" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
     <div class="settings-note" id="settingsCexNote"></div>
   </div>
 </section>
@@ -564,6 +724,22 @@ td.hito-cell{max-width:260px;min-width:120px;}
       <button class="changelog-close" onclick="toggleChangelog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="changelog-body">
+
+      <div class="cl-version">
+        <span class="cl-tag">v0.10</span><span class="cl-date">17 abr 2026</span>
+        <ul class="cl-list">
+          <li><span class="cl-type new">nuevo</span>Módulo «Análisis por rango» — gráfica de barras de cualquier métrica para cualquier rango de fechas</li>
+          <li><span class="cl-type new">nuevo</span>Presets de rango personalizables (p. ej. «Navidad 2025»), guardar/aplicar/eliminar</li>
+          <li><span class="cl-type new">nuevo</span>Agregado «Todas las tiendas» para comparar totales del rango</li>
+          <li><span class="cl-type new">nuevo</span>KPIs del rango: total, media/día, mejor y peor día, desviación típica</li>
+          <li><span class="cl-type new">nuevo</span>Calendario propio en los selectores de fecha — siempre empieza en lunes y muestra DD/MM/AAAA</li>
+          <li><span class="cl-type new">nuevo</span>Etiquetas por barra con número de día y letra del día de la semana, separadores de mes y semana (lunes)</li>
+          <li><span class="cl-type new">nuevo</span>Selección múltiple de métricas — se apilan varias gráficas con ejes perfectamente alineados</li>
+          <li><span class="cl-type new">nuevo</span>Selectores de tienda con búsqueda por texto · flechas y Enter para navegar, Esc cancela</li>
+          <li><span class="cl-type new">nuevo</span>Valor sobre cada barra en formato compacto de miles (ej. 7.4K)</li>
+          <li><span class="cl-type new">nuevo</span>Número de día y letra del día de la semana ahora visibles en todas las gráficas apiladas, no solo en la inferior</li>
+        </ul>
+      </div>
 
       <div class="cl-version">
         <span class="cl-tag">v0.9</span><span class="cl-date">11 abr 2026</span>
@@ -625,7 +801,7 @@ function parseCSVLine(line){
   cols.push(cur); return cols;
 }
 const ddmmyyyy=s=>{const p=s.trim().split('/');if(p.length!==3)return null;return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;};
-const fmtDate =iso=>{const p=iso.split('-');return `${p[2]}/${p[1]}`;};
+const fmtDate=iso=>{if(!iso||!iso.includes('-'))return '—';const p=iso.split('-');return `${p[2]}/${p[1]}/${p[0]}`;};
 
 function weekStart(dateStr){
   const d=new Date(dateStr+'T12:00:00Z'),dow=d.getUTCDay(),dfs=dow===6?0:dow+1;
@@ -647,6 +823,265 @@ function weekLabel(satStr){
 function weekTag(satStr){return `WK${String(cexWeekNum(satStr)).padStart(2,'0')}`;}
 
 const DAY_ES={Saturday:'Sábado',Sunday:'Domingo',Monday:'Lunes',Tuesday:'Martes',Wednesday:'Miércoles',Thursday:'Jueves',Friday:'Viernes'};
+
+// ══════════════════════════════════════════════════════
+//  DATE PICKER (lunes-primero, DD/MM/AAAA)
+// ══════════════════════════════════════════════════════
+const DP_MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let _dpState=null;
+
+function setDP(id, iso, fire=true){
+  const hidden=document.getElementById(id);if(!hidden)return;
+  hidden.value=iso||'';
+  const btn=document.querySelector(`.dp-btn[data-target="${id}"]`);
+  if(btn){
+    const span=btn.querySelector('.dp-val');
+    if(span)span.textContent=iso?fmtDate(iso):'—';
+    btn.classList.toggle('empty',!iso);
+  }
+  if(fire)hidden.dispatchEvent(new Event('change',{bubbles:true}));
+}
+
+function openDP(btn,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  if(_dpState&&_dpState.targetId===btn.dataset.target){closeDP();return;}
+  const id=btn.dataset.target;
+  const current=document.getElementById(id)?.value||'';
+  const init=current?(()=>{const [y,m,d]=current.split('-').map(Number);return new Date(y,m-1,d);})():new Date();
+  _dpState={targetId:id,btn,viewY:init.getFullYear(),viewM:init.getMonth()};
+  renderDPPopup();
+  positionDPPopup(btn);
+  setTimeout(()=>{
+    document.addEventListener('click',dpOutsideClick,true);
+    document.addEventListener('keydown',dpKeyDown,true);
+  },0);
+}
+
+function ensureDPPopup(){
+  let p=document.getElementById('dpPopup');
+  if(!p){p=document.createElement('div');p.id='dpPopup';p.className='dp-popup';document.body.appendChild(p);}
+  return p;
+}
+
+function renderDPPopup(){
+  const popup=ensureDPPopup();
+  const {viewY,viewM,targetId}=_dpState;
+  const selected=document.getElementById(targetId)?.value||'';
+  const todayISO=new Date().toISOString().slice(0,10);
+  const hidden=document.getElementById(targetId);
+  const minISO=hidden?.min||'';
+  const maxISO=hidden?.max||'';
+  const firstDow=((new Date(Date.UTC(viewY,viewM,1)).getUTCDay())+6)%7;
+  const daysInMonth=new Date(Date.UTC(viewY,viewM+1,0)).getUTCDate();
+  const prevDays=new Date(Date.UTC(viewY,viewM,0)).getUTCDate();
+
+  let cells='';
+  for(let i=firstDow-1;i>=0;i--){
+    const day=prevDays-i;
+    const y=viewM===0?viewY-1:viewY, m=viewM===0?12:viewM;
+    const iso=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    cells+=`<button type="button" class="dp-cell dp-other" data-iso="${iso}">${day}</button>`;
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const iso=`${viewY}-${String(viewM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls='';
+    if(iso===todayISO)cls+=' dp-today';
+    if(iso===selected)cls+=' dp-selected';
+    const disabled=(minISO&&iso<minISO)||(maxISO&&iso>maxISO);
+    if(disabled)cls+=' dp-disabled';
+    cells+=`<button type="button" class="dp-cell${cls}" ${disabled?'disabled':''} data-iso="${iso}">${d}</button>`;
+  }
+  const fill=(7-(firstDow+daysInMonth)%7)%7;
+  for(let i=1;i<=fill;i++){
+    const y=viewM===11?viewY+1:viewY, m=viewM===11?1:viewM+2;
+    const iso=`${y}-${String(m).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    cells+=`<button type="button" class="dp-cell dp-other" data-iso="${iso}">${i}</button>`;
+  }
+
+  popup.innerHTML=`
+    <div class="dp-header">
+      <button type="button" class="dp-nav" data-dpnav="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="dp-title">${DP_MONTHS[viewM]} ${viewY}</span>
+      <button type="button" class="dp-nav" data-dpnav="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div class="dp-dow"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+    <div class="dp-grid">${cells}</div>`;
+  popup.querySelectorAll('[data-dpnav]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();dpNav(+b.dataset.dpnav);}));
+  popup.querySelectorAll('.dp-cell').forEach(c=>{
+    if(c.disabled||c.classList.contains('dp-disabled'))return;
+    c.addEventListener('click',e=>{e.stopPropagation();setDP(_dpState.targetId,c.dataset.iso,true);closeDP();});
+  });
+  popup.classList.add('show');
+}
+
+function positionDPPopup(btn){
+  const popup=document.getElementById('dpPopup');
+  const rect=btn.getBoundingClientRect();
+  popup.style.left=rect.left+'px';
+  popup.style.top=(rect.bottom+6)+'px';
+  setTimeout(()=>{
+    const pr=popup.getBoundingClientRect();
+    if(pr.right>window.innerWidth-8)popup.style.left=Math.max(8,window.innerWidth-pr.width-8)+'px';
+    if(pr.bottom>window.innerHeight-8){const t=rect.top-pr.height-6;popup.style.top=Math.max(8,t)+'px';}
+  },0);
+}
+
+function dpNav(delta){
+  let {viewY,viewM}=_dpState;
+  viewM+=delta;
+  if(viewM<0){viewM=11;viewY--;}else if(viewM>11){viewM=0;viewY++;}
+  _dpState.viewY=viewY;_dpState.viewM=viewM;
+  renderDPPopup();
+}
+
+function closeDP(){
+  const p=document.getElementById('dpPopup');
+  if(p)p.classList.remove('show');
+  document.removeEventListener('click',dpOutsideClick,true);
+  document.removeEventListener('keydown',dpKeyDown,true);
+  _dpState=null;
+}
+
+function dpOutsideClick(e){
+  const p=document.getElementById('dpPopup');if(!p)return;
+  if(p.contains(e.target))return;
+  if(e.target.closest('.dp-btn'))return;
+  closeDP();
+}
+
+function dpKeyDown(e){if(e.key==='Escape'){e.preventDefault();closeDP();}}
+
+document.addEventListener('scroll',()=>{if(_dpState)closeDP();},true);
+window.addEventListener('resize',()=>{if(_dpState)closeDP();});
+
+// ══════════════════════════════════════════════════════
+//  SEARCHABLE SELECT
+// ══════════════════════════════════════════════════════
+const _ssOptions={}; // { hiddenId: [{value, label}] }
+let _ssActive=null;  // { id, input, query, highlightIdx }
+const _ssNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+function ssSetOptions(id, options){
+  _ssOptions[id]=options||[];
+  ssSyncDisplay(id);
+}
+function ssSetValue(id, value, fire=true){
+  const hidden=document.getElementById(id);if(!hidden)return;
+  hidden.value=value||'';
+  ssSyncDisplay(id);
+  if(fire)hidden.dispatchEvent(new Event('change',{bubbles:true}));
+}
+function ssSyncDisplay(id){
+  const hidden=document.getElementById(id);
+  const input=document.querySelector(`input.ss-input[data-ss-for="${id}"]`);
+  if(!hidden||!input)return;
+  const opts=_ssOptions[id]||[];
+  const opt=opts.find(o=>o.value===hidden.value);
+  if(_ssActive&&_ssActive.id===id)return; // don't overwrite while user is typing
+  input.value=opt?opt.label:'';
+}
+
+function ssOpen(input){
+  if(input.readOnly)return;
+  const id=input.dataset.ssFor;
+  if(_ssActive&&_ssActive.id===id){ssRenderDropdown();return;}
+  if(_ssActive)ssClose(true);
+  _ssActive={id, input, query:'', highlightIdx:-1};
+  input.select();
+  ssRenderDropdown();
+  setTimeout(()=>document.addEventListener('click', ssOutsideClick, true),0);
+}
+function ssClose(restoreDisplay=true){
+  if(!_ssActive)return;
+  const id=_ssActive.id;
+  _ssActive=null;
+  document.removeEventListener('click', ssOutsideClick, true);
+  document.querySelectorAll('.ss-dropdown.show').forEach(d=>d.classList.remove('show'));
+  if(restoreDisplay)ssSyncDisplay(id);
+}
+function ssOutsideClick(e){
+  if(!_ssActive)return;
+  const wrap=_ssActive.input.closest('.ss-wrap');
+  if(wrap&&wrap.contains(e.target))return;
+  ssClose(true);
+}
+function ssInput(input){
+  if(!_ssActive||_ssActive.input!==input){ssOpen(input);}
+  _ssActive.query=input.value;
+  _ssActive.highlightIdx=0;
+  ssRenderDropdown();
+}
+function ssKey(input, e){
+  if(!_ssActive||_ssActive.input!==input){
+    if(e.key==='ArrowDown'||e.key==='Enter'){e.preventDefault();ssOpen(input);}
+    return;
+  }
+  const filtered=ssFilter(_ssActive.id, _ssActive.query);
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    _ssActive.highlightIdx=Math.min(filtered.length-1,_ssActive.highlightIdx+1);
+    ssRenderDropdown();ssScrollHighlight();
+  }else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    _ssActive.highlightIdx=Math.max(0,_ssActive.highlightIdx-1);
+    ssRenderDropdown();ssScrollHighlight();
+  }else if(e.key==='Enter'){
+    e.preventDefault();
+    const opt=filtered[_ssActive.highlightIdx>=0?_ssActive.highlightIdx:0];
+    if(opt)ssPick(opt.value);
+  }else if(e.key==='Escape'){
+    e.preventDefault();ssClose(true);
+  }else if(e.key==='Tab'){
+    ssClose(true);
+  }
+}
+function ssPick(value){
+  if(!_ssActive)return;
+  const id=_ssActive.id;
+  _ssActive=null;
+  document.removeEventListener('click', ssOutsideClick, true);
+  document.querySelectorAll('.ss-dropdown.show').forEach(d=>d.classList.remove('show'));
+  ssSetValue(id, value, true);
+}
+function ssFilter(id, query){
+  const opts=_ssOptions[id]||[];
+  if(!query.trim())return opts;
+  const q=_ssNorm(query);
+  return opts.filter(o=>_ssNorm(o.label).includes(q)||_ssNorm(o.value).includes(q));
+}
+function ssRenderDropdown(){
+  if(!_ssActive)return;
+  const wrap=_ssActive.input.closest('.ss-wrap');
+  const dd=wrap.querySelector('.ss-dropdown');
+  const filtered=ssFilter(_ssActive.id, _ssActive.query);
+  const hidden=document.getElementById(_ssActive.id);
+  const curVal=hidden?.value||'';
+  dd.innerHTML='';
+  if(!filtered.length){
+    const empty=document.createElement('div');empty.className='ss-empty';empty.textContent='Sin resultados';
+    dd.appendChild(empty);
+  }else{
+    filtered.forEach((o,i)=>{
+      const el=document.createElement('div');
+      el.className='ss-option';
+      if(o.value===curVal)el.classList.add('ss-selected');
+      if(i===_ssActive.highlightIdx)el.classList.add('ss-highlight');
+      el.textContent=o.label;
+      el.dataset.val=o.value;
+      el.addEventListener('mousedown',e=>{e.preventDefault();ssPick(el.dataset.val);});
+      dd.appendChild(el);
+    });
+  }
+  dd.classList.add('show');
+}
+function ssScrollHighlight(){
+  if(!_ssActive)return;
+  const wrap=_ssActive.input.closest('.ss-wrap');
+  const hi=wrap.querySelector('.ss-option.ss-highlight');
+  if(hi)hi.scrollIntoView({block:'nearest'});
+}
+document.addEventListener('scroll',()=>{if(_ssActive)ssClose(true);},true);
+window.addEventListener('resize',()=>{if(_ssActive)ssClose(true);});
 
 // ══════════════════════════════════════════════════════
 //  4WKS SELECTION
@@ -709,6 +1144,7 @@ function navigate(el){
   if(nb)nb.classList.add('active');if(pb)pb.classList.add('active');
   if(target==='weekly')renderWeekly();
   if(target==='diario')renderDiario();
+  if(target==='analysis')renderAnalysis();
   if(target==='simulator')syncSimulator();
   if(target==='settings')renderSettingsNote();
 }
@@ -727,7 +1163,7 @@ function renderSettingsNote(){
   const el=document.getElementById('settingsCexNote');
   const wk1=weekStart(cexYearStart),n=cexWeekNum(weekStart(new Date().toISOString().slice(0,10)));
   el.innerHTML=`WK01 empieza el <strong>Sáb ${fmtDate(wk1)}</strong>. Semana actual: <strong>WK${String(n).padStart(2,'0')}</strong>.`;
-  document.getElementById('settingsCexStart').value=cexYearStart;
+  setDP('settingsCexStart',cexYearStart,false);
 }
 
 // ══════════════════════════════════════════════════════
@@ -772,15 +1208,17 @@ function parseDayPaste(text){
 //  DIARIO DE TIENDA
 // ══════════════════════════════════════════════════════
 function rebuildDiarioStore(){
-  const sel=document.getElementById('diarioStore');
-  const prev=sel.value||diarioStoreSel;
+  const hidden=document.getElementById('diarioStore');if(!hidden)return;
+  const prev=diarioStoreSel||hidden.value;
   const stores=new Set();
   for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
   const sorted=[...stores].sort();
-  sel.innerHTML='';
-  if(!sorted.length){sel.innerHTML='<option value="">— sin datos —</option>';return;}
-  sorted.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===prev)o.selected=true;sel.appendChild(o);});
-  diarioStoreSel=sel.value;
+  if(!sorted.length){ssSetOptions('diarioStore',[]);ssSetValue('diarioStore','',false);diarioStoreSel='';return;}
+  const options=sorted.map(s=>({value:s,label:s}));
+  ssSetOptions('diarioStore',options);
+  const newVal=sorted.includes(prev)?prev:sorted[0];
+  ssSetValue('diarioStore',newVal,false);
+  diarioStoreSel=newVal;
 }
 
 function filterDiarioDay(btn){
@@ -908,6 +1346,360 @@ function saveHito(input){
 }
 
 // ══════════════════════════════════════════════════════
+//  ANÁLISIS POR RANGO
+// ══════════════════════════════════════════════════════
+const ANALYSIS_METRICS={
+  vc:{label:'V+C',fmt:fmt,agg:'sum'},
+  sales:{label:'Net Sales',fmt:fmt,agg:'sum'},
+  buys:{label:'Buys',fmt:fmt,agg:'sum'},
+  cashBuys:{label:'Cash Buys',fmt:fmt,agg:'sum'},
+  exchBuys:{label:'Exch. Buys',fmt:fmt,agg:'sum'},
+  refunds:{label:'Refunds',fmt:fmt,agg:'sum'},
+  members:{label:'Members',fmt:n=>fmtN(Math.round(n)),agg:'sum'},
+  ranking:{label:'Ranking',fmt:n=>`#${(Math.round(n*10)/10).toString().replace('.',',')}`,agg:'avg',inverted:true},
+};
+
+let analysisStore='__all__', analysisMetrics=['vc'], analysisDayFilter='';
+let analysisStart='', analysisEnd='';
+let analysisPresets=[];
+
+function rebuildAnalysisStore(){
+  const hidden=document.getElementById('aStore');if(!hidden)return;
+  const prev=analysisStore||hidden.value;
+  const stores=new Set();
+  for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
+  const sorted=[...stores].sort();
+  const options=[{value:'__all__',label:sorted.length?'Todas las tiendas':'— sin datos —'}];
+  sorted.forEach(s=>options.push({value:s,label:s}));
+  ssSetOptions('aStore',options);
+  const newVal=(prev==='__all__'||sorted.includes(prev))?prev:'__all__';
+  ssSetValue('aStore',newVal,false);
+  analysisStore=newVal;
+}
+
+function initAnalysisRange(){
+  const dates=Object.keys(dailyData).sort();
+  const s=document.getElementById('aStart'),e=document.getElementById('aEnd');
+  if(!dates.length){if(s){s.value='';s.min='';s.max='';}if(e){e.value='';e.min='';e.max='';}return;}
+  const first=dates[0],last=dates[dates.length-1];
+  if(!analysisStart||analysisStart<first||analysisStart>last)analysisStart=dates[Math.max(0,dates.length-30)];
+  if(!analysisEnd||analysisEnd>last||analysisEnd<first)analysisEnd=last;
+  if(analysisStart>analysisEnd)[analysisStart,analysisEnd]=[analysisEnd,analysisStart];
+  if(s){s.min=first;s.max=last;}
+  if(e){e.min=first;e.max=last;}
+  setDP('aStart',analysisStart,false);
+  setDP('aEnd',analysisEnd,false);
+}
+
+function onAnalysisStoreChange(){analysisStore=document.getElementById('aStore').value;renderAnalysis();schedulePersist();}
+function toggleAnalysisMetric(btn){
+  const m=btn.dataset.metric;
+  const idx=analysisMetrics.indexOf(m);
+  if(idx>=0){
+    if(analysisMetrics.length===1){toast('⚠ Al menos una métrica seleccionada','err');return;}
+    analysisMetrics.splice(idx,1);
+  }else analysisMetrics.push(m);
+  renderAnalysis();schedulePersist();
+}
+function onAnalysisRangeChange(){
+  analysisStart=document.getElementById('aStart').value;
+  analysisEnd=document.getElementById('aEnd').value;
+  if(analysisStart&&analysisEnd&&analysisStart>analysisEnd){
+    [analysisStart,analysisEnd]=[analysisEnd,analysisStart];
+    setDP('aStart',analysisStart,false);
+    setDP('aEnd',analysisEnd,false);
+  }
+  renderAnalysis();schedulePersist();
+}
+function filterAnalysisDay(btn){
+  analysisDayFilter=btn.dataset.day;
+  document.querySelectorAll('#aDayFilter .diario-filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
+  renderAnalysis();schedulePersist();
+}
+
+function collectAnalysisSeries(metric){
+  if(!analysisStart||!analysisEnd)return[];
+  const meta=ANALYSIS_METRICS[metric];
+  const out=[];
+  const dates=Object.keys(dailyData).filter(d=>d>=analysisStart&&d<=analysisEnd).sort();
+  for(const date of dates){
+    const stores=dailyData[date];
+    let dayName='',value=0;
+    if(analysisStore==='__all__'){
+      const entries=Object.values(stores);if(!entries.length)continue;
+      dayName=entries.find(x=>x.day)?.day||'';
+      if(meta.agg==='sum'){value=entries.reduce((s,x)=>s+(x[metric]||0),0);}
+      else{const ranked=entries.filter(x=>x.ranking>0);if(!ranked.length)continue;value=ranked.reduce((s,x)=>s+x.ranking,0)/ranked.length;}
+    }else{
+      const s=stores[analysisStore];if(!s)continue;
+      dayName=s.day||'';
+      value=s[metric]||0;
+      if(metric==='ranking'&&value===0)continue;
+    }
+    if(analysisDayFilter&&dayName!==analysisDayFilter)continue;
+    out.push({date,day:dayName,value});
+  }
+  return out;
+}
+
+function renderAnalysis(){
+  rebuildAnalysisStore();
+  initAnalysisRange();
+  document.querySelectorAll('#aMetricPills .diario-filter-pill').forEach(p=>p.classList.toggle('active',analysisMetrics.includes(p.dataset.metric)));
+  document.querySelectorAll('#aDayFilter .diario-filter-pill').forEach(b=>b.classList.toggle('active',b.dataset.day===analysisDayFilter));
+  renderAnalysisPresets();
+
+  const summary=document.getElementById('aSummary');
+  const wrap=document.getElementById('aChartsWrap');
+
+  if(!Object.keys(dailyData).length){
+    summary.style.display='none';
+    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Carga el registro diario en «Actualización 4WKS» para empezar</div></div>';
+    return;
+  }
+  if(!analysisMetrics.length){
+    summary.style.display='none';
+    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Selecciona al menos una métrica</div></div>';
+    return;
+  }
+
+  // Primary metric (first) drives the summary
+  const primary=analysisMetrics[0];
+  const primaryMeta=ANALYSIS_METRICS[primary];
+  const primarySeries=collectAnalysisSeries(primary);
+
+  if(!primarySeries.length){
+    summary.style.display='none';
+    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Sin datos en el rango seleccionado</div></div>';
+    return;
+  }
+
+  // Summary (always primary metric)
+  summary.style.display='flex';
+  const pv=primarySeries.map(d=>d.value);
+  const pTotal=pv.reduce((s,v)=>s+v,0);
+  const pAvg=pTotal/pv.length;
+  const pMax=Math.max(...pv), pMin=Math.min(...pv);
+  const pBest=primarySeries.find(d=>d.value===(primaryMeta.inverted?pMin:pMax));
+  const pWorst=primarySeries.find(d=>d.value===(primaryMeta.inverted?pMax:pMin));
+  const pStd=Math.sqrt(pv.reduce((s,v)=>s+(v-pAvg)**2,0)/pv.length);
+
+  document.getElementById('aSum-days').textContent=primarySeries.length;
+  document.getElementById('aSum-total').textContent=primaryMeta.agg==='sum'?primaryMeta.fmt(pTotal):'—';
+  document.getElementById('aSum-avg').textContent=primaryMeta.fmt(pAvg);
+  document.getElementById('aSum-best').textContent=pBest?`${fmtDate(pBest.date)} · ${primaryMeta.fmt(pBest.value)}`:'—';
+  document.getElementById('aSum-worst').textContent=pWorst?`${fmtDate(pWorst.date)} · ${primaryMeta.fmt(pWorst.value)}`:'—';
+  document.getElementById('aSum-std').textContent=primaryMeta.fmt(pStd);
+
+  // Render one chart per selected metric (primary first, apilados)
+  const storeLabel=analysisStore==='__all__'?'Todas las tiendas':analysisStore;
+  wrap.innerHTML='';
+  analysisMetrics.forEach((m,idx)=>{
+    const meta=ANALYSIS_METRICS[m];
+    const series=m===primary?primarySeries:collectAnalysisSeries(m);
+    const card=document.createElement('div');
+    card.className='chart-card';
+    if(!series.length){
+      card.innerHTML=`<div class="chart-title">${meta.label} · ${storeLabel}</div><div class="chart-empty">Sin datos para esta métrica en el rango</div>`;
+      wrap.appendChild(card);return;
+    }
+    const avg=series.reduce((s,d)=>s+d.value,0)/series.length;
+    const title=`${meta.label} · ${storeLabel} · ${fmtDate(analysisStart)} → ${fmtDate(analysisEnd)} · ${series.length} días`;
+    card.innerHTML=`<div class="chart-title">${title}</div><div class="chart-wrap"><svg class="chart-svg"></svg><div class="chart-tooltip"></div></div>`;
+    wrap.appendChild(card);
+    const svg=card.querySelector('svg');
+    const tt=card.querySelector('.chart-tooltip');
+    drawAnalysisChart(svg, tt, series, meta, avg, idx===analysisMetrics.length-1);
+  });
+}
+
+function drawAnalysisChart(svg, tooltip, series, meta, avg, showMonthNames){
+  const rect=svg.getBoundingClientRect();
+  const W=Math.max(480, Math.round(rect.width||svg.clientWidth||800));
+  const H=showMonthNames?360:280;
+  const pad={l:82,r:22,t:20,b:showMonthNames?74:40};
+  svg.style.height=H+'px';
+  const plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio','none');
+
+  const n=series.length;
+  const values=series.map(d=>d.value);
+  let yMin=0, yMax=Math.max(...values);
+  if(meta.inverted){yMin=Math.max(1,Math.floor(Math.min(...values))-1);yMax=Math.ceil(Math.max(...values))+1;if(yMax===yMin)yMax=yMin+1;}
+  else{yMax=yMax*1.08||1;}
+  if(yMax===yMin)yMax=yMin+1;
+
+  // For inverted (ranking): #1 at top, worse rank at bottom. Bar grows from top to the value position.
+  // For normal: 0 at bottom, value at top.
+  const valueToY = v => {
+    if(meta.inverted){return pad.t + ((v - yMin)/(yMax - yMin))*plotH;}
+    return pad.t + plotH - ((v - yMin)/(yMax - yMin))*plotH;
+  };
+
+  const barGap=Math.max(1,Math.min(3, plotW/(n*8)));
+  const barW=Math.max(3,(plotW - barGap*(n+1))/n);
+  const bx = i => pad.l + barGap + i*(barW+barGap);
+
+  const parts=[];
+  // Grid + Y labels
+  const ticks=5;
+  for(let i=0;i<=ticks;i++){
+    const v=yMin+(yMax-yMin)*i/ticks;
+    const y=valueToY(v);
+    parts.push(`<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`);
+    const lbl=meta.inverted?`#${Math.round(v)}`:meta.fmt(v);
+    parts.push(`<text class="axis-label" x="${pad.l-8}" y="${y+3}" text-anchor="end">${lbl}</text>`);
+  }
+  // Baseline
+  const baseY=meta.inverted?pad.t:pad.t+plotH;
+  parts.push(`<line class="axis-line" x1="${pad.l}" y1="${pad.t+plotH}" x2="${W-pad.r}" y2="${pad.t+plotH}"/>`);
+
+  // Bars
+  series.forEach((d,i)=>{
+    const vy=valueToY(d.value);
+    const x=bx(i);
+    let y,h;
+    if(meta.inverted){y=pad.t; h=Math.max(0.8, vy-pad.t);} // bar grows down from top-baseline (ranking)
+    else{y=vy; h=Math.max(0.8, pad.t+plotH-vy);}
+    const dayLow=(d.day||'').toLowerCase();
+    const cls=dayLow==='saturday'?'sat':dayLow==='sunday'?'sun':'';
+    parts.push(`<rect class="bar ${cls}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${h.toFixed(2)}" data-idx="${i}" rx="2"/>`);
+  });
+
+  // Mean line
+  const meanY=valueToY(avg);
+  parts.push(`<line class="mean-line" x1="${pad.l}" y1="${meanY}" x2="${W-pad.r}" y2="${meanY}"/>`);
+  parts.push(`<text class="mean-label" x="${W-pad.r-4}" y="${meanY-4}" text-anchor="end">Media · ${meta.fmt(avg)}</text>`);
+
+  // Valor sobre cada barra (miles + 1 decimal + K). Para ranking no aplica.
+  if(!meta.inverted){
+    series.forEach((d,i)=>{
+      const cx=(bx(i)+barW/2).toFixed(2);
+      const ly=(valueToY(d.value)-5).toFixed(2);
+      parts.push(`<text class="bar-value" x="${cx}" y="${ly}" text-anchor="middle">${(d.value/1000).toFixed(1)}K</text>`);
+    });
+  }
+
+  // Month blocks (for dividers and month labels)
+  const MONTH_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const DOW_LETTER={Monday:'L',Tuesday:'M',Wednesday:'X',Thursday:'J',Friday:'V',Saturday:'S',Sunday:'D'};
+  const monthBlocks=[];let curBlk=null;
+  const monthDivIdx=new Set();
+  series.forEach((d,i)=>{
+    const [y,m]=d.date.split('-');const key=y+'-'+m;
+    if(!curBlk||curBlk.key!==key){
+      if(curBlk){monthBlocks.push(curBlk);monthDivIdx.add(i);}
+      curBlk={key,start:i,end:i,month:+m,year:+y};
+    }else curBlk.end=i;
+  });
+  if(curBlk)monthBlocks.push(curBlk);
+
+  // Week dividers (antes de cada lunes, excepto si coincide con separador de mes)
+  series.forEach((d,i)=>{
+    if(i===0||d.day!=='Monday'||monthDivIdx.has(i))return;
+    const xDiv=(bx(i-1)+barW+bx(i))/2;
+    parts.push(`<line class="week-divider" x1="${xDiv.toFixed(2)}" y1="${pad.t}" x2="${xDiv.toFixed(2)}" y2="${(pad.t+plotH).toFixed(2)}"/>`);
+  });
+
+  // Month dividers (encima de week dividers, más prominentes). Se extienden bajo la fila de día/letra siempre; hasta bajo el mes solo en la gráfica con nombres de mes.
+  const monthDivBottom = showMonthNames ? pad.t+plotH+60 : pad.t+plotH+30;
+  for(let b=1;b<monthBlocks.length;b++){
+    const prev=monthBlocks[b-1], cur=monthBlocks[b];
+    const xDiv=(bx(prev.end)+barW+bx(cur.start))/2;
+    parts.push(`<line class="month-divider" x1="${xDiv.toFixed(2)}" y1="${pad.t}" x2="${xDiv.toFixed(2)}" y2="${monthDivBottom.toFixed(2)}"/>`);
+  }
+
+  // Per-bar labels (día + letra de día de semana) — siempre, en todas las gráficas
+  series.forEach((d,i)=>{
+    const cx=(bx(i)+barW/2).toFixed(2);
+    const dayNum=parseInt(d.date.split('-')[2],10);
+    const letter=DOW_LETTER[d.day]||'';
+    const isWk=(d.day==='Saturday'||d.day==='Sunday');
+    parts.push(`<text class="bar-label-day" x="${cx}" y="${(pad.t+plotH+13).toFixed(2)}" text-anchor="middle">${dayNum}</text>`);
+    parts.push(`<text class="bar-label-dow${isWk?' weekend':''}" x="${cx}" y="${(pad.t+plotH+25).toFixed(2)}" text-anchor="middle">${letter}</text>`);
+  });
+
+  if(showMonthNames){
+    // Month names centrados bajo cada bloque (solo en la gráfica inferior)
+    monthBlocks.forEach(b=>{
+      const cx=((bx(b.start)+bx(b.end)+barW)/2).toFixed(2);
+      parts.push(`<text class="month-label" x="${cx}" y="${(pad.t+plotH+52).toFixed(2)}" text-anchor="middle">${MONTH_ES[b.month-1]} ${b.year}</text>`);
+    });
+  }
+
+  svg.innerHTML=parts.join('');
+
+  // Tooltip bindings
+  const wrap=svg.parentElement;
+  svg.querySelectorAll('rect.bar').forEach(r=>{
+    r.addEventListener('mousemove', e=>{
+      const i=+r.dataset.idx, d=series[i];
+      tooltip.innerHTML=`<div class="tt-date">${fmtDate(d.date)} · ${DAY_ES[d.day]||d.day||'—'}</div>${meta.label}: <strong>${meta.fmt(d.value)}</strong>`;
+      const wr=wrap.getBoundingClientRect();
+      let x=e.clientX-wr.left+12, y=e.clientY-wr.top-14;
+      if(x+220>wr.width)x=e.clientX-wr.left-228;
+      if(y<0)y=e.clientY-wr.top+18;
+      tooltip.style.left=x+'px';tooltip.style.top=y+'px';
+      tooltip.classList.add('show');
+    });
+    r.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+  });
+}
+
+function renderAnalysisPresets(){
+  const list=document.getElementById('aPresetsList');if(!list)return;
+  if(!analysisPresets.length){list.innerHTML='<span class="preset-pill empty">Sin presets guardados · usa «Guardar rango actual»</span>';return;}
+  list.innerHTML='';
+  analysisPresets.forEach((p,idx)=>{
+    const pill=document.createElement('span');pill.className='preset-pill';
+    const name=document.createElement('span');name.className='pp-name';
+    name.textContent=`${p.name} · ${fmtDate(p.start)}→${fmtDate(p.end)}`;
+    name.title='Aplicar preset';
+    name.onclick=()=>applyAnalysisPreset(idx);
+    const del=document.createElement('span');del.className='pp-del';del.textContent='×';del.title='Eliminar preset';
+    del.onclick=e=>{e.stopPropagation();deleteAnalysisPreset(idx);};
+    pill.appendChild(name);pill.appendChild(del);
+    list.appendChild(pill);
+  });
+}
+
+function applyAnalysisPreset(idx){
+  const p=analysisPresets[idx];if(!p)return;
+  analysisStart=p.start;analysisEnd=p.end;
+  setDP('aStart',p.start,false);
+  setDP('aEnd',p.end,false);
+  renderAnalysis();schedulePersist();
+  toast(`✓ Preset «${p.name}» aplicado`,'ok');
+}
+
+function saveAnalysisPreset(){
+  if(!analysisStart||!analysisEnd){toast('⚠ Elige un rango primero','err');return;}
+  const name=prompt(`Nombre del preset para ${fmtDate(analysisStart)} → ${fmtDate(analysisEnd)}:`,'');
+  if(name==null)return;
+  const trimmed=name.trim();if(!trimmed){toast('⚠ Nombre vacío','err');return;}
+  const existingIdx=analysisPresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
+  const entry={name:trimmed,start:analysisStart,end:analysisEnd};
+  if(existingIdx>=0){if(!confirm(`Ya existe «${trimmed}». ¿Sobrescribir?`))return;analysisPresets[existingIdx]=entry;}
+  else analysisPresets.push(entry);
+  renderAnalysisPresets();schedulePersist();
+  toast(`✓ Preset «${trimmed}» guardado`,'ok');
+}
+
+function deleteAnalysisPreset(idx){
+  const p=analysisPresets[idx];if(!p)return;
+  if(!confirm(`Eliminar preset «${p.name}»?`))return;
+  analysisPresets.splice(idx,1);renderAnalysisPresets();schedulePersist();
+}
+
+let _analysisResizeTimer;
+window.addEventListener('resize',()=>{
+  if(!document.getElementById('panel-analysis')?.classList.contains('active'))return;
+  clearTimeout(_analysisResizeTimer);
+  _analysisResizeTimer=setTimeout(renderAnalysis,150);
+});
+
+// ══════════════════════════════════════════════════════
 //  UPDATER
 // ══════════════════════════════════════════════════════
 function renderUpdater(){
@@ -930,10 +1722,13 @@ function renderUpdater(){
     const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);
     document.getElementById('wksResultTag').textContent=last4.length===1?a:`${b} – ${a}`;
   }
-  const sel=document.getElementById('updTargetStore'),prev=sel.value;sel.innerHTML='';
-  ranking.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
+  const prev=document.getElementById('updTargetStore').value;
+  const options=ranking.map(s=>({value:s.store,label:`#${s.r} · ${s.store}`}));
+  ssSetOptions('updTargetStore',options);
+  const newVal=ranking.some(s=>s.store===prev)?prev:(ranking.some(s=>s.store==='Madrid Islazul')?'Madrid Islazul':(ranking[0]?.store||''));
+  ssSetValue('updTargetStore',newVal,false);
   document.getElementById('updSelectorCard').style.display='flex';
-  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();
+  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();rebuildAnalysisStore();
 }
 
 function applySortHeaders(prefix,col,dir,cols){
@@ -1119,13 +1914,16 @@ function syncSimulator(){
   if(!ranking.length){
     BASE=[];
     document.getElementById('badge4w').textContent='Sin base';document.getElementById('badge4w').className='badge';
-    document.getElementById('targetStore').innerHTML='<option value="">— sin datos 4WKS —</option>';
+    ssSetOptions('targetStore',[]);ssSetValue('targetStore','',false);
     document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');
     return;
   }
   BASE=ranking.map((s,i)=>({r:i+1,store:s.store,vc:s.vc}));
-  const sel=document.getElementById('targetStore'),prev=sel.value;sel.innerHTML='';
-  BASE.forEach(s=>{const o=document.createElement('option');o.value=s.store;o.textContent=`#${s.r} · ${s.store}`;if(s.store===(prev||'Madrid Islazul'))o.selected=true;sel.appendChild(o);});
+  const prev=document.getElementById('targetStore').value;
+  const options=BASE.map(s=>({value:s.store,label:`#${s.r} · ${s.store}`}));
+  ssSetOptions('targetStore',options);
+  const newVal=BASE.some(s=>s.store===prev)?prev:(BASE.some(s=>s.store==='Madrid Islazul')?'Madrid Islazul':BASE[0].store);
+  ssSetValue('targetStore',newVal,false);
   const last4=getSelected4Weeks();
   if(last4.length){const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);document.getElementById('badge4w').textContent=last4.length===1?a:`${b}–${a}`;document.getElementById('badge4w').className='badge loaded';}
   recalc();
@@ -1152,6 +1950,7 @@ function saveBackup(){
     activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
     cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
+    analysisStore,analysisMetrics,analysisDayFilter,analysisStart,analysisEnd,analysisPresets,
     targetStore:document.getElementById('targetStore').value,
     todayRaw:document.getElementById('todayInput').value,
     dailyCSVRaw,dailyCSVName,manualLog,
@@ -1177,15 +1976,22 @@ function loadBackup(event){
       if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
       if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
       if(b.hitoData)hitoData=b.hitoData;
-      document.getElementById('settingsCexStart').value=cexYearStart;
+      if(b.analysisStore)analysisStore=b.analysisStore;
+      if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
+      else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
+      if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+      if(b.analysisStart)analysisStart=b.analysisStart;
+      if(b.analysisEnd)analysisEnd=b.analysisEnd;
+      if(Array.isArray(b.analysisPresets))analysisPresets=b.analysisPresets;
+      setDP('settingsCexStart',cexYearStart,false);
       if(b.dailyCSVRaw){
         manualLog=b.manualLog||[];
         applyRegistroCSV(b.dailyCSVRaw,b.dailyCSVName||'backup');
         for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
         renderUpdater();renderLog();
-        if(b.updTargetStore){const s=document.getElementById('updTargetStore');if([...s.options].some(o=>o.value===b.updTargetStore)){s.value=b.updTargetStore;renderUpdTable();}}
+        if(b.updTargetStore){if((_ssOptions['updTargetStore']||[]).some(o=>o.value===b.updTargetStore)){ssSetValue('updTargetStore',b.updTargetStore,false);renderUpdTable();}}
         if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
-        const ds=document.getElementById('diarioStore');if(b.diarioStoreSel&&[...ds.options].some(o=>o.value===b.diarioStoreSel))ds.value=b.diarioStoreSel;
+        if(b.diarioStoreSel&&(_ssOptions['diarioStore']||[]).some(o=>o.value===b.diarioStoreSel))ssSetValue('diarioStore',b.diarioStoreSel,false);
       }
       if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;onTodayInput();}
       syncSimulator();
@@ -1211,6 +2017,7 @@ function persistState(){
       cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
+      analysisStore,analysisMetrics,analysisDayFilter,analysisStart,analysisEnd,analysisPresets,
       targetStore:document.getElementById('targetStore').value,
       todayRaw:document.getElementById('todayInput').value,
       dailyCSVRaw,dailyCSVName,manualLog,
@@ -1238,19 +2045,26 @@ function restoreState(){
     }
     if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
     if(b.hitoData)hitoData=b.hitoData;
-    document.getElementById('settingsCexStart').value=cexYearStart;
+    if(b.analysisStore)analysisStore=b.analysisStore;
+    if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
+    else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
+    if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+    if(b.analysisStart)analysisStart=b.analysisStart;
+    if(b.analysisEnd)analysisEnd=b.analysisEnd;
+    if(Array.isArray(b.analysisPresets))analysisPresets=b.analysisPresets;
+    setDP('settingsCexStart',cexYearStart,false);
     if(b.dailyCSVRaw){
       manualLog=b.manualLog||[];
       applyRegistroCSV(b.dailyCSVRaw,b.dailyCSVName||'auto');
       for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
       renderUpdater();renderLog();
-      if(b.updTargetStore){const s=document.getElementById('updTargetStore');if([...s.options].some(o=>o.value===b.updTargetStore)){s.value=b.updTargetStore;renderUpdTable();}}
+      if(b.updTargetStore){if((_ssOptions['updTargetStore']||[]).some(o=>o.value===b.updTargetStore)){ssSetValue('updTargetStore',b.updTargetStore,false);renderUpdTable();}}
       if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
-      const ds=document.getElementById('diarioStore');if(b.diarioStoreSel&&[...ds.options].some(o=>o.value===b.diarioStoreSel))ds.value=b.diarioStoreSel;
+      if(b.diarioStoreSel&&(_ssOptions['diarioStore']||[]).some(o=>o.value===b.diarioStoreSel))ssSetValue('diarioStore',b.diarioStoreSel,false);
     }
     if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;}
     syncSimulator();
-    if(b.targetStore){const s=document.getElementById('targetStore');if([...s.options].some(o=>o.value===b.targetStore))s.value=b.targetStore;}
+    if(b.targetStore&&(_ssOptions['targetStore']||[]).some(o=>o.value===b.targetStore))ssSetValue('targetStore',b.targetStore,false);
     if(b.todayRaw)onTodayInput();
     if(b.activePanel){const nb=document.querySelector(`.nav-item[data-panel="${b.activePanel}"]`);if(nb)navigate(nb);}
   }catch(e){/* corrupted state — ignore */}
@@ -1287,11 +2101,13 @@ recalc=function(){_origRecalc();schedulePersist();};
 // ══════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════
-document.getElementById('updDayDate').value=new Date().toISOString().slice(0,10);
-document.getElementById('settingsCexStart').value=cexYearStart;
+setDP('updDayDate',new Date().toISOString().slice(0,10),false);
+setDP('settingsCexStart',cexYearStart,false);
 renderSettingsNote();
 rebuildWeekSelect();
 rebuildDiarioStore();
+rebuildAnalysisStore();
+renderAnalysisPresets();
 restoreState();
 </script>
 </body>
