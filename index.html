@@ -27,6 +27,13 @@
       <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
     </svg>
   </button>
+  <button class="nav-item tip" data-panel="semanal" data-tip="Resumen semanal" onclick="navigate(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2"/>
+      <line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="14" x2="21" y2="14"/>
+    </svg>
+  </button>
   <button class="nav-item tip" data-panel="analysis" data-tip="Análisis por rango" onclick="navigate(this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
       <path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/>
@@ -62,6 +69,13 @@
 
 <!-- ══ HOME ══ -->
 <section class="panel active" id="panel-home">
+  <div class="home-topbar">
+    <button class="home-news-btn" onclick="toggleChangelog()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Novedades</span>
+    </button>
+    <span class="home-version" id="homeAppVersion">α 0.11</span>
+  </div>
   <div class="home-header">
     <div class="home-eyebrow">4WKS Analytics</div>
     <h1 class="home-title">Bienvenido<span> de nuevo.</span></h1>
@@ -69,8 +83,6 @@
   </div>
   <div class="kpi-row">
     <div class="kpi-card"><div class="kpi-label">Días registrados</div><div class="kpi-value" id="homeKpiDays">—</div><div class="kpi-sub" id="homeKpiRange">sin datos</div></div>
-    <div class="kpi-card"><div class="kpi-label">Módulos activos</div><div class="kpi-value">05</div><div class="kpi-sub">de 5 completos</div></div>
-    <div class="kpi-card"><div class="kpi-label">Versión</div><div class="kpi-value" style="font-size:18px;letter-spacing:0">α 0.10</div><div class="kpi-sub">early access</div></div>
   </div>
   <div class="section-label">Módulos</div>
   <div class="modules-grid">
@@ -81,6 +93,10 @@
     <div class="module-card" onclick="navigate(document.querySelector('[data-panel=diario]'))">
       <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></div>
       <div><div class="module-name">Diario de tienda</div><div class="module-desc">Vista día a día de una tienda con ranking, métricas, rodante 7 días e hitos anotables.</div></div>
+    </div>
+    <div class="module-card" onclick="navigate(document.querySelector('[data-panel=semanal]'))">
+      <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="14" x2="21" y2="14"/></svg></div>
+      <div><div class="module-name">Resumen semanal</div><div class="module-desc">Histórico de una tienda semana a semana con ranking semanal, V+C, 4WKS rodante y coloreado gradual.</div></div>
     </div>
     <div class="module-card" onclick="navigate(document.querySelector('[data-panel=analysis]'))">
       <div class="module-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="12" y="9" width="3" height="9"/><rect x="17" y="5" width="3" height="13"/></svg></div>
@@ -104,34 +120,40 @@
     <div><div class="panel-title">Actualización de 4WKS</div><div class="panel-subtitle">Registro histórico completo + incorporación de días cerrados</div></div>
   </div>
   <div class="card pad" style="margin-bottom:12px">
-    <div class="card-header"><span class="card-label">Incorporar día cerrado</span><span class="badge info" id="updBadgeDay">Sin incorporar</span></div>
-    <div class="date-row"><label>Fecha</label><input type="hidden" id="updDayDate"><button type="button" class="dp-btn" data-target="updDayDate" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
-    <textarea id="updDayInput" style="height:96px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;590&#9;1,724&#9;148&#9;6&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..."></textarea>
-    <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
-    <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
-  </div>
-  <div class="wks-card" id="wksCard">
-    <div class="wks-stats">
-      <div class="wks-stat"><span class="wks-stat-key">Días en BD</span><span class="wks-stat-val" id="wksDays">—</span></div>
-      <div class="wks-stat"><span class="wks-stat-key">Rango</span><span class="wks-stat-val" id="wksRange">—</span></div>
-      <div class="wks-stat"><span class="wks-stat-key">Semanas</span><span class="wks-stat-val" id="wksWeeks">—</span></div>
-    </div>
-    <div class="wks-mode-bar">
-      <span class="mode-group-label">4WKS</span>
-      <div class="mode-pills">
-        <button class="mode-pill active" id="modeConsolidated" onclick="setUpdMode('consolidated')">4 últimas consolidadas</button>
-        <button class="mode-pill" id="modeCurrent" onclick="setUpdMode('current')">Incl. semana actual</button>
-        <button class="mode-pill" id="modeCustom" onclick="setUpdMode('custom')">Personalizada</button>
+    <div class="updday-grid">
+      <div class="updday-wks" id="wksCard">
+        <div class="updday-col-header"><span class="updday-col-label">Modo 4WKS</span><span class="wks-result-tag" id="wksResultTag">—</span></div>
+        <div class="mode-pills">
+          <button class="mode-pill active" id="modeConsolidated" onclick="setUpdMode('consolidated')">4 últimas consolidadas</button>
+          <button class="mode-pill" id="modeCurrent" onclick="setUpdMode('current')">Incl. semana actual</button>
+          <button class="mode-pill" id="modeCustom" onclick="setUpdMode('custom')">Personalizada</button>
+        </div>
+        <select class="mode-custom-sel" id="updCustomEndSel" onchange="onCustomEndChange()"></select>
+        <div class="wks-stats-inline">
+          <div class="wks-stat-chip"><span class="wks-stat-chip-val" id="wksDays">—</span><span class="wks-stat-chip-key">días</span></div>
+          <div class="wks-stat-chip wks-stat-range"><span class="wks-stat-chip-val" id="wksRange">—</span></div>
+          <div class="wks-stat-chip"><span class="wks-stat-chip-val" id="wksWeeks">—</span><span class="wks-stat-chip-key">sem.</span></div>
+        </div>
       </div>
-      <select class="mode-custom-sel" id="updCustomEndSel" onchange="onCustomEndChange()"></select>
-      <span class="wks-result-tag" id="wksResultTag">—</span>
+      <div class="updday-form">
+        <div class="updday-col-header"><span class="updday-col-label">Incorporar día cerrado</span></div>
+        <div class="date-row"><label>Fecha</label><input type="hidden" id="updDayDate"><button type="button" class="dp-btn" data-target="updDayDate" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
+        <textarea id="updDayInput" style="height:40px" placeholder="Pegar aquí"></textarea>
+        <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
+      </div>
+      <div class="updday-log-col">
+        <div class="updday-col-header"><span class="updday-col-label">Últimas incorporaciones</span></div>
+        <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
+      </div>
     </div>
   </div>
   <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="updTargetStore" onchange="renderUpdTable()"><input type="text" class="ss-input" data-ss-for="updTargetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
-  <div class="table-card visible" id="updTableCard">
+  <div class="table-card visible upd-rank" id="updTableCard">
     <table>
       <thead><tr>
-        <th style="width:36px">#</th><th>Tienda</th>
+        <th style="width:36px">#</th>
+        <th style="width:68px" class="r sortable" data-col="delta" onclick="sortUpd('delta')">Δ <em class="sort-arrow" id="updArr-delta"></em></th>
+        <th>Tienda</th>
         <th class="r sortable sort-active" data-col="vc"      onclick="sortUpd('vc')">V+C 4WKS <em class="sort-arrow" id="updArr-vc">▼</em></th>
         <th class="r sortable"            data-col="sales"   onclick="sortUpd('sales')">Ventas <em class="sort-arrow" id="updArr-sales"></em></th>
         <th class="r sortable"            data-col="buys"    onclick="sortUpd('buys')">Compras <em class="sort-arrow" id="updArr-buys"></em></th>
@@ -139,7 +161,7 @@
         <th class="r sortable"            data-col="refunds" onclick="sortUpd('refunds')">Devol. <em class="sort-arrow" id="updArr-refunds"></em></th>
         <th class="r" id="updDistHeader">Distancia</th>
       </tr></thead>
-      <tbody id="updRankingBody"><tr><td colspan="8"><span class="empty-state">Carga el registro diario para calcular el 4WKS</span></td></tr></tbody>
+      <tbody id="updRankingBody"><tr><td colspan="9"><span class="empty-state">Carga el registro diario para calcular el 4WKS</span></td></tr></tbody>
     </table>
   </div>
 </section>
@@ -207,6 +229,64 @@
   </div>
 </section>
 
+<!-- ══ RESUMEN SEMANAL ══ -->
+<section class="panel" id="panel-semanal">
+  <div class="panel-header">
+    <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="14" x2="21" y2="14"/></svg></div>
+    <div><div class="panel-title">Resumen semanal</div><div class="panel-subtitle">Histórico de una tienda · Semana a semana · Totales, ranking y 4WKS rodante</div></div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="diario-toolbar">
+    <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Tienda</label>
+    <div class="ss-wrap"><input type="hidden" id="semanalStore" onchange="renderSemanal()"><input type="text" class="ss-input" data-ss-for="semanalStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div>
+    <span style="width:1px;height:20px;background:var(--border);flex-shrink:0;"></span>
+    <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Colorear por</label>
+    <div class="diario-filter-pills" id="semanalColorByPills">
+      <button class="diario-filter-pill active" data-col="none" onclick="setSemanalColorBy(this)">Ninguno</button>
+      <button class="diario-filter-pill" data-col="ws" onclick="setSemanalColorBy(this)">Fecha</button>
+      <button class="diario-filter-pill" data-col="pos" onclick="setSemanalColorBy(this)">Rank</button>
+      <button class="diario-filter-pill" data-col="vc" onclick="setSemanalColorBy(this)">V+C</button>
+      <button class="diario-filter-pill" data-col="rolling4" onclick="setSemanalColorBy(this)">4WKS rod.</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="diario-summary" id="semanalSummary" style="display:none">
+    <div class="diario-kpi"><span class="diario-kpi-key">Semanas</span><span class="diario-kpi-val" id="semSum-weeks">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">V+C total</span><span class="diario-kpi-val" id="semSum-vc">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Mejor ranking</span><span class="diario-kpi-val" id="semSum-best">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Media V+C/sem.</span><span class="diario-kpi-val" id="semSum-avg">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">Mejor semana</span><span class="diario-kpi-val" id="semSum-top">—</span></div>
+    <div class="diario-kpi"><span class="diario-kpi-key">4WKS actual</span><span class="diario-kpi-val" id="semSum-roll">—</span></div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="diario-table-wrap">
+    <div class="table-card visible">
+      <table>
+        <thead><tr>
+          <th class="sortable sort-active" data-scol="ws" onclick="sortSemanal('ws')">WK <em class="sort-arrow" id="semArr-ws">▼</em></th>
+          <th>Rango</th>
+          <th>Días</th>
+          <th class="r sortable" data-scol="pos" onclick="sortSemanal('pos')">Rank sem. <em class="sort-arrow" id="semArr-pos"></em></th>
+          <th class="r sortable" data-scol="sales" onclick="sortSemanal('sales')">Net Sales <em class="sort-arrow" id="semArr-sales"></em></th>
+          <th class="r sortable" data-scol="buys" onclick="sortSemanal('buys')">Buys <em class="sort-arrow" id="semArr-buys"></em></th>
+          <th class="r sortable" data-scol="cashBuys" onclick="sortSemanal('cashBuys')">Cash Buys <em class="sort-arrow" id="semArr-cashBuys"></em></th>
+          <th class="r sortable" data-scol="exchBuys" onclick="sortSemanal('exchBuys')">Exch. Buys <em class="sort-arrow" id="semArr-exchBuys"></em></th>
+          <th class="r sortable" data-scol="refunds" onclick="sortSemanal('refunds')">Refunds <em class="sort-arrow" id="semArr-refunds"></em></th>
+          <th class="r sortable" data-scol="members" onclick="sortSemanal('members')">Members <em class="sort-arrow" id="semArr-members"></em></th>
+          <th class="r sortable" data-scol="vc" onclick="sortSemanal('vc')">V+C <em class="sort-arrow" id="semArr-vc"></em></th>
+          <th class="r sortable" data-scol="rolling4" onclick="sortSemanal('rolling4')">4WKS rod. <em class="sort-arrow" id="semArr-rolling4"></em></th>
+        </tr></thead>
+        <tbody id="semanalBody">
+          <tr><td colspan="12"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el resumen semanal</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- ══ ANÁLISIS POR RANGO ══ -->
 <section class="panel" id="panel-analysis">
   <div class="panel-header">
@@ -218,6 +298,8 @@
   <div class="analysis-toolbar">
     <label>Tienda</label>
     <div class="ss-wrap"><input type="hidden" id="aStore" onchange="onAnalysisStoreChange()"><input type="text" class="ss-input" data-ss-for="aStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div>
+    <label>vs</label>
+    <div class="ss-wrap"><input type="hidden" id="aStore2" onchange="onAnalysisStore2Change()"><input type="text" class="ss-input" data-ss-for="aStore2" placeholder="Sin comparación" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div>
     <span class="sep"></span>
     <label>Desde</label>
     <input type="hidden" id="aStart" onchange="onAnalysisRangeChange()">
@@ -226,7 +308,13 @@
     <input type="hidden" id="aEnd" onchange="onAnalysisRangeChange()">
     <button type="button" class="dp-btn" data-target="aEnd" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
     <span class="sep"></span>
-    <label>Día</label>
+    <label>Ver</label>
+    <div class="diario-filter-pills" id="aGranularity">
+      <button class="diario-filter-pill active" data-gran="day" onclick="setAnalysisGranularity(this)">Día</button>
+      <button class="diario-filter-pill" data-gran="week" onclick="setAnalysisGranularity(this)">Semana</button>
+    </div>
+    <span class="sep" id="aDayFilterSep"></span>
+    <label id="aDayFilterLabel">Día</label>
     <div class="diario-filter-pills" id="aDayFilter">
       <button class="diario-filter-pill active" data-day="" onclick="filterAnalysisDay(this)">Todos</button>
       <button class="diario-filter-pill" data-day="Saturday" onclick="filterAnalysisDay(this)">Sáb</button>
@@ -263,11 +351,11 @@
 
   <!-- SUMMARY -->
   <div class="analysis-summary" id="aSummary" style="display:none">
-    <div class="analysis-kpi"><span class="analysis-kpi-key">Días</span><span class="analysis-kpi-val" id="aSum-days">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key" id="aSumKey-days">Días</span><span class="analysis-kpi-val" id="aSum-days">—</span></div>
     <div class="analysis-kpi"><span class="analysis-kpi-key">Total</span><span class="analysis-kpi-val" id="aSum-total">—</span></div>
-    <div class="analysis-kpi"><span class="analysis-kpi-key">Media/día</span><span class="analysis-kpi-val" id="aSum-avg">—</span></div>
-    <div class="analysis-kpi"><span class="analysis-kpi-key">Mejor día</span><span class="analysis-kpi-val" id="aSum-best">—</span></div>
-    <div class="analysis-kpi"><span class="analysis-kpi-key">Peor día</span><span class="analysis-kpi-val" id="aSum-worst">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key" id="aSumKey-avg">Media/día</span><span class="analysis-kpi-val" id="aSum-avg">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key" id="aSumKey-best">Mejor día</span><span class="analysis-kpi-val" id="aSum-best">—</span></div>
+    <div class="analysis-kpi"><span class="analysis-kpi-key" id="aSumKey-worst">Peor día</span><span class="analysis-kpi-val" id="aSum-worst">—</span></div>
     <div class="analysis-kpi"><span class="analysis-kpi-key">Desv. típica</span><span class="analysis-kpi-val" id="aSum-std">—</span></div>
   </div>
 
@@ -359,59 +447,20 @@
       <button class="changelog-close" onclick="toggleChangelog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="changelog-body">
-
-      <div class="cl-version">
-        <span class="cl-tag">v0.10</span><span class="cl-date">17 abr 2026</span>
-        <ul class="cl-list">
-          <li><span class="cl-type new">nuevo</span>Módulo «Análisis por rango» — gráfica de barras de cualquier métrica para cualquier rango de fechas</li>
-          <li><span class="cl-type new">nuevo</span>Presets de rango personalizables (p. ej. «Navidad 2025»), guardar/aplicar/eliminar</li>
-          <li><span class="cl-type new">nuevo</span>Agregado «Todas las tiendas» para comparar totales del rango</li>
-          <li><span class="cl-type new">nuevo</span>KPIs del rango: total, media/día, mejor y peor día, desviación típica</li>
-          <li><span class="cl-type new">nuevo</span>Calendario propio en los selectores de fecha — siempre empieza en lunes y muestra DD/MM/AAAA</li>
-          <li><span class="cl-type new">nuevo</span>Etiquetas por barra con número de día y letra del día de la semana, separadores de mes y semana (lunes)</li>
-          <li><span class="cl-type new">nuevo</span>Selección múltiple de métricas — se apilan varias gráficas con ejes perfectamente alineados</li>
-          <li><span class="cl-type new">nuevo</span>Selectores de tienda con búsqueda por texto · flechas y Enter para navegar, Esc cancela</li>
-          <li><span class="cl-type new">nuevo</span>Valor sobre cada barra en formato compacto de miles (ej. 7.4K)</li>
-          <li><span class="cl-type new">nuevo</span>Número de día y letra del día de la semana ahora visibles en todas las gráficas apiladas, no solo en la inferior</li>
-        </ul>
-      </div>
-
-      <div class="cl-version">
-        <span class="cl-tag">v0.9</span><span class="cl-date">11 abr 2026</span>
-        <ul class="cl-list">
-          <li><span class="cl-type new">nuevo</span>Persistencia automática — los datos se guardan en el navegador, sin necesidad de cargar backup</li>
-          <li><span class="cl-type new">nuevo</span>Diario de tienda ordenable por cualquier columna (fecha desc. por defecto)</li>
-          <li><span class="cl-type new">nuevo</span>Filtro por día de la semana en el diario de tienda</li>
-          <li><span class="cl-type new">nuevo</span>Changelog accesible desde el botón «Novedades»</li>
-          <li class="fix"><span class="cl-type fix">fix</span>Los días incorporados manualmente ahora muestran su día de la semana</li>
-          <li class="fix"><span class="cl-type fix">fix</span>Flechas de navegación semanal corregidas</li>
-          <li class="fix"><span class="cl-type fix">fix</span>KPIs del resumen del diario distribuidos uniformemente</li>
-        </ul>
-      </div>
-
-      <div class="cl-version">
-        <span class="cl-tag">v0.8</span><span class="cl-date">Versión inicial</span>
-        <ul class="cl-list">
-          <li><span class="cl-type new">nuevo</span>Actualización de 4WKS con registro diario CSV e incorporación manual de días</li>
-          <li><span class="cl-type new">nuevo</span>Diario de tienda con rodante 7 días y campo de hitos</li>
-          <li><span class="cl-type new">nuevo</span>Ranking semanal ordenable por columna</li>
-          <li><span class="cl-type new">nuevo</span>Simulador rápido con proyección de posición</li>
-          <li><span class="cl-type new">nuevo</span>Modo claro / oscuro</li>
-          <li><span class="cl-type new">nuevo</span>Backup y restauración manual (JSON)</li>
-        </ul>
-      </div>
-
+      <!-- populated by js/changelog.js -->
     </div>
   </div>
 </div>
 
 <script src="js/state.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/changelog.js"></script>
 <script src="js/datepicker.js"></script>
 <script src="js/searchable-select.js"></script>
 <script src="js/parsers.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/diario.js"></script>
+<script src="js/semanal.js"></script>
 <script src="js/updater.js"></script>
 <script src="js/weekly.js"></script>
 <script src="js/simulator.js"></script>

@@ -64,3 +64,36 @@ function compute4WKS(){
   const ranking=Object.entries(agg).map(([store,s])=>({store,...s})).sort((a,b)=>b.vc-a.vc).map((s,i)=>({...s,r:i+1}));
   return{ranking,last4};
 }
+
+function getPrevious4Weeks(){
+  const allWeeks=getWeeks(); if(!allWeeks.length)return[];
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(updMode==='consolidated'){
+    const done=allWeeks.filter(ws=>weekEnd(ws)<todayStr);
+    if(done.length<5)return[];
+    return done.slice(-5,-1);
+  }
+  if(updMode==='current'){
+    if(allWeeks.length<5)return[];
+    return allWeeks.slice(-5,-1);
+  }
+  const end=updCustomEnd||allWeeks[allWeeks.length-1];
+  const idx=allWeeks.indexOf(end);
+  if(idx<1)return[];
+  return allWeeks.slice(Math.max(0,idx-4),idx);
+}
+
+function computePrev4WKSRanking(){
+  const prev4=getPrevious4Weeks();
+  if(!prev4.length)return new Map();
+  const agg={};
+  for(const [d,stores] of Object.entries(dailyData)){
+    if(!prev4.includes(weekStart(d)))continue;
+    for(const [store,s] of Object.entries(stores)){
+      if(!agg[store])agg[store]={vc:0};
+      agg[store].vc+=s.vc||0;
+    }
+  }
+  const sorted=Object.entries(agg).sort((a,b)=>b[1].vc-a[1].vc);
+  return new Map(sorted.map(([store],i)=>[store,i+1]));
+}

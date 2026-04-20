@@ -36,7 +36,7 @@ function renderWeekly(){
     }
   }
   const rows=Object.entries(agg).map(([store,s])=>({store,...s}));
-  rows.sort((a,b)=>(b[wkSortCol]-a[wkSortCol])*wkSortDir);
+  rows.sort((a,b)=>(a[wkSortCol]-b[wkSortCol])*wkSortDir);
   const daysInWeek=Object.keys(dailyData).filter(d=>weekStart(d)===ws).length;
   document.getElementById('wkMeta').textContent=`${rows.length} tiendas · ${daysInWeek}/7 días`;
   const tbody=document.getElementById('wkBody');tbody.innerHTML='';

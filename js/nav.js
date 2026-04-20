@@ -10,6 +10,7 @@ function navigate(el){
   if(nb)nb.classList.add('active');if(pb)pb.classList.add('active');
   if(target==='weekly')renderWeekly();
   if(target==='diario')renderDiario();
+  if(target==='semanal')renderSemanal();
   if(target==='analysis')renderAnalysis();
   if(target==='simulator')syncSimulator();
   if(target==='settings')renderSettingsNote();

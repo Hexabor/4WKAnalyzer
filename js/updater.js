@@ -58,7 +58,7 @@ function renderUpdater(){
   const newVal=ranking.some(s=>s.store===prev)?prev:(ranking.some(s=>s.store==='Madrid Islazul')?'Madrid Islazul':(ranking[0]?.store||''));
   ssSetValue('updTargetStore',newVal,false);
   document.getElementById('updSelectorCard').style.display='flex';
-  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();rebuildAnalysisStore();
+  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();rebuildSemanalStore();rebuildAnalysisStore();
 }
 
 function applySortHeaders(prefix,col,dir,cols){
@@ -75,9 +75,19 @@ function sortUpd(col){if(updSortCol===col)updSortDir*=-1;else{updSortCol=col;upd
 
 function renderUpdTable(){
   const{ranking}=compute4WKS();
+  const prevRank=computePrev4WKSRanking();
+  ranking.forEach(s=>{const p=prevRank.get(s.store);s.delta=p==null?null:p-s.r;});
   const targetName=document.getElementById('updTargetStore').value;
-  const sorted=[...ranking].sort((a,b)=>(b[updSortCol]-a[updSortCol])*updSortDir);
-  applySortHeaders('upd',updSortCol,updSortDir,['vc','sales','buys','members','refunds']);
+  const sorted=[...ranking].sort((a,b)=>{
+    if(updSortCol==='delta'){
+      if(a.delta==null&&b.delta==null)return 0;
+      if(a.delta==null)return 1;
+      if(b.delta==null)return -1;
+      return(a.delta-b.delta)*updSortDir;
+    }
+    return(a[updSortCol]-b[updSortCol])*updSortDir;
+  });
+  applySortHeaders('upd',updSortCol,updSortDir,['vc','sales','buys','members','refunds','delta']);
   const targetRow=sorted.find(s=>s.store===targetName);
   const targetVC=targetRow?targetRow.vc:0;
   const maxDist=Math.max(...sorted.map(s=>Math.abs(s.vc-targetVC)))||1;
@@ -89,8 +99,17 @@ function renderUpdTable(){
     let dist;
     if(isTgt){dist=`<span class="dist-val self">— tú —</span>`;}
     else{const cls=diff<0?'above':'below',sign=diff<0?`−${fmt(Math.abs(diff))}`:`+${fmt(diff)}`;dist=`<div class="dist-wrap"><div class="dist-bar-track"><div class="dist-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="dist-val ${cls}">${sign}</span></div>`;}
+    const prevR=prevRank.get(s.store);
+    let trendCell;
+    if(prevR==null){trendCell=`<span class="trend new">Nuevo</span>`;}
+    else{
+      const delta=prevR-s.r;
+      if(delta>0)trendCell=`<span class="trend up">▲ ${delta}</span>`;
+      else if(delta<0)trendCell=`<span class="trend down">▼ ${-delta}</span>`;
+      else trendCell=`<span class="trend same">—</span>`;
+    }
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
-    tr.innerHTML=`<td><span class="rank-num">${i+1}</span></td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td><td style="min-width:150px">${dist}</td>`;
+    tr.innerHTML=`<td><span class="rank-num">${i+1}</span></td><td class="r">${trendCell}</td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td><td style="min-width:150px">${dist}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -106,7 +125,14 @@ function applyRegistroCSV(text,fname){
   if(!rows)return;
   dailyData=data;dailyCSVRaw=text;dailyCSVName=fname||'';
   for(const entry of manualLog){const{map}=parseDayPaste(entry.rawText);const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(entry.date+'T12:00:00Z').getUTCDay()];for(const s of Object.values(map))s.day=dn;if(!dailyData[entry.date])dailyData[entry.date]={};Object.assign(dailyData[entry.date],map);}
-  renderUpdater();renderLog();
+  renderUpdater();renderLog();suggestNextUpdDate();
+}
+function suggestNextUpdDate(){
+  const dates=Object.keys(dailyData);
+  if(!dates.length){setDP('updDayDate',new Date().toISOString().slice(0,10),false);return;}
+  const last=dates.sort().slice(-1)[0];
+  const d=new Date(last+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+1);
+  setDP('updDayDate',d.toISOString().slice(0,10),false);
 }
 function incorporateDay(){
   const dateVal=document.getElementById('updDayDate').value;
@@ -122,15 +148,13 @@ function incorporateDay(){
   const idx=manualLog.findIndex(e=>e.date===dateVal);
   const entry={date:dateVal,count,rawText:text};
   if(idx>=0)manualLog[idx]=entry;else manualLog.unshift(entry);
-  document.getElementById('updBadgeDay').textContent=`${manualLog.length} días`;
-  document.getElementById('updBadgeDay').className='badge loaded';
   document.getElementById('updDayInput').value='';
-  renderUpdater();renderLog();
+  renderUpdater();renderLog();suggestNextUpdDate();
   toast(`✓ ${fmtDate(dateVal)} incorporado (${count} tiendas)`,'ok');
 }
 function renderLog(){
   const c=document.getElementById('updLog');
   if(!manualLog.length){c.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div>';return;}
-  c.innerHTML=manualLog.slice(0,8).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
+  c.innerHTML=manualLog.slice(0,5).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
 }
 

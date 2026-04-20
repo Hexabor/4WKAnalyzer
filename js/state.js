@@ -14,3 +14,6 @@ let wkSortCol='vc',  wkSortDir=-1;
 let diarioSortCol='date', diarioSortDir=-1;
 let diarioDayFilter='';
 let diarioStoreSel='Madrid Islazul';
+let semanalSortCol='ws', semanalSortDir=-1;
+let semanalStoreSel='Madrid Islazul';
+let semanalColorBy='none';

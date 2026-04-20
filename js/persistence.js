@@ -8,7 +8,7 @@ function saveBackup(){
     activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
     cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
-    analysisStore,analysisMetrics,analysisDayFilter,analysisStart,analysisEnd,analysisPresets,
+    analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
     targetStore:document.getElementById('targetStore').value,
     todayRaw:document.getElementById('todayInput').value,
     dailyCSVRaw,dailyCSVName,manualLog,
@@ -35,9 +35,11 @@ function loadBackup(event){
       if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
       if(b.hitoData)hitoData=b.hitoData;
       if(b.analysisStore)analysisStore=b.analysisStore;
+    if(typeof b.analysisStore2==='string')analysisStore2=b.analysisStore2;
       if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
       else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
       if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+    if(b.analysisGranularity==='week'||b.analysisGranularity==='day')analysisGranularity=b.analysisGranularity;
       if(b.analysisStart)analysisStart=b.analysisStart;
       if(b.analysisEnd)analysisEnd=b.analysisEnd;
       if(Array.isArray(b.analysisPresets))analysisPresets=b.analysisPresets;
@@ -50,6 +52,7 @@ function loadBackup(event){
         if(b.updTargetStore){if((_ssOptions['updTargetStore']||[]).some(o=>o.value===b.updTargetStore)){ssSetValue('updTargetStore',b.updTargetStore,false);renderUpdTable();}}
         if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
         if(b.diarioStoreSel&&(_ssOptions['diarioStore']||[]).some(o=>o.value===b.diarioStoreSel))ssSetValue('diarioStore',b.diarioStoreSel,false);
+        if(b.semanalStoreSel&&(_ssOptions['semanalStore']||[]).some(o=>o.value===b.semanalStoreSel))ssSetValue('semanalStore',b.semanalStoreSel,false);
       }
       if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;onTodayInput();}
       syncSimulator();
@@ -75,7 +78,8 @@ function persistState(){
       cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
-      analysisStore,analysisMetrics,analysisDayFilter,analysisStart,analysisEnd,analysisPresets,
+      semanalStoreSel,semanalSortCol,semanalSortDir,semanalColorBy,
+      analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
       targetStore:document.getElementById('targetStore').value,
       todayRaw:document.getElementById('todayInput').value,
       dailyCSVRaw,dailyCSVName,manualLog,
@@ -102,11 +106,16 @@ function restoreState(){
       document.querySelectorAll('#diarioDayFilter .diario-filter-pill').forEach(btn=>btn.classList.toggle('active',btn.dataset.day===diarioDayFilter));
     }
     if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
+    if(b.semanalStoreSel)semanalStoreSel=b.semanalStoreSel;
+    if(b.semanalSortCol){semanalSortCol=b.semanalSortCol;semanalSortDir=b.semanalSortDir??-1;}
+    if(typeof b.semanalColorBy==='string')semanalColorBy=b.semanalColorBy;
     if(b.hitoData)hitoData=b.hitoData;
     if(b.analysisStore)analysisStore=b.analysisStore;
+    if(typeof b.analysisStore2==='string')analysisStore2=b.analysisStore2;
     if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
     else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
     if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+    if(b.analysisGranularity==='week'||b.analysisGranularity==='day')analysisGranularity=b.analysisGranularity;
     if(b.analysisStart)analysisStart=b.analysisStart;
     if(b.analysisEnd)analysisEnd=b.analysisEnd;
     if(Array.isArray(b.analysisPresets))analysisPresets=b.analysisPresets;
@@ -143,6 +152,10 @@ const _origSortWk=sortWk;
 sortWk=function(c){_origSortWk(c);schedulePersist();};
 const _origSortDiario=sortDiario;
 sortDiario=function(c){_origSortDiario(c);schedulePersist();};
+const _origSortSemanal=sortSemanal;
+sortSemanal=function(c){_origSortSemanal(c);schedulePersist();};
+const _origRenderSemanal=renderSemanal;
+renderSemanal=function(){_origRenderSemanal();schedulePersist();};
 const _origFilterDay=filterDiarioDay;
 filterDiarioDay=function(b){_origFilterDay(b);schedulePersist();};
 const _origSetMode=setUpdMode;
