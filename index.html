@@ -174,9 +174,26 @@
         </div>
       </div>
       <div class="updday-form">
-        <div class="updday-col-header"><span class="updday-col-label">Incorporar día cerrado</span></div>
+        <div class="updday-col-header">
+          <span class="updday-col-label">Incorporar día cerrado</span>
+          <details class="paste-help">
+            <summary aria-label="Cómo copiar los datos" title="Cómo copiar los datos">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </summary>
+            <div class="paste-help-pop">
+              <p>Desde el home del portal CEX, selecciona y copia la tabla del día a importar, ordenado por ventas, sin cabecera y hasta la última tienda antes de ES Ecommerce.</p>
+              <img src="assets/paste-example.png" alt="Ejemplo de selección desde CEX">
+              <div class="paste-help-divider"></div>
+              <div class="paste-help-bookmarklet-title">Atajo: bookmarklet</div>
+              <p>Crea un marcador en tu navegador (Ctrl+D), pega el script copiado como dirección/URL, y haz click en él desde el portal CEX. Copiará la tabla automáticamente.</p>
+              <button type="button" class="btn-secondary paste-help-copy" onclick="copyBookmarklet()">Copiar bookmarklet</button>
+              <script type="text/plain" id="cexBookmarkletSrc">javascript:(function(){    const endText = 'ES Ecommerce';    const highlightColor = '#fff8c4';    let copiedData = [];    /* Limpiar selecciones anteriores */    document.querySelectorAll('table tbody tr').forEach(row => {        row.style.backgroundColor = '';    });    const tableBody = document.querySelector('table tbody');    if (!tableBody) {        alert('Error: No se ha encontrado la tabla en la página.');        return;    }    const rows = tableBody.querySelectorAll('tr');    let endRowIndex = -1;    for (let i = 0; i < rows.length; i++) {        const storeCell = rows[i].querySelector('td:nth-child(2)');        if (storeCell && storeCell.textContent.trim() === endText) {            endRowIndex = i;            break;        }    }    if (endRowIndex === -1) {        alert(%60Aviso: No se encontró la fila con "${endText}". Se seleccionarán y copiarán todas las filas.%60);        endRowIndex = rows.length;    }        if (endRowIndex === 0) {        alert('La fila a excluir es la primera. No hay nada que seleccionar ni copiar.');        return;    }    for (let i = 0; i < endRowIndex; i++) {        rows[i].style.backgroundColor = highlightColor;        let rowData = [];        rows[i].querySelectorAll('td').forEach(cell => {            rowData.push(cell.innerText.trim());        });        copiedData.push(rowData.join('\t'));    }    const clipboardText = copiedData.join('\n');    if (navigator.clipboard && window.isSecureContext) {        navigator.clipboard.writeText(clipboardText).then(function() {            /* Éxito */            alert(%60¡Hecho! Se han resaltado y copiado ${endRowIndex} filas al portapapeles. Ya puedes pegarlas en Excel.%60);        }, function() {            /* Fracaso */            alert('Error al copiar. Es posible que la página no sea segura (https).');        });    } else {        alert('La función de copiar no es compatible con este navegador o esta página no es segura (necesita https).');    }})();</script>
+            </div>
+          </details>
+        </div>
         <div class="date-row"><label>Fecha</label><input type="hidden" id="updDayDate"><button type="button" class="dp-btn" data-target="updDayDate" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <textarea id="updDayInput" style="height:40px" placeholder="Pegar aquí"></textarea>
+        <label class="check-toggle" style="margin:6px 0 8px"><input type="checkbox" id="updDayReplaceCb"><span>Sustituir día completo</span></label>
         <button class="btn-primary" onclick="incorporateDay()">Incorporar día</button>
       </div>
       <div class="updday-log-col">

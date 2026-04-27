@@ -2,9 +2,20 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.15';
+const APP_VERSION='α 0.16';
 
 const CHANGELOG=[
+  {
+    version:'v0.16', date:'27 abr 2026',
+    items:[
+      {type:'new', text:'Checkbox «Sustituir día completo» en Incorporar día cerrado — al marcarlo borra todas las tiendas previas del día y las reemplaza por las nuevas en lugar de fusionar; pide confirmación mostrando contadores antiguo vs nuevo'},
+      {type:'new', text:'Tooltip ⓘ junto a Incorporar día cerrado — popover con instrucciones, captura de ejemplo del portal CEX y botón «Copiar bookmarklet» que copia al portapapeles un script para pegarlo como marcador del navegador y automatizar la selección de la tabla del día'},
+      {type:'new', text:'«Últimas incorporaciones» muestra ahora 6 días en vez de 3, con +20% de ancho (de 150px a 180px)'},
+      {type:'new', text:'Modo 4WKS gana 40px de ancho a costa de la columna Incorporar día cerrado (260→220px), con el datepicker adaptado para no desbordar'},
+      {type:'fix', text:'Tag del rango 4 semanas ahora muestra «WK más antigua – WK más reciente» en orden cronológico (antes invertido)'},
+      {type:'fix', text:'Tooltip ⓘ se cierra al hacer click fuera (antes solo se cerraba pulsando de nuevo el icono)'},
+    ]
+  },
   {
     version:'v0.15', date:'27 abr 2026',
     items:[

@@ -268,12 +268,27 @@ tr.target .rank-num{color:var(--accent);font-weight:700;}
 .updday-grid{display:flex;align-items:stretch;gap:0;}
 .updday-wks{flex:1 1 auto;min-width:0;display:none;padding-right:18px;}
 .updday-wks.visible{display:flex;flex-direction:column;gap:12px;}
-.updday-form{flex:0 0 260px;min-width:0;display:flex;flex-direction:column;padding:0 18px;border-left:1px solid var(--border);}
+.updday-form{flex:0 0 220px;min-width:0;display:flex;flex-direction:column;padding:0 18px;border-left:1px solid var(--border);}
+.updday-form .dp-btn{min-width:0;flex:1 1 auto;padding:7px 10px;}
 .updday-grid:not(:has(.updday-wks.visible)) .updday-form{border-left:none;padding-left:0;}
-.updday-log-col{flex:0 0 150px;min-width:0;border-left:1px solid var(--border);padding-left:18px;display:flex;flex-direction:column;}
+.updday-log-col{flex:0 0 180px;min-width:0;border-left:1px solid var(--border);padding-left:18px;display:flex;flex-direction:column;}
 .updday-log-col .log-list{margin-top:0;max-height:none;}
 .updday-col-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;min-height:22px;}
 .updday-col-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+.paste-help{position:relative;}
+.paste-help summary{list-style:none;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;transition:color .15s,background .15s;}
+.paste-help summary::-webkit-details-marker{display:none;}
+.paste-help summary::marker{display:none;content:'';}
+.paste-help summary:hover{color:var(--accent);background:var(--surface2);}
+.paste-help summary svg{width:14px;height:14px;}
+.paste-help[open] summary{color:var(--accent);}
+.paste-help-pop{position:absolute;top:calc(100% + 6px);right:0;z-index:50;width:300px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.paste-help-pop p{margin:0 0 8px;font-size:11px;line-height:1.45;color:var(--text);}
+.paste-help-pop img{width:100%;height:auto;border-radius:4px;border:1px solid var(--border);display:block;}
+.paste-help-divider{height:1px;background:var(--border);margin:10px 0;}
+.paste-help-bookmarklet-title{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.paste-help-copy{width:100%;margin-top:4px;}
 
 /* presets row en col 1 */
 .presets-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}

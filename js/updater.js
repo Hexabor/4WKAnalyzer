@@ -309,7 +309,7 @@ function renderUpdater(){
   const{ranking,last4}=compute4WKS();
   if(last4.length){
     const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);
-    document.getElementById('wksResultTag').textContent=last4.length===1?a:`${b} – ${a}`;
+    document.getElementById('wksResultTag').textContent=last4.length===1?a:`${a} – ${b}`;
     const startIdx=allWeeks.indexOf(last4[0]);
     const endIdx=allWeeks.indexOf(last4[last4.length-1]);
     const np=document.getElementById('wksNavPrev'),nn=document.getElementById('wksNavNext');
@@ -401,24 +401,47 @@ function suggestNextUpdDate(){
 function incorporateDay(){
   const dateVal=document.getElementById('updDayDate').value;
   const text=document.getElementById('updDayInput').value.trim();
+  const replaceCb=document.getElementById('updDayReplaceCb');
+  const replace=!!(replaceCb&&replaceCb.checked);
   if(!dateVal){toast('⚠ Elige una fecha','err');return;}
   if(!text){toast('⚠ Pega los datos del día','err');return;}
   const{map,count}=parseDayPaste(text);
   if(!count){toast('⚠ No se han detectado filas válidas','err');return;}
   const dayName=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date(dateVal+'T12:00:00Z').getUTCDay()];
   for(const s of Object.values(map))s.day=dayName;
-  if(!dailyData[dateVal])dailyData[dateVal]={};
-  Object.assign(dailyData[dateVal],map);
+  const prevCount=dailyData[dateVal]?Object.keys(dailyData[dateVal]).length:0;
+  if(replace&&prevCount>0){
+    if(!confirm(`¿Sustituir el día ${fmtDate(dateVal)}?\n\nSe borrarán las ${prevCount} tiendas existentes y quedarán las ${count} nuevas. Esta acción no se puede deshacer.`))return;
+    dailyData[dateVal]=map;
+  }else{
+    if(!dailyData[dateVal])dailyData[dateVal]={};
+    Object.assign(dailyData[dateVal],map);
+  }
   const idx=manualLog.findIndex(e=>e.date===dateVal);
   const entry={date:dateVal,count,rawText:text};
   if(idx>=0)manualLog[idx]=entry;else manualLog.unshift(entry);
   document.getElementById('updDayInput').value='';
+  if(replaceCb)replaceCb.checked=false;
   renderUpdater();renderLog();suggestNextUpdDate();
-  toast(`✓ ${fmtDate(dateVal)} incorporado (${count} tiendas)`,'ok');
+  const verb=replace&&prevCount>0?'sustituido':'incorporado';
+  toast(`✓ ${fmtDate(dateVal)} ${verb} (${count} tiendas)`,'ok');
 }
 function renderLog(){
   const c=document.getElementById('updLog');
   if(!manualLog.length){c.innerHTML='<div class="log-empty">Sin entradas todavía</div>';return;}
-  c.innerHTML=manualLog.slice(0,3).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
+  c.innerHTML=manualLog.slice(0,6).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
+}
+function copyBookmarklet(){
+  const el=document.getElementById('cexBookmarkletSrc');
+  if(!el){toast('⚠ Script no encontrado','err');return;}
+  const src=el.textContent.trim();
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(src).then(()=>toast('✓ Bookmarklet copiado','ok'),()=>toast('⚠ No se pudo copiar','err'));
+  }else{
+    const ta=document.createElement('textarea');ta.value=src;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('✓ Bookmarklet copiado','ok');}
+    catch(e){toast('⚠ No se pudo copiar','err');}
+    finally{document.body.removeChild(ta);}
+  }
 }
 
