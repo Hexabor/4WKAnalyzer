@@ -98,7 +98,7 @@ function renderSemanal(){
 
   if(!rows.length){
     summary.style.display='none';
-    tbody.innerHTML='<tr><td colspan="12"><span class="empty-state">'+(Object.keys(dailyData).length?'Sin datos para esta tienda':'Carga el registro diario en «Actualización 4WKS» para ver el resumen semanal')+'</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="12"><span class="empty-state">'+(Object.keys(dailyData).length?'Sin datos para esta tienda':'Carga el registro diario en «Actualización 4WKS» para ver el histórico de semanas')+'</span></td></tr>';
     return;
   }
 
@@ -142,13 +142,13 @@ function renderSemanal(){
       <td><span class="stat-val">${rangeTxt}</span></td>
       <td><span class="stat-val${daysCls}">${r.days}/7</span></td>
       <td class="r">${rankCell}</td>
+      <td class="r"><span class="stat-val vc">${fmt(r.vc)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.sales)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.buys)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.cashBuys)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.exchBuys)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.refunds)}</span></td>
       <td class="r"><span class="stat-val">${fmtN(r.members)}</span></td>
-      <td class="r"><span class="stat-val vc">${fmt(r.vc)}</span></td>
       <td class="r"><span class="stat-val">${fmt(r.rolling4)}</span></td>`;
     tbody.appendChild(tr);
   });

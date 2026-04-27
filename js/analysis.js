@@ -12,7 +12,7 @@ const ANALYSIS_METRICS={
   ranking:{label:'Ranking',fmt:n=>`#${(Math.round(n*10)/10).toString().replace('.',',')}`,agg:'avg',inverted:true},
 };
 
-let analysisStore='__all__', analysisStore2='', analysisMetrics=['vc'], analysisDayFilter='', analysisGranularity='day';
+let analysisStore='__all__', analysisStore2='', analysisMetrics=['vc'], analysisDayFilter='', analysisDayFilter2='', analysisGranularity='day';
 let analysisStart='', analysisEnd='';
 let analysisPresets=[];
 
@@ -28,11 +28,11 @@ function rebuildAnalysisStore(){
   const newVal=(prev==='__all__'||sorted.includes(prev))?prev:'__all__';
   ssSetValue('aStore',newVal,false);
   analysisStore=newVal;
-  // Segundo selector: sin "__all__", con opción vacía
+  // Segundo selector: sin "__all__", con opción vacía. Permite misma tienda que A para comparar consigo misma en distintos días.
   const options2=[{value:'',label:'— sin comparación —'}];
-  sorted.forEach(s=>{if(s!==analysisStore)options2.push({value:s,label:s});});
+  sorted.forEach(s=>options2.push({value:s,label:s}));
   ssSetOptions('aStore2',options2);
-  const newVal2=(analysisStore2===''||(sorted.includes(analysisStore2)&&analysisStore2!==analysisStore))?analysisStore2:'';
+  const newVal2=(analysisStore2===''||sorted.includes(analysisStore2))?analysisStore2:'';
   ssSetValue('aStore2',newVal2,false);
   analysisStore2=newVal2;
 }
@@ -51,7 +51,7 @@ function initAnalysisRange(){
   setDP('aEnd',analysisEnd,false);
 }
 
-function onAnalysisStoreChange(){analysisStore=document.getElementById('aStore').value;if(analysisStore2===analysisStore)analysisStore2='';renderAnalysis();schedulePersist();}
+function onAnalysisStoreChange(){analysisStore=document.getElementById('aStore').value;renderAnalysis();schedulePersist();}
 function onAnalysisStore2Change(){analysisStore2=document.getElementById('aStore2').value;renderAnalysis();schedulePersist();}
 function toggleAnalysisMetric(btn){
   const m=btn.dataset.metric;
@@ -77,18 +77,24 @@ function filterAnalysisDay(btn){
   document.querySelectorAll('#aDayFilter .diario-filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
   renderAnalysis();schedulePersist();
 }
+function filterAnalysisDay2(btn){
+  analysisDayFilter2=btn.dataset.day;
+  document.querySelectorAll('#aDayFilter2 .diario-filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
+  renderAnalysis();schedulePersist();
+}
 function setAnalysisGranularity(btn){
   analysisGranularity=btn.dataset.gran;
   document.querySelectorAll('#aGranularity .diario-filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
   renderAnalysis();schedulePersist();
 }
 
-function collectAnalysisSeries(metric, storeKey){
+function collectAnalysisSeries(metric, storeKey, dayFilter){
   if(!storeKey)return[];
   if(!analysisStart||!analysisEnd)return[];
   const meta=ANALYSIS_METRICS[metric];
   const out=[];
   const datesInRange=Object.keys(dailyData).filter(d=>d>=analysisStart&&d<=analysisEnd).sort();
+  if(dayFilter===undefined)dayFilter=analysisDayFilter;
 
   if(analysisGranularity==='week'){
     // Agrupar por semana (sábado). Suma para métricas sum; para ranking usar lógica específica.
@@ -151,7 +157,7 @@ function collectAnalysisSeries(metric, storeKey){
       value=s[metric]||0;
       if(metric==='ranking'&&value===0)continue;
     }
-    if(analysisDayFilter&&dayName!==analysisDayFilter)continue;
+    if(dayFilter&&dayName!==dayFilter)continue;
     out.push({date,day:dayName,value});
   }
   return out;
@@ -183,11 +189,24 @@ function renderAnalysis(){
   initAnalysisRange();
   document.querySelectorAll('#aMetricPills .diario-filter-pill').forEach(p=>p.classList.toggle('active',analysisMetrics.includes(p.dataset.metric)));
   document.querySelectorAll('#aDayFilter .diario-filter-pill').forEach(b=>b.classList.toggle('active',b.dataset.day===analysisDayFilter));
+  document.querySelectorAll('#aDayFilter2 .diario-filter-pill').forEach(b=>b.classList.toggle('active',b.dataset.day===analysisDayFilter2));
   document.querySelectorAll('#aGranularity .diario-filter-pill').forEach(b=>b.classList.toggle('active',b.dataset.gran===analysisGranularity));
-  // Hide day-of-week filter when grouping by week
+  // Hide day-of-week filter when grouping by week. Doble filtro solo si hay comparación.
   const weekMode=analysisGranularity==='week';
-  const dayFilterEls=['aDayFilterSep','aDayFilterLabel','aDayFilter'];
-  dayFilterEls.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=weekMode?'none':'';});
+  const compareMode=!!analysisStore2;
+  const setDisp=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'':'none';};
+  // Sep visible solo cuando todo va en la misma fila (no comparación, no semana)
+  setDisp('aDayFilterSep',!weekMode&&!compareMode);
+  setDisp('aDayFilterLabel',!weekMode);
+  setDisp('aDayFilter',!weekMode);
+  // Salto de línea antes de Día A: solo en comparación (para alinearlo con Día B)
+  setDisp('aDayFilterBreak',!weekMode&&compareMode);
+  // Día B y su salto: solo en comparación
+  setDisp('aDayFilter2Break',!weekMode&&compareMode);
+  setDisp('aDayFilter2Sep',false); // siempre oculto: el salto de línea hace de separador
+  setDisp('aDayFilter2Label',!weekMode&&compareMode);
+  setDisp('aDayFilter2',!weekMode&&compareMode);
+  const lbl1=document.getElementById('aDayFilterLabel');if(lbl1)lbl1.textContent=compareMode?'Día A':'Día';
   // KPI labels that change with granularity
   const k=id=>document.getElementById(id);
   if(k('aSumKey-days'))k('aSumKey-days').textContent=weekMode?'Semanas':'Días';
@@ -213,8 +232,8 @@ function renderAnalysis(){
   const compare=!!analysisStore2;
   const primary=analysisMetrics[0];
   const primaryMeta=ANALYSIS_METRICS[primary];
-  const primarySeries1=collectAnalysisSeries(primary,analysisStore);
-  const primarySeries2=compare?collectAnalysisSeries(primary,analysisStore2):[];
+  const primarySeries1=collectAnalysisSeries(primary,analysisStore,analysisDayFilter);
+  const primarySeries2=compare?collectAnalysisSeries(primary,analysisStore2,analysisDayFilter2):[];
 
   if(!primarySeries1.length&&!primarySeries2.length){
     summary.style.display='none';
@@ -254,13 +273,16 @@ function renderAnalysis(){
     set('aSum-std', kpiCompareHTML(s1?.std,s2?.std,primaryMeta));
   }
 
-  const label1=analysisStore==='__all__'?'Todas las tiendas':analysisStore;
-  const label2=analysisStore2;
+  const dayLabel=d=>({Saturday:'Sáb',Sunday:'Dom',Monday:'Lun',Tuesday:'Mar',Wednesday:'Mié',Thursday:'Jue',Friday:'Vie'})[d]||'';
+  const label1Base=analysisStore==='__all__'?'Todas las tiendas':analysisStore;
+  const label2Base=analysisStore2;
+  const label1=(!weekMode&&analysisDayFilter)?`${label1Base} · ${dayLabel(analysisDayFilter)}`:label1Base;
+  const label2=(!weekMode&&analysisDayFilter2)?`${label2Base} · ${dayLabel(analysisDayFilter2)}`:label2Base;
   wrap.innerHTML='';
   analysisMetrics.forEach((m,idx)=>{
     const meta=ANALYSIS_METRICS[m];
-    const ser1=m===primary?primarySeries1:collectAnalysisSeries(m,analysisStore);
-    const ser2=compare?(m===primary?primarySeries2:collectAnalysisSeries(m,analysisStore2)):[];
+    const ser1=m===primary?primarySeries1:collectAnalysisSeries(m,analysisStore,analysisDayFilter);
+    const ser2=compare?(m===primary?primarySeries2:collectAnalysisSeries(m,analysisStore2,analysisDayFilter2)):[];
     const card=document.createElement('div');
     card.className='chart-card';
     if(!ser1.length&&!ser2.length){
@@ -277,18 +299,27 @@ function renderAnalysis(){
     wrap.appendChild(card);
     const svg=card.querySelector('svg');
     const tt=card.querySelector('.chart-tooltip');
-    drawAnalysisChart(svg, tt, ser1, ser2, meta, avg1, avg2, idx===analysisMetrics.length-1, label1, label2, weekMode);
+    drawAnalysisChart(svg, tt, ser1, ser2, meta, avg1, avg2, idx===0, label1, label2, weekMode);
   });
 }
 
 function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, showMonthNames, label1, label2, weekMode){
   const compare = !!(series2 && series2.length);
-  // Union of dates (sorted)
+  // Si A y B usan filtros de día distintos (p.ej. Sáb vs Dom), agrupar por semana para emparejar visualmente
+  const weeklyPair = compare && !weekMode
+    && analysisDayFilter && analysisDayFilter2
+    && analysisDayFilter !== analysisDayFilter2;
   let rows;
   if(compare){
     const map=new Map();
-    series1.forEach(d=>map.set(d.date,{date:d.date,day:d.day,v1:d.value,v2:null}));
-    series2.forEach(d=>{if(map.has(d.date))map.get(d.date).v2=d.value;else map.set(d.date,{date:d.date,day:d.day,v1:null,v2:d.value});});
+    if(weeklyPair){
+      const ensure=ws=>{if(!map.has(ws))map.set(ws,{date:ws,day:'Saturday',v1:null,v2:null,dateA:null,dateB:null});return map.get(ws);};
+      series1.forEach(d=>{const r=ensure(weekStart(d.date));r.v1=(r.v1||0)+d.value;r.dateA=d.date;});
+      series2.forEach(d=>{const r=ensure(weekStart(d.date));r.v2=(r.v2||0)+d.value;r.dateB=d.date;});
+    }else{
+      series1.forEach(d=>map.set(d.date,{date:d.date,day:d.day,v1:d.value,v2:null}));
+      series2.forEach(d=>{if(map.has(d.date))map.get(d.date).v2=d.value;else map.set(d.date,{date:d.date,day:d.day,v1:null,v2:d.value});});
+    }
     rows=[...map.values()].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
   }else{
     rows=series1.map(d=>({date:d.date,day:d.day,v1:d.value,v2:null}));
@@ -315,10 +346,21 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
   };
 
   const barsPer=compare?2:1;
-  const groupGap=Math.max(1,Math.min(3, plotW/(n*8)));
-  const groupW=Math.max(3,(plotW - groupGap*(n+1))/n);
-  const inGap=compare?1:0;
-  const barW=(groupW - inGap*(barsPer-1))/barsPer;
+  let groupGap, groupW, inGap, barW;
+  if(weeklyPair){
+    // Par apretado, más hueco entre semanas. Barras un poco más finas para acentuar el ritmo.
+    inGap=0.5;
+    const baseGap=Math.max(4,Math.min(8, plotW/(n*5)));
+    const baseW=(plotW - baseGap*(n+1))/n;
+    barW=Math.max(2,((baseW - inGap)/2)*0.95);
+    groupW=barW*2 + inGap;
+    groupGap=(plotW - groupW*n)/(n+1);
+  }else{
+    groupGap=Math.max(1.5,Math.min(2.5, plotW/(n*10)));
+    groupW=Math.max(3,(plotW - groupGap*(n+1))/n);
+    inGap=compare?1:0;
+    barW=(groupW - inGap*(barsPer-1))/barsPer;
+  }
   const gx = i => pad.l + groupGap + i*(groupW+groupGap);
 
   const parts=[];
@@ -399,20 +441,38 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
     parts.push(`<line class="month-divider" x1="${xDiv.toFixed(2)}" y1="${pad.t}" x2="${xDiv.toFixed(2)}" y2="${monthDivBottom.toFixed(2)}"/>`);
   }
 
+  const yLblTop=(pad.t+plotH+13).toFixed(2), yLblBot=(pad.t+plotH+25).toFixed(2);
+  const isWkDay=d=>d==='Saturday'||d==='Sunday';
   rows.forEach((d,i)=>{
-    const cx=(gx(i)+groupW/2).toFixed(2);
     if(weekMode){
+      const cx=(gx(i)+groupW/2).toFixed(2);
       const wk=weekTag(d.date);
       const dmPart=d.date.split('-');
       const dm=`${dmPart[2]}/${dmPart[1]}`;
-      parts.push(`<text class="bar-label-day" x="${cx}" y="${(pad.t+plotH+13).toFixed(2)}" text-anchor="middle">${wk}</text>`);
-      parts.push(`<text class="bar-label-dow" x="${cx}" y="${(pad.t+plotH+25).toFixed(2)}" text-anchor="middle">${dm}</text>`);
+      parts.push(`<text class="bar-label-day" x="${cx}" y="${yLblTop}" text-anchor="middle">${wk}</text>`);
+      parts.push(`<text class="bar-label-dow" x="${cx}" y="${yLblBot}" text-anchor="middle">${dm}</text>`);
+    }else if(weeklyPair){
+      // Una etiqueta debajo de cada barra: número del día + inicial
+      const ltrA=DOW_LETTER[analysisDayFilter]||'', ltrB=DOW_LETTER[analysisDayFilter2]||'';
+      const wkA=isWkDay(analysisDayFilter), wkB=isWkDay(analysisDayFilter2);
+      if(d.dateA){
+        const cxA=(gx(i)+barW/2).toFixed(2);
+        const dayA=parseInt(d.dateA.split('-')[2],10);
+        parts.push(`<text class="bar-label-day" x="${cxA}" y="${yLblTop}" text-anchor="middle">${dayA}</text>`);
+        parts.push(`<text class="bar-label-dow${wkA?' weekend':''}" x="${cxA}" y="${yLblBot}" text-anchor="middle">${ltrA}</text>`);
+      }
+      if(d.dateB){
+        const cxB=(gx(i)+barW+inGap+barW/2).toFixed(2);
+        const dayB=parseInt(d.dateB.split('-')[2],10);
+        parts.push(`<text class="bar-label-day" x="${cxB}" y="${yLblTop}" text-anchor="middle">${dayB}</text>`);
+        parts.push(`<text class="bar-label-dow${wkB?' weekend':''}" x="${cxB}" y="${yLblBot}" text-anchor="middle">${ltrB}</text>`);
+      }
     }else{
+      const cx=(gx(i)+groupW/2).toFixed(2);
       const dayNum=parseInt(d.date.split('-')[2],10);
       const letter=DOW_LETTER[d.day]||'';
-      const isWk=(d.day==='Saturday'||d.day==='Sunday');
-      parts.push(`<text class="bar-label-day" x="${cx}" y="${(pad.t+plotH+13).toFixed(2)}" text-anchor="middle">${dayNum}</text>`);
-      parts.push(`<text class="bar-label-dow${isWk?' weekend':''}" x="${cx}" y="${(pad.t+plotH+25).toFixed(2)}" text-anchor="middle">${letter}</text>`);
+      parts.push(`<text class="bar-label-day" x="${cx}" y="${yLblTop}" text-anchor="middle">${dayNum}</text>`);
+      parts.push(`<text class="bar-label-dow${isWkDay(d.day)?' weekend':''}" x="${cx}" y="${yLblBot}" text-anchor="middle">${letter}</text>`);
     }
   });
 
@@ -429,16 +489,18 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
   svg.querySelectorAll('rect.bar').forEach(r=>{
     r.addEventListener('mousemove', e=>{
       const i=+r.dataset.idx, d=rows[i];
-      const dateLbl=weekMode
+      const dateLbl=(weekMode||weeklyPair)
         ? `${weekTag(d.date)} · ${fmtDate(d.date)} → ${fmtDate(weekEnd(d.date))}`
         : `${fmtDate(d.date)} · ${DAY_ES[d.day]||d.day||'—'}`;
       let html;
       if(compare){
         const v1=d.v1!=null?meta.fmt(d.v1):'—';
         const v2=d.v2!=null?meta.fmt(d.v2):'—';
+        const dA=weeklyPair&&d.dateA?` · ${fmtDate(d.dateA)}`:'';
+        const dB=weeklyPair&&d.dateB?` · ${fmtDate(d.dateB)}`:'';
         html=`<div class="tt-date">${dateLbl}</div>`+
-             `<div class="tt-row"><span class="tt-dot tt-dot-a"></span>${label1}: <strong>${v1}</strong></div>`+
-             `<div class="tt-row"><span class="tt-dot tt-dot-b"></span>${label2}: <strong>${v2}</strong></div>`;
+             `<div class="tt-row"><span class="tt-dot tt-dot-a"></span>${label1}${dA}: <strong>${v1}</strong></div>`+
+             `<div class="tt-row"><span class="tt-dot tt-dot-b"></span>${label2}${dB}: <strong>${v2}</strong></div>`;
       }else{
         html=`<div class="tt-date">${dateLbl}</div>${meta.label}: <strong>${meta.fmt(d.v1)}</strong>`;
       }

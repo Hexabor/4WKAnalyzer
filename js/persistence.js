@@ -6,9 +6,11 @@ function saveBackup(){
     version:5,savedAt:new Date().toISOString(),
     theme:document.documentElement.dataset.theme,
     activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-    cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
+    cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updRangePresets,updStorePresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
-    analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
+    dailySelectedDate,dailySortCol,dailySortDir,
+    analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisDayFilter2,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
+    patStore,patMetric,patStart,patEnd,patSortCol,patSortDir,patColorWeeks,
     targetStore:document.getElementById('targetStore').value,
     todayRaw:document.getElementById('todayInput').value,
     dailyCSVRaw,dailyCSVName,manualLog,
@@ -30,15 +32,31 @@ function loadBackup(event){
       if(b.cexYearStart)cexYearStart=b.cexYearStart;
       if(b.updMode){updMode=b.updMode;setUpdMode(updMode);}
       if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
+      if(b.updCustomStart)updCustomStart=b.updCustomStart;
+      if(typeof b.updCustomEndAuto==='boolean')updCustomEndAuto=b.updCustomEndAuto;
+      if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
+      if(Array.isArray(b.updRangePresets))updRangePresets=b.updRangePresets;
+      if(Array.isArray(b.updStorePresets))updStorePresets=b.updStorePresets;
       if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
       if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
       if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
       if(b.hitoData)hitoData=b.hitoData;
+      if(typeof b.dailySelectedDate==='string')dailySelectedDate=b.dailySelectedDate;
+      if(typeof b.dailySortCol==='string')dailySortCol=b.dailySortCol;
+      if(b.dailySortDir===-1||b.dailySortDir===1)dailySortDir=b.dailySortDir;
+      if(typeof b.patStore==='string')patStore=b.patStore;
+      if(typeof b.patMetric==='string'&&b.patMetric in PAT_METRICS)patMetric=b.patMetric;
+      if(typeof b.patStart==='string')patStart=b.patStart;
+      if(typeof b.patEnd==='string')patEnd=b.patEnd;
+      if(typeof b.patSortCol==='string')patSortCol=b.patSortCol;
+      if(b.patSortDir===-1||b.patSortDir===1)patSortDir=b.patSortDir;
+      if(typeof b.patColorWeeks==='boolean')patColorWeeks=b.patColorWeeks;
       if(b.analysisStore)analysisStore=b.analysisStore;
     if(typeof b.analysisStore2==='string')analysisStore2=b.analysisStore2;
       if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
       else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
       if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+      if(b.analysisDayFilter2!=null)analysisDayFilter2=b.analysisDayFilter2;
     if(b.analysisGranularity==='week'||b.analysisGranularity==='day')analysisGranularity=b.analysisGranularity;
       if(b.analysisStart)analysisStart=b.analysisStart;
       if(b.analysisEnd)analysisEnd=b.analysisEnd;
@@ -75,11 +93,13 @@ function persistState(){
       version:5,savedAt:new Date().toISOString(),
       theme:document.documentElement.dataset.theme,
       activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-      cexYearStart,updMode,updCustomEnd,updSortCol,updSortDir,wkSortCol,wkSortDir,
+      cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updRangePresets,updStorePresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
+      dailySelectedDate,dailySortCol,dailySortDir,
       semanalStoreSel,semanalSortCol,semanalSortDir,semanalColorBy,
-      analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
+      analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisDayFilter2,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
+      patStore,patMetric,patStart,patEnd,patSortCol,patSortDir,patColorWeeks,
       targetStore:document.getElementById('targetStore').value,
       todayRaw:document.getElementById('todayInput').value,
       dailyCSVRaw,dailyCSVName,manualLog,
@@ -98,6 +118,10 @@ function restoreState(){
     if(b.cexYearStart)cexYearStart=b.cexYearStart;
     if(b.updMode){updMode=b.updMode;setUpdMode(updMode);}
     if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
+    if(b.updCustomStart)updCustomStart=b.updCustomStart;
+    if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
+    if(Array.isArray(b.updRangePresets))updRangePresets=b.updRangePresets;
+    if(Array.isArray(b.updStorePresets))updStorePresets=b.updStorePresets;
     if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
     if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
     if(b.diarioSortCol){diarioSortCol=b.diarioSortCol;diarioSortDir=b.diarioSortDir??-1;}
@@ -106,6 +130,16 @@ function restoreState(){
       document.querySelectorAll('#diarioDayFilter .diario-filter-pill').forEach(btn=>btn.classList.toggle('active',btn.dataset.day===diarioDayFilter));
     }
     if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
+    if(typeof b.dailySelectedDate==='string')dailySelectedDate=b.dailySelectedDate;
+    if(typeof b.dailySortCol==='string')dailySortCol=b.dailySortCol;
+    if(b.dailySortDir===-1||b.dailySortDir===1)dailySortDir=b.dailySortDir;
+    if(typeof b.patStore==='string')patStore=b.patStore;
+    if(typeof b.patMetric==='string'&&b.patMetric in PAT_METRICS)patMetric=b.patMetric;
+    if(typeof b.patStart==='string')patStart=b.patStart;
+    if(typeof b.patEnd==='string')patEnd=b.patEnd;
+    if(typeof b.patSortCol==='string')patSortCol=b.patSortCol;
+    if(b.patSortDir===-1||b.patSortDir===1)patSortDir=b.patSortDir;
+    if(typeof b.patColorWeeks==='boolean')patColorWeeks=b.patColorWeeks;
     if(b.semanalStoreSel)semanalStoreSel=b.semanalStoreSel;
     if(b.semanalSortCol){semanalSortCol=b.semanalSortCol;semanalSortDir=b.semanalSortDir??-1;}
     if(typeof b.semanalColorBy==='string')semanalColorBy=b.semanalColorBy;
@@ -115,6 +149,7 @@ function restoreState(){
     if(Array.isArray(b.analysisMetrics)&&b.analysisMetrics.length)analysisMetrics=b.analysisMetrics;
     else if(b.analysisMetric)analysisMetrics=[b.analysisMetric];
     if(b.analysisDayFilter!=null)analysisDayFilter=b.analysisDayFilter;
+    if(b.analysisDayFilter2!=null)analysisDayFilter2=b.analysisDayFilter2;
     if(b.analysisGranularity==='week'||b.analysisGranularity==='day')analysisGranularity=b.analysisGranularity;
     if(b.analysisStart)analysisStart=b.analysisStart;
     if(b.analysisEnd)analysisEnd=b.analysisEnd;

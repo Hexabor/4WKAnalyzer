@@ -2,9 +2,41 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.11';
+const APP_VERSION='α 0.14';
 
 const CHANGELOG=[
+  {
+    version:'v0.14', date:'27 abr 2026',
+    items:[
+      {type:'new', text:'Filtro de subconjuntos de tiendas en «Actualización 4WKS» — checkboxes por tienda, atajos «Todas»/«Ninguna», y selecciones guardables con nombre (p. ej. «Centros comerciales») para alternar de un click'},
+      {type:'new', text:'Modo «Personalizada» con rango libre — antes 4 semanas fijas, ahora start + end independientes admitiendo cualquier tamaño (4, 13, 26… semanas) para clasificaciones por cuarter o anuales'},
+      {type:'new', text:'Presets de rango — cualquier rango personalizado se guarda con nombre y aparece como pill bajo los modos estándar; el preset activo se resalta'},
+      {type:'new', text:'Opción «Hasta la última» — ata el fin del rango a la semana más reciente disponible (rango «vivo»), de forma que se extiende solo al cargar nuevas semanas; los presets vivos se marcan con ↻'},
+      {type:'new', text:'Navegación ◀▶ junto al badge de rango en «Actualización 4WKS» — desplaza la ventana actual una semana atrás/adelante manteniendo el tamaño'},
+    ]
+  },
+  {
+    version:'v0.13', date:'27 abr 2026',
+    items:[
+      {type:'new', text:'Nuevo módulo «Día a día» — tabla completa de un día con todas las tiendas, todas las métricas y distancia a tu tienda; navegación con flechas entre días con datos'},
+      {type:'new', text:'Nuevo módulo «Patrón semanal» — heatmap por día de la semana CEX (sáb→vie) con barra superior de medias, ordenable por columna, opción de colorear semanas por recencia y un color propio por cada métrica'},
+      {type:'new', text:'Home rediseñado en 4 secciones (4 semanas · Global · Tienda · Análisis) con tarjetas verticales más compactas al 80% del ancho'},
+      {type:'new', text:'Sidebar reorganizada con separadores entre secciones e iconos reasignados a cada módulo (refresh, rayo, sol, lista numerada, línea, barras, lupa, heatmap)'},
+      {type:'new', text:'Renombres: «Día completo» → «Día a día», «Ranking semanal» → «Semana a semana», «Diario de tienda» → «Histórico días», «Resumen semanal» → «Histórico semanas»'},
+      {type:'new', text:'Topbar del Home compacta — días registrados y rango de fechas al lado del botón Novedades; eliminado el banner de bienvenida y el KPI card grande'},
+      {type:'new', text:'V+C es ahora la primera columna métrica en «Histórico días» e «Histórico semanas» para mantener coherencia entre vistas'},
+      {type:'fix', text:'Columna # de «Día a día» ya no muestra el ranking del CSV — ahora muestra la posición secuencial 1…N en el orden actual y solo se invierte al alternar asc/desc'},
+    ]
+  },
+  {
+    version:'v0.12', date:'26 abr 2026',
+    items:[
+      {type:'new', text:'Comparar misma tienda consigo misma en días distintos en «Análisis por rango» — segundo filtro de día independiente (Día A / Día B); si los días difieren, el gráfico empareja por semana (par apretado, semanas separadas con margen)'},
+      {type:'new', text:'Tira «Base 4WKS» en el Simulador rápido — modo, semanas WK y rango de fechas siempre visibles bajo el título'},
+      {type:'fix', text:'Columna # del ranking de Actualización 4WKS — ahora siempre muestra el rango 4WKS por V+C aunque ordenes por otra columna; antes era inconsistente con la columna Δ'},
+      {type:'fix', text:'Nombre del mes movido al primer gráfico del Análisis por rango (antes solo aparecía bajo el último y se perdía al hacer scroll)'},
+    ]
+  },
   {
     version:'v0.11', date:'21 abr 2026',
     items:[

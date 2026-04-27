@@ -55,9 +55,10 @@ function recalc(){
 }
 function syncSimulator(){
   const{ranking}=compute4WKS();
+  const baseInfo=document.getElementById('simBaseInfo');
   if(!ranking.length){
     BASE=[];
-    document.getElementById('badge4w').textContent='Sin base';document.getElementById('badge4w').className='badge';
+    if(baseInfo)baseInfo.style.display='none';
     ssSetOptions('targetStore',[]);ssSetValue('targetStore','',false);
     document.getElementById('banner').classList.remove('visible');document.getElementById('tableCard').classList.remove('visible');
     return;
@@ -69,7 +70,16 @@ function syncSimulator(){
   const newVal=BASE.some(s=>s.store===prev)?prev:(BASE.some(s=>s.store==='Madrid Islazul')?'Madrid Islazul':BASE[0].store);
   ssSetValue('targetStore',newVal,false);
   const last4=getSelected4Weeks();
-  if(last4.length){const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);document.getElementById('badge4w').textContent=last4.length===1?a:`${b}–${a}`;document.getElementById('badge4w').className='badge loaded';}
+  if(last4.length&&baseInfo){
+    const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);
+    const wkText=last4.length===1?a:`${a} → ${b}`;
+    const modeText={consolidated:'4 últimas consolidadas',current:'Incl. semana actual',custom:'Personalizada'}[updMode]||'—';
+    const dateText=`${fmtDate(last4[0])} → ${fmtDate(weekEnd(last4[last4.length-1]))}`;
+    document.getElementById('simBaseMode').textContent=modeText;
+    document.getElementById('simBaseWeeks').textContent=wkText;
+    document.getElementById('simBaseDates').textContent=dateText;
+    baseInfo.style.display='';
+  }
   recalc();
 }
 function onTodayInput(){

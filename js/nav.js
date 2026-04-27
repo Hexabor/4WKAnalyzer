@@ -9,9 +9,11 @@ function navigate(el){
   const pb=document.getElementById(`panel-${target}`);
   if(nb)nb.classList.add('active');if(pb)pb.classList.add('active');
   if(target==='weekly')renderWeekly();
+  if(target==='daily')renderDaily();
   if(target==='diario')renderDiario();
   if(target==='semanal')renderSemanal();
   if(target==='analysis')renderAnalysis();
+  if(target==='pattern')renderPattern();
   if(target==='simulator')syncSimulator();
   if(target==='settings')renderSettingsNote();
 }

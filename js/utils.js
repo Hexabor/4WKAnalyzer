@@ -45,18 +45,29 @@ function getSelected4Weeks(){
   const todayStr=new Date().toISOString().slice(0,10);
   if(updMode==='consolidated'){const done=allWeeks.filter(ws=>weekEnd(ws)<todayStr);return done.slice(-4);}
   if(updMode==='current'){return allWeeks.slice(-4);}
-  const end=updCustomEnd||allWeeks[allWeeks.length-1];
-  const idx=allWeeks.indexOf(end);
-  if(idx<0)return allWeeks.slice(-4);
-  return allWeeks.slice(Math.max(0,idx-3),idx+1);
+  // Modo personalizado: rango libre [start..end]. Si falta start, usa 4 semanas hacia atrás.
+  // Si updCustomEndAuto, end siempre = última semana disponible (rango "vivo").
+  const end=updCustomEndAuto?allWeeks[allWeeks.length-1]:(updCustomEnd&&allWeeks.includes(updCustomEnd)?updCustomEnd:allWeeks[allWeeks.length-1]);
+  const endIdx=allWeeks.indexOf(end);
+  if(endIdx<0)return allWeeks.slice(-4);
+  let startIdx;
+  if(updCustomStart&&allWeeks.includes(updCustomStart)){
+    startIdx=allWeeks.indexOf(updCustomStart);
+    if(startIdx>endIdx)startIdx=Math.max(0,endIdx-3);
+  }else{
+    startIdx=Math.max(0,endIdx-3);
+  }
+  return allWeeks.slice(startIdx,endIdx+1);
 }
 
 function compute4WKS(){
   const last4=getSelected4Weeks();
+  const filterActive=Array.isArray(updStoreFilter)&&updStoreFilter.length>0;
   const agg={};
   for(const [d,stores] of Object.entries(dailyData)){
     if(!last4.includes(weekStart(d)))continue;
     for(const [store,s] of Object.entries(stores)){
+      if(filterActive&&!updStoreFilter.includes(store))continue;
       if(!agg[store])agg[store]={vc:0,sales:0,buys:0,members:0,refunds:0};
       agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].members+=s.members;agg[store].refunds+=s.refunds;
     }
@@ -77,19 +88,26 @@ function getPrevious4Weeks(){
     if(allWeeks.length<5)return[];
     return allWeeks.slice(-5,-1);
   }
-  const end=updCustomEnd||allWeeks[allWeeks.length-1];
-  const idx=allWeeks.indexOf(end);
-  if(idx<1)return[];
-  return allWeeks.slice(Math.max(0,idx-4),idx);
+  // Modo personalizado: ventana del mismo tamaño desplazada hacia atrás
+  const cur=getSelected4Weeks();
+  if(!cur.length)return[];
+  const startIdx=allWeeks.indexOf(cur[0]);
+  const size=cur.length;
+  const prevEnd=startIdx-1;
+  const prevStart=prevEnd-size+1;
+  if(prevStart<0||prevEnd<0)return[];
+  return allWeeks.slice(prevStart,prevEnd+1);
 }
 
 function computePrev4WKSRanking(){
   const prev4=getPrevious4Weeks();
   if(!prev4.length)return new Map();
+  const filterActive=Array.isArray(updStoreFilter)&&updStoreFilter.length>0;
   const agg={};
   for(const [d,stores] of Object.entries(dailyData)){
     if(!prev4.includes(weekStart(d)))continue;
     for(const [store,s] of Object.entries(stores)){
+      if(filterActive&&!updStoreFilter.includes(store))continue;
       if(!agg[store])agg[store]={vc:0};
       agg[store].vc+=s.vc||0;
     }

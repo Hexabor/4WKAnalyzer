@@ -40,7 +40,7 @@ function renderDiario(){
   const tbody=document.getElementById('diarioBody');
 
   if(!store||!Object.keys(dailyData).length){
-    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el diario de tienda</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el histórico de días</span></td></tr>';
     document.getElementById('diarioSummary').style.display='none';
     return;
   }
@@ -116,13 +116,13 @@ function renderDiario(){
       <td><span class="stat-val">${fmtDate(d.date)}</span></td>
       <td><span class="stat-val">${DAY_ES[d.day]||d.day||'—'}</span></td>
       <td class="r">${rankCell}</td>
+      <td class="r"><span class="stat-val vc">${fmt(d.vc)}</span></td>
       <td class="r"><span class="stat-val">${fmt(d.sales)}</span></td>
       <td class="r"><span class="stat-val">${fmt(d.buys)}</span></td>
       <td class="r"><span class="stat-val">${d.cashBuys?fmt(d.cashBuys):'—'}</span></td>
       <td class="r"><span class="stat-val">${d.exchBuys?fmt(d.exchBuys):'—'}</span></td>
       <td class="r"><span class="stat-val">${fmt(d.refunds)}</span></td>
       <td class="r"><span class="stat-val">${fmtN(d.members)}</span></td>
-      <td class="r"><span class="stat-val vc">${fmt(d.vc)}</span></td>
       <td class="r"><span class="rolling-val${d._full7?' highlight':''}">${fmt(d._roll7)}</span></td>
       <td class="r"><span class="rolling-val${d._full7?' highlight':''}">${fmt(d._avg7)}</span></td>
       <td class="hito-cell"><input class="hito-input" type="text" placeholder="Anotar hito…" value="${(hitoData[d.date]||'').replace(/"/g,'&quot;')}" data-date="${d.date}" onchange="saveHito(this)" onblur="saveHito(this)"></td>`;
