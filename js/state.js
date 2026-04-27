@@ -10,7 +10,12 @@ let BASE=[], todayMap={};
 let cexYearStart='2025-12-29';
 let updMode='consolidated', updCustomEnd=null, updCustomStart=null, updCustomEndAuto=false;
 // updStoreFilter: null = sin filtro (todas las tiendas), [] = ninguna, [...] = solo esas
-let updStoreFilter=null, updRangePresets=[], updStorePresets=[];
+let updStoreFilter=null;
+// updPresets: cada preset agrupa rango + tiendas. Modelo:
+//   {name, range: {start,end,endAuto} | null, stores: string[] | null}
+//   range=null: el preset no toca el rango (legacy: solo-tiendas)
+//   stores=null: aplicar a todas las tiendas (sin filtro) — o legacy solo-rango
+let updPresets=[];
 let updSortCol='vc', updSortDir=-1;
 let wkSortCol='vc',  wkSortDir=-1;
 let diarioSortCol='date', diarioSortDir=-1;

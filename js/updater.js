@@ -6,23 +6,21 @@ function setUpdMode(mode){
   ['consolidated','current','custom'].forEach(m=>{
     document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active',m===mode);
   });
-  const block=document.getElementById('updCustomBlock');
-  if(block)block.style.display=mode==='custom'?'':'none';
   renderUpdater();
 }
 function onCustomStartChange(){
-  updCustomStart=document.getElementById('updCustomStartSel').value||null;
+  updCustomStart=document.getElementById('updCustomStartWsel').dataset.value||null;
   if(updCustomStart&&updCustomEnd&&updCustomStart>updCustomEnd){
     updCustomEnd=updCustomStart;
-    document.getElementById('updCustomEndSel').value=updCustomEnd;
+    setWselValue(document.getElementById('updCustomEndWsel'),updCustomEnd);
   }
   renderUpdater();schedulePersist();
 }
 function onCustomEndChange(){
-  updCustomEnd=document.getElementById('updCustomEndSel').value||null;
+  updCustomEnd=document.getElementById('updCustomEndWsel').dataset.value||null;
   if(updCustomStart&&updCustomEnd&&updCustomStart>updCustomEnd){
     updCustomStart=updCustomEnd;
-    document.getElementById('updCustomStartSel').value=updCustomStart;
+    setWselValue(document.getElementById('updCustomStartWsel'),updCustomStart);
   }
   renderUpdater();schedulePersist();
 }
@@ -30,28 +28,70 @@ function onCustomEndAutoChange(){
   updCustomEndAuto=document.getElementById('updCustomEndAutoCb').checked;
   renderUpdater();schedulePersist();
 }
-function rebuildCustomSel(){
-  const selStart=document.getElementById('updCustomStartSel');
-  const selEnd=document.getElementById('updCustomEndSel');
-  if(!selStart||!selEnd)return;
-  const weeks=getWeeks();
-  selStart.innerHTML='';selEnd.innerHTML='';
+// ── DROPDOWN CUSTOM (wsel) ──
+function toggleWsel(btn,e){
+  e.stopPropagation();
+  const wsel=btn.closest('.wsel');
+  if(wsel.classList.contains('wsel-disabled'))return;
+  const willOpen=!wsel.classList.contains('open');
+  document.querySelectorAll('.wsel.open').forEach(w=>w.classList.remove('open'));
+  if(willOpen){
+    wsel.classList.add('open');
+    const cur=wsel.querySelector('.wsel-opt.active');
+    if(cur)cur.scrollIntoView({block:'nearest'});
+  }
+}
+function selectWsel(opt,e){
+  e.stopPropagation();
+  const wsel=opt.closest('.wsel');
+  setWselValue(wsel,opt.dataset.value);
+  wsel.classList.remove('open');
+  const cb=wsel.dataset.onchange;
+  if(cb&&typeof window[cb]==='function')window[cb]();
+}
+function setWselValue(wsel,value){
+  if(!wsel)return;
+  wsel.dataset.value=value||'';
+  const tagEl=wsel.querySelector('.wsel-tag');
+  if(tagEl)tagEl.textContent=value?weekTag(value):'—';
+  wsel.querySelectorAll('.wsel-opt').forEach(o=>o.classList.toggle('active',o.dataset.value===value));
+}
+function fillWsel(wsel,weeks){
+  if(!wsel)return;
+  const pop=wsel.querySelector('.wsel-pop');
+  if(!pop)return;
+  pop.innerHTML='';
   if(!weeks.length){
-    selStart.innerHTML='<option value="">— sin datos —</option>';
-    selEnd.innerHTML='<option value="">— sin datos —</option>';
+    pop.innerHTML='<div class="wsel-empty">— sin datos —</div>';
     return;
   }
   [...weeks].reverse().forEach(ws=>{
-    const oS=document.createElement('option');oS.value=ws;oS.textContent=weekLabel(ws);selStart.appendChild(oS);
-    const oE=document.createElement('option');oE.value=ws;oE.textContent=weekLabel(ws);selEnd.appendChild(oE);
+    const opt=document.createElement('div');
+    opt.className='wsel-opt';
+    opt.dataset.value=ws;
+    opt.textContent=weekLabel(ws);
+    opt.onclick=(e)=>selectWsel(opt,e);
+    pop.appendChild(opt);
   });
+}
+document.addEventListener('click',()=>document.querySelectorAll('.wsel.open').forEach(w=>w.classList.remove('open')));
+function rebuildCustomSel(){
+  const wselStart=document.getElementById('updCustomStartWsel');
+  const wselEnd=document.getElementById('updCustomEndWsel');
+  if(!wselStart||!wselEnd)return;
+  const weeks=getWeeks();
+  fillWsel(wselStart,weeks);fillWsel(wselEnd,weeks);
+  if(!weeks.length){
+    setWselValue(wselStart,'');setWselValue(wselEnd,'');
+    return;
+  }
   if(!updCustomEnd||!weeks.includes(updCustomEnd))updCustomEnd=weeks[weeks.length-1];
   if(!updCustomStart||!weeks.includes(updCustomStart))updCustomStart=weeks[Math.max(0,weeks.indexOf(updCustomEnd)-3)];
   if(updCustomStart>updCustomEnd){const t=updCustomStart;updCustomStart=updCustomEnd;updCustomEnd=t;}
-  selStart.value=updCustomStart;
-  // Si endAuto está activo, el select muestra la última semana viva y queda deshabilitado.
-  selEnd.value=updCustomEndAuto?weeks[weeks.length-1]:updCustomEnd;
-  selEnd.disabled=updCustomEndAuto;
+  setWselValue(wselStart,updCustomStart);
+  // Si endAuto está activo, el dropdown muestra la última semana viva y queda deshabilitado.
+  setWselValue(wselEnd,updCustomEndAuto?weeks[weeks.length-1]:updCustomEnd);
+  wselEnd.classList.toggle('wsel-disabled',updCustomEndAuto);
   const cb=document.getElementById('updCustomEndAutoCb');
   if(cb)cb.checked=updCustomEndAuto;
 }
@@ -75,55 +115,101 @@ function shiftUpdWindow(delta){
   schedulePersist();
 }
 
-// ── PRESETS DE RANGO ──
-function isUpdRangePresetActive(p){
-  if(updMode!=='custom')return false;
-  if(updCustomStart!==p.start)return false;
-  if(p.endAuto)return !!updCustomEndAuto;
-  return !updCustomEndAuto&&updCustomEnd===p.end;
+// ── PRESETS UNIFICADOS (rango + tiendas) ──
+function isUpdPresetActive(p){
+  // El preset coincide con el estado actual si ambos componentes (rango y tiendas) coinciden
+  // (los componentes con valor null se consideran "no aplican" → solo cuentan los que sí define el preset)
+  if(p.range){
+    if(updMode!=='custom')return false;
+    if(updCustomStart!==p.range.start)return false;
+    if(p.range.endAuto){if(!updCustomEndAuto)return false;}
+    else if(updCustomEndAuto||updCustomEnd!==p.range.end)return false;
+  }
+  if(p.stores!==undefined){
+    const cur=updStoreFilter;
+    const a=p.stores===null?null:[...p.stores].sort().join('|');
+    const b=cur===null?null:[...cur].sort().join('|');
+    if(a!==b)return false;
+  }
+  return true;
 }
-function renderUpdRangePresets(){
-  const list=document.getElementById('updRangePresetsList');
+function presetSummary(p){
+  const parts=[];
+  if(p.range){
+    const endLbl=p.range.endAuto?'última ↻':weekTag(p.range.end);
+    parts.push(`${weekTag(p.range.start)} → ${endLbl}`);
+  }
+  if(p.stores!==undefined){
+    parts.push(p.stores===null?'todas':`${p.stores.length} tiendas`);
+  }
+  return parts.join(' · ')||'sin filtros';
+}
+function renderUpdPresets(){
+  const list=document.getElementById('updPresetsList');
   if(!list)return;
-  if(!updRangePresets.length){list.innerHTML='';list.style.display='none';return;}
-  list.style.display='';
   list.innerHTML='';
-  updRangePresets.forEach((p,i)=>{
-    const isActive=isUpdRangePresetActive(p);
+  if(!updPresets.length){
+    const empty=document.createElement('span');empty.className='preset-pill empty';empty.textContent='Sin presets guardados';list.appendChild(empty);return;
+  }
+  updPresets.forEach((p,i)=>{
+    const isActive=isUpdPresetActive(p);
     const pill=document.createElement('span');pill.className='preset-pill mode-preset-pill'+(isActive?' active':'');
     const name=document.createElement('span');name.className='pp-name';
-    name.textContent=p.endAuto?`${p.name} ↻`:p.name;
-    name.title=p.endAuto?`${weekTag(p.start)} → última (vivo)`:`${weekTag(p.start)} → ${weekTag(p.end)}`;
-    name.onclick=()=>applyUpdRangePreset(i);
-    const del=document.createElement('span');del.className='pp-del';del.textContent='×';del.title='Eliminar';del.onclick=(e)=>{e.stopPropagation();deleteUpdRangePreset(i);};
+    name.textContent=p.name;
+    name.title=presetSummary(p);
+    name.onclick=()=>applyUpdPreset(i);
+    const del=document.createElement('span');del.className='pp-del';del.textContent='×';del.title='Eliminar';del.onclick=(e)=>{e.stopPropagation();deleteUpdPreset(i);};
     pill.appendChild(name);pill.appendChild(del);list.appendChild(pill);
   });
 }
-function applyUpdRangePreset(i){
-  const p=updRangePresets[i];if(!p)return;
-  updCustomStart=p.start;updCustomEnd=p.end;
-  updCustomEndAuto=!!p.endAuto;
-  setUpdMode('custom');
-  schedulePersist();
-  toast(`✓ Rango «${p.name}» aplicado`,'ok');
+function applyUpdPreset(i){
+  const p=updPresets[i];if(!p)return;
+  if(p.range){
+    updCustomStart=p.range.start;updCustomEnd=p.range.end;updCustomEndAuto=!!p.range.endAuto;
+    setUpdMode('custom');
+  }
+  if(p.stores!==undefined){
+    if(p.stores===null){updStoreFilter=null;}
+    else{
+      const all=getAllStoresInData();
+      const filtered=p.stores.filter(s=>all.includes(s));
+      updStoreFilter=filtered.length===all.length?null:filtered;
+    }
+    updateStoreFilterCount();renderUpdStoreChecks();
+  }
+  renderUpdater();schedulePersist();
+  toast(`✓ Preset «${p.name}» aplicado`,'ok');
 }
-function saveUpdRangePreset(){
-  if(!updCustomStart){toast('⚠ Elige un inicio primero','err');return;}
-  const endLbl=updCustomEndAuto?'última':weekTag(updCustomEnd);
-  const name=prompt(`Nombre para el rango ${weekTag(updCustomStart)} → ${endLbl}:`,'');
+function saveUpdPreset(){
+  if(!updCustomStart||!updCustomEnd){toast('⚠ Configura un rango primero','err');return;}
+  const storesSnap=updStoreFilter===null?null:updStoreFilter.slice();
+  const name=prompt('Nombre para el preset:','');
   if(name==null)return;
   const trimmed=name.trim();if(!trimmed){toast('⚠ Nombre vacío','err');return;}
-  const idx=updRangePresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
-  const entry={name:trimmed,start:updCustomStart,end:updCustomEnd,endAuto:updCustomEndAuto};
-  if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updRangePresets[idx]=entry;}
-  else updRangePresets.push(entry);
-  renderUpdRangePresets();schedulePersist();
-  toast(`✓ Rango «${trimmed}» guardado`,'ok');
+  const idx=updPresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
+  const entry={name:trimmed,range:{start:updCustomStart,end:updCustomEnd,endAuto:updCustomEndAuto},stores:storesSnap};
+  if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updPresets[idx]=entry;}
+  else updPresets.push(entry);
+  renderUpdPresets();schedulePersist();
+  toast(`✓ Preset «${trimmed}» guardado`,'ok');
 }
-function deleteUpdRangePreset(i){
-  const p=updRangePresets[i];if(!p)return;
+function deleteUpdPreset(i){
+  const p=updPresets[i];if(!p)return;
   if(!confirm(`Eliminar «${p.name}»?`))return;
-  updRangePresets.splice(i,1);renderUpdRangePresets();schedulePersist();
+  updPresets.splice(i,1);renderUpdPresets();schedulePersist();
+}
+
+// ── INSPECTOR (drawer flotante derecho con ambos paneles) ──
+function openInspector(){
+  const insp=document.getElementById('updInspector');
+  if(!insp)return;
+  insp.classList.add('open');
+  // Si no hay datos aún, no tiene sentido abrirlo; pero igual lo dejamos navegable
+  renderUpdStoreChecks();
+}
+function closeInspector(){
+  const insp=document.getElementById('updInspector');
+  if(insp)insp.classList.remove('open');
 }
 
 // ── FILTRO DE TIENDAS ──
@@ -131,14 +217,6 @@ function getAllStoresInData(){
   const stores=new Set();
   for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
   return [...stores].sort();
-}
-function toggleUpdStoreFilter(){
-  const panel=document.getElementById('updStoreFilterPanel');
-  const open=panel.style.display==='none';
-  panel.style.display=open?'':'none';
-  const btn=document.getElementById('updStoreFilterToggleBtn');
-  if(btn)btn.textContent=open?'Cerrar':'Editar selección';
-  if(open){renderUpdStoreChecks();renderUpdStorePresets();}
 }
 function clearUpdStoreFilter(){
   updStoreFilter=null;
@@ -192,49 +270,6 @@ function updateStoreFilterCount(){
     if(countEl)countEl.textContent=`${updStoreFilter.length} de ${all.length}`;
     if(counterEl)counterEl.textContent=`${updStoreFilter.length} / ${all.length}`;
   }
-  // Visibilidad de la card: mostrar si hay datos
-  const card=document.getElementById('updStoreFilterCard');
-  if(card)card.style.display=all.length?'':'none';
-}
-function renderUpdStorePresets(){
-  const list=document.getElementById('updStorePresetsList');
-  if(!list)return;
-  if(!updStorePresets.length){list.innerHTML='<span class="preset-pill empty">Sin selecciones guardadas</span>';return;}
-  list.innerHTML='';
-  updStorePresets.forEach((p,i)=>{
-    const pill=document.createElement('span');pill.className='preset-pill';
-    const name=document.createElement('span');name.className='pp-name';name.textContent=`${p.name} (${p.stores.length})`;name.title='Aplicar';name.onclick=()=>applyUpdStorePreset(i);
-    const del=document.createElement('span');del.className='pp-del';del.textContent='×';del.title='Eliminar';del.onclick=()=>deleteUpdStorePreset(i);
-    pill.appendChild(name);pill.appendChild(del);list.appendChild(pill);
-  });
-}
-function applyUpdStorePreset(i){
-  const p=updStorePresets[i];if(!p)return;
-  // Solo conservar las tiendas que existen en los datos actuales
-  const all=getAllStoresInData();
-  updStoreFilter=p.stores.filter(s=>all.includes(s));
-  if(updStoreFilter.length===all.length)updStoreFilter=null;
-  updateStoreFilterCount();renderUpdStoreChecks();renderUpdater();schedulePersist();
-  toast(`✓ Selección «${p.name}» aplicada`,'ok');
-}
-function saveUpdStorePreset(){
-  const all=getAllStoresInData();
-  const stores=updStoreFilter===null?all.slice():updStoreFilter.slice();
-  if(!stores.length){toast('⚠ La selección está vacía','err');return;}
-  const name=prompt(`Nombre para esta selección (${stores.length} tiendas):`,'');
-  if(name==null)return;
-  const trimmed=name.trim();if(!trimmed){toast('⚠ Nombre vacío','err');return;}
-  const idx=updStorePresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
-  const entry={name:trimmed,stores};
-  if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updStorePresets[idx]=entry;}
-  else updStorePresets.push(entry);
-  renderUpdStorePresets();schedulePersist();
-  toast(`✓ Selección «${trimmed}» guardada`,'ok');
-}
-function deleteUpdStorePreset(i){
-  const p=updStorePresets[i];if(!p)return;
-  if(!confirm(`Eliminar «${p.name}»?`))return;
-  updStorePresets.splice(i,1);renderUpdStorePresets();schedulePersist();
 }
 
 // ══════════════════════════════════════════════════════
@@ -258,8 +293,8 @@ function renderUpdater(){
   if(!dates.length){
     wksCard.classList.remove('visible');
     document.getElementById('updSelectorCard').style.display='none';
-    const sfc=document.getElementById('updStoreFilterCard');if(sfc)sfc.style.display='none';
     document.getElementById('updRankingBody').innerHTML='<tr><td colspan="8"><span class="empty-state">Carga el registro diario para calcular el 4WKS</span></td></tr>';
+    closeInspector();
     updateHomeKPI();rebuildWeekSelect();return;
   }
   wksCard.classList.add('visible');
@@ -268,9 +303,9 @@ function renderUpdater(){
   document.getElementById('wksRange').textContent=`${fmtDate(dates[0])} → ${fmtDate(dates[dates.length-1])}`;
   document.getElementById('wksWeeks').textContent=allWeeks.length;
   rebuildCustomSel();
-  renderUpdRangePresets();
+  renderUpdPresets();
   updateStoreFilterCount();
-  renderUpdStorePresets();
+  renderUpdStoreChecks();
   const{ranking,last4}=compute4WKS();
   if(last4.length){
     const a=weekTag(last4[0]),b=weekTag(last4[last4.length-1]);
@@ -383,7 +418,7 @@ function incorporateDay(){
 }
 function renderLog(){
   const c=document.getElementById('updLog');
-  if(!manualLog.length){c.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div>';return;}
-  c.innerHTML=manualLog.slice(0,5).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
+  if(!manualLog.length){c.innerHTML='<div class="log-empty">Sin entradas todavía</div>';return;}
+  c.innerHTML=manualLog.slice(0,3).map(e=>`<div class="log-item"><span class="li-date">${fmtDate(e.date)}</span><span>${e.count} tiendas</span></div>`).join('');
 }
 

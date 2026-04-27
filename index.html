@@ -162,16 +162,10 @@
           <button class="mode-pill" id="modeCurrent" onclick="setUpdMode('current')">Incl. semana actual</button>
           <button class="mode-pill" id="modeCustom" onclick="setUpdMode('custom')">Personalizada</button>
         </div>
-        <div class="mode-range-presets" id="updRangePresetsList"></div>
-        <div class="mode-custom-block" id="updCustomBlock" style="display:none">
-          <div class="mode-custom-row">
-            <label>Desde</label>
-            <select id="updCustomStartSel" onchange="onCustomStartChange()"></select>
-            <label>Hasta</label>
-            <select id="updCustomEndSel" onchange="onCustomEndChange()"></select>
-            <label class="check-toggle"><input type="checkbox" id="updCustomEndAutoCb" onchange="onCustomEndAutoChange()"><span>Hasta la última</span></label>
-            <button class="mode-presets-save" onclick="saveUpdRangePreset()">+ guardar rango</button>
-          </div>
+        <div class="presets-row">
+          <span class="mode-presets-label">Presets</span>
+          <div class="mode-presets-list" id="updPresetsList"></div>
+          <button class="mode-presets-save" onclick="openInspector()" title="Configurar y guardar un preset (rango + tiendas)">+ nuevo preset</button>
         </div>
         <div class="wks-stats-inline">
           <div class="wks-stat-chip"><span class="wks-stat-chip-val" id="wksDays">—</span><span class="wks-stat-chip-key">días</span></div>
@@ -187,35 +181,53 @@
       </div>
       <div class="updday-log-col">
         <div class="updday-col-header"><span class="updday-col-label">Últimas incorporaciones</span></div>
-        <div class="log-list" id="updLog"><div style="font-size:11px;color:var(--muted);padding:6px 0;">Sin entradas manuales todavía</div></div>
+        <div class="log-list" id="updLog"><div class="log-empty">Sin entradas todavía</div></div>
       </div>
     </div>
   </div>
-  <div class="card pad" id="updStoreFilterCard" style="margin-bottom:12px;display:none">
-    <div class="store-filter-bar">
-      <div class="store-filter-info">
-        <span class="card-label">Filtro de tiendas</span>
-        <span class="store-filter-count" id="updStoreFilterCount">Todas</span>
+
+  <!-- Inspector flotante: rango personalizado + tiendas -->
+  <aside class="inspector" id="updInspector">
+    <div class="inspector-header">
+      <span class="inspector-title">Configurar preset</span>
+      <button class="inspector-close" onclick="closeInspector()" title="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="inspector-body">
+      <div class="filters-section">
+        <div class="filters-section-label">Rango personalizado</div>
+        <div class="filters-row">
+          <label>Desde</label>
+          <div class="wsel" id="updCustomStartWsel" data-onchange="onCustomStartChange">
+            <button type="button" class="wsel-btn" onclick="toggleWsel(this,event)"><span class="wsel-tag">—</span><svg class="wsel-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="wsel-pop"></div>
+          </div>
+        </div>
+        <div class="filters-row">
+          <label>Hasta</label>
+          <div class="wsel" id="updCustomEndWsel" data-onchange="onCustomEndChange">
+            <button type="button" class="wsel-btn" onclick="toggleWsel(this,event)"><span class="wsel-tag">—</span><svg class="wsel-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="wsel-pop"></div>
+          </div>
+        </div>
+        <div class="filters-row filters-row-end">
+          <label class="check-toggle"><input type="checkbox" id="updCustomEndAutoCb" onchange="onCustomEndAutoChange()"><span>Hasta la última</span></label>
+        </div>
       </div>
-      <div class="store-filter-actions">
-        <button class="btn-mini" onclick="toggleUpdStoreFilter()" id="updStoreFilterToggleBtn">Editar selección</button>
-        <button class="btn-mini btn-mini-ghost" onclick="clearUpdStoreFilter()">Restaurar todas</button>
+      <div class="filters-section">
+        <div class="filters-section-label">Tiendas <span class="store-filter-count" id="updStoreFilterCount">Todas</span></div>
+        <div class="store-filter-quick">
+          <button class="btn-mini" onclick="updStoreFilterAll()">Todas</button>
+          <button class="btn-mini" onclick="updStoreFilterNone()">Ninguna</button>
+          <span class="store-filter-counter" id="updStoreFilterCounter">—</span>
+        </div>
+        <div class="store-filter-checks" id="updStoreChecks"></div>
       </div>
     </div>
-    <div class="store-filter-panel" id="updStoreFilterPanel" style="display:none">
-      <div class="store-filter-quick">
-        <button class="btn-mini" onclick="updStoreFilterAll()">Todas</button>
-        <button class="btn-mini" onclick="updStoreFilterNone()">Ninguna</button>
-        <span class="store-filter-counter" id="updStoreFilterCounter">—</span>
-      </div>
-      <div class="store-filter-checks" id="updStoreChecks"></div>
-      <div class="mode-presets-row">
-        <span class="mode-presets-label">Selecciones</span>
-        <div class="mode-presets-list" id="updStorePresetsList"></div>
-        <button class="mode-presets-save" onclick="saveUpdStorePreset()">+ guardar selección</button>
-      </div>
+    <div class="inspector-footer">
+      <button class="btn-mini btn-mini-ghost" onclick="closeInspector()">Cerrar</button>
+      <button class="btn-primary inspector-save" onclick="saveUpdPreset()">+ guardar preset</button>
     </div>
-  </div>
+  </aside>
   <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="updTargetStore" onchange="renderUpdTable()"><input type="text" class="ss-input" data-ss-for="updTargetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
   <div class="table-card visible upd-rank" id="updTableCard">
     <table>

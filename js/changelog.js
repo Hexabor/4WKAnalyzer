@@ -2,9 +2,18 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.14';
+const APP_VERSION='α 0.15';
 
 const CHANGELOG=[
+  {
+    version:'v0.15', date:'27 abr 2026',
+    items:[
+      {type:'new', text:'Inspector flotante a la derecha — drawer deslizable que abre el botón «+ nuevo preset» en «Actualización 4WKS» con los controles de rango personalizado y selección de tiendas en un mismo sitio'},
+      {type:'new', text:'Presets unificados (rango + tiendas) — un único preset agrupa ambos filtros y al aplicarlo se setean a la vez; los presets antiguos solo de rango o solo de tiendas se migran automáticamente al nuevo modelo'},
+      {type:'new', text:'Dropdown custom para Desde/Hasta — cerrado muestra solo «WK01» para no enturbiar el diseño, abierto despliega el label completo con fechas «WK01 · Sáb DD/MM/AAAA → Vie DD/MM/AAAA»'},
+      {type:'new', text:'Panel «Actualización 4WKS» reorganizado — header más bajo gracias a sacar los filtros al inspector; el grid vuelve a 3 columnas con Modo+presets ocupando el espacio principal, Incorporar día cerrado fija a 260px y Últimas incorporaciones compacta a 150px'},
+    ]
+  },
   {
     version:'v0.14', date:'27 abr 2026',
     items:[

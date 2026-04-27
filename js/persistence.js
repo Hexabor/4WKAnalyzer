@@ -1,12 +1,19 @@
 // ══════════════════════════════════════════════════════
 //  BACKUP
 // ══════════════════════════════════════════════════════
+function migrateLegacyPresets(b){
+  if(Array.isArray(b.updPresets))return b.updPresets.slice();
+  const list=[];
+  if(Array.isArray(b.updRangePresets))for(const p of b.updRangePresets)list.push({name:p.name,range:{start:p.start,end:p.end,endAuto:!!p.endAuto},stores:null});
+  if(Array.isArray(b.updStorePresets))for(const p of b.updStorePresets)list.push({name:p.name,range:null,stores:p.stores});
+  return list;
+}
 function saveBackup(){
   const b={
-    version:5,savedAt:new Date().toISOString(),
+    version:6,savedAt:new Date().toISOString(),
     theme:document.documentElement.dataset.theme,
     activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-    cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updRangePresets,updStorePresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
+    cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
     dailySelectedDate,dailySortCol,dailySortDir,
     analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisDayFilter2,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
@@ -35,8 +42,7 @@ function loadBackup(event){
       if(b.updCustomStart)updCustomStart=b.updCustomStart;
       if(typeof b.updCustomEndAuto==='boolean')updCustomEndAuto=b.updCustomEndAuto;
       if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
-      if(Array.isArray(b.updRangePresets))updRangePresets=b.updRangePresets;
-      if(Array.isArray(b.updStorePresets))updStorePresets=b.updStorePresets;
+      updPresets=migrateLegacyPresets(b);
       if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
       if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
       if(b.diarioStoreSel)diarioStoreSel=b.diarioStoreSel;
@@ -90,10 +96,10 @@ const LS_KEY='4wks_state';
 function persistState(){
   try{
     const s={
-      version:5,savedAt:new Date().toISOString(),
+      version:6,savedAt:new Date().toISOString(),
       theme:document.documentElement.dataset.theme,
       activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-      cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updRangePresets,updStorePresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
+      cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
       dailySelectedDate,dailySortCol,dailySortDir,
@@ -120,8 +126,7 @@ function restoreState(){
     if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
     if(b.updCustomStart)updCustomStart=b.updCustomStart;
     if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
-    if(Array.isArray(b.updRangePresets))updRangePresets=b.updRangePresets;
-    if(Array.isArray(b.updStorePresets))updStorePresets=b.updStorePresets;
+    updPresets=migrateLegacyPresets(b);
     if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
     if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
     if(b.diarioSortCol){diarioSortCol=b.diarioSortCol;diarioSortDir=b.diarioSortDir??-1;}
