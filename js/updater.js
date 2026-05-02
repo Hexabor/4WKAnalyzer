@@ -21,18 +21,15 @@ function setUpdMode(mode, fromUser=false){
   renderUpdater();
 }
 
-const _DAYS_WEEKEND=['Saturday','Sunday'];
-const _DAYS_WEEKDAY=['Monday','Tuesday','Wednesday','Thursday','Friday'];
 function setUpdDayFilter(action){
-  if(action==='all'){updDayFilter=null;}
-  else if(action==='weekend'){updDayFilter=[..._DAYS_WEEKEND];}
-  else if(action==='weekday'){updDayFilter=[..._DAYS_WEEKDAY];}
-  else{
-    // toggle individual: si filter es null, parte de «todos» y resta este día
-    const ALL=[..._DAYS_WEEKEND,..._DAYS_WEEKDAY];
-    const cur=updDayFilter===null?[...ALL]:[...updDayFilter];
-    const idx=cur.indexOf(action);
-    if(idx>=0)cur.splice(idx,1);else cur.push(action);
+  if(action==='all'){
+    // Reset → 0 días seleccionados = todos
+    updDayFilter=null;
+  }else{
+    // Click solo añade el día a la selección; nunca lo quita.
+    // Para deseleccionar un día concreto hay que volver a Todos y empezar otra vez.
+    const cur=updDayFilter===null?[]:[...updDayFilter];
+    if(!cur.includes(action))cur.push(action);
     if(cur.length===0||cur.length===7)updDayFilter=null;
     else updDayFilter=cur;
   }
@@ -42,15 +39,9 @@ function renderUpdDayFilterPills(){
   const wrap=document.getElementById('updDayPills');
   if(!wrap)return;
   const f=updDayFilter;
-  const isWknd=Array.isArray(f)&&f.length===2&&f.includes('Saturday')&&f.includes('Sunday');
-  const isWkdy=Array.isArray(f)&&f.length===5&&!f.includes('Saturday')&&!f.includes('Sunday');
   wrap.querySelectorAll('[data-uday]').forEach(b=>{
     const d=b.dataset.uday;
-    let active=false;
-    if(d==='all')active=f===null;
-    else if(d==='weekend')active=isWknd;
-    else if(d==='weekday')active=isWkdy;
-    else active=Array.isArray(f)&&f.includes(d);
+    const active=d==='all'?f===null:Array.isArray(f)&&f.includes(d);
     b.classList.toggle('active',active);
   });
 }
@@ -195,9 +186,7 @@ function presetSummary(p){
   }
   if(p.days!==undefined){
     if(p.days===null)parts.push('todos los días');
-    else if(p.days.length===2&&p.days.includes('Saturday')&&p.days.includes('Sunday'))parts.push('fines');
-    else if(p.days.length===5&&!p.days.includes('Saturday')&&!p.days.includes('Sunday'))parts.push('laborables');
-    else parts.push(`${p.days.length} días`);
+    else parts.push(`${p.days.length} día${p.days.length===1?'':'s'}`);
   }
   return parts.join(' · ')||'sin filtros';
 }

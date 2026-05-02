@@ -310,9 +310,8 @@ tr.target .rank-num.alt-rank{color:var(--blue);}
 /* presets row en col 1 */
 .presets-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
-/* pills de filtro de días en el card 4WKS */
-.upd-day-pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1;min-width:0;}
-.upd-day-sep{display:inline-block;width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0;}
+/* pills de filtro de días en el inspector de Ranking por rango */
+.upd-day-pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
 
 /* secciones de filtros (usadas dentro del inspector) */
 .filters-section{display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:8px;}

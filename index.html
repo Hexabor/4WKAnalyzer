@@ -162,22 +162,6 @@
           <button class="mode-pill" id="modeCurrent" onclick="setUpdMode('current',true)">Incl. semana actual</button>
           <button class="mode-pill" id="modeCustom" onclick="setUpdMode('custom',true)">Personalizada</button>
         </div>
-        <div class="presets-row" id="updDayFilterRow">
-          <span class="mode-presets-label">Días</span>
-          <div class="upd-day-pills" id="updDayPills">
-            <button class="diario-filter-pill active" data-uday="all" onclick="setUpdDayFilter('all')">Todos</button>
-            <button class="diario-filter-pill" data-uday="Saturday" onclick="setUpdDayFilter('Saturday')">Sáb</button>
-            <button class="diario-filter-pill" data-uday="Sunday" onclick="setUpdDayFilter('Sunday')">Dom</button>
-            <button class="diario-filter-pill" data-uday="Monday" onclick="setUpdDayFilter('Monday')">Lun</button>
-            <button class="diario-filter-pill" data-uday="Tuesday" onclick="setUpdDayFilter('Tuesday')">Mar</button>
-            <button class="diario-filter-pill" data-uday="Wednesday" onclick="setUpdDayFilter('Wednesday')">Mié</button>
-            <button class="diario-filter-pill" data-uday="Thursday" onclick="setUpdDayFilter('Thursday')">Jue</button>
-            <button class="diario-filter-pill" data-uday="Friday" onclick="setUpdDayFilter('Friday')">Vie</button>
-            <span class="upd-day-sep"></span>
-            <button class="diario-filter-pill" data-uday="weekend" onclick="setUpdDayFilter('weekend')">Fines</button>
-            <button class="diario-filter-pill" data-uday="weekday" onclick="setUpdDayFilter('weekday')">Laborables</button>
-          </div>
-        </div>
         <div class="presets-row">
           <span class="mode-presets-label">Presets</span>
           <div class="mode-presets-list" id="updPresetsList"></div>
@@ -244,6 +228,19 @@
         </div>
         <div class="filters-row filters-row-end">
           <label class="check-toggle"><input type="checkbox" id="updCustomEndAutoCb" onchange="onCustomEndAutoChange()"><span>Hasta la última</span></label>
+        </div>
+      </div>
+      <div class="filters-section">
+        <div class="filters-section-label">Días de la semana</div>
+        <div class="upd-day-pills" id="updDayPills">
+          <button class="diario-filter-pill active" data-uday="all" onclick="setUpdDayFilter('all')">Todos</button>
+          <button class="diario-filter-pill" data-uday="Saturday" onclick="setUpdDayFilter('Saturday')">Sáb</button>
+          <button class="diario-filter-pill" data-uday="Sunday" onclick="setUpdDayFilter('Sunday')">Dom</button>
+          <button class="diario-filter-pill" data-uday="Monday" onclick="setUpdDayFilter('Monday')">Lun</button>
+          <button class="diario-filter-pill" data-uday="Tuesday" onclick="setUpdDayFilter('Tuesday')">Mar</button>
+          <button class="diario-filter-pill" data-uday="Wednesday" onclick="setUpdDayFilter('Wednesday')">Mié</button>
+          <button class="diario-filter-pill" data-uday="Thursday" onclick="setUpdDayFilter('Thursday')">Jue</button>
+          <button class="diario-filter-pill" data-uday="Friday" onclick="setUpdDayFilter('Friday')">Vie</button>
         </div>
       </div>
       <div class="filters-section">

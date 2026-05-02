@@ -10,6 +10,8 @@ const CHANGELOG=[
     items:[
       {type:'new', text:'Columna de rank alterno en el Simulador rápido — al ordenar por una columna distinta de V+C proy. aparece (entre Δ y Tienda) una columna estrecha en azul con el ranking según la métrica elegida (Hoy, Net Sales, Buys, Exch., Refunds o Members); desaparece al volver a V+C proy. para mantener limpio el caso por defecto'},
       {type:'new', text:'Mismo rank alterno en «Ranking por rango» — al ordenar por Ventas, Compras, Socios o Devol. aparece la columna azul con el ranking en esa métrica; al ordenar por V+C 4WKS o por Δ vuelve a ocultarse'},
+      {type:'new', text:'Filtro de días movido al inspector «Configurar preset» — vive ahora junto a rango y tiendas, no en la cabecera del card; quedan retirados los atajos «Fines» y «Laborables» (compón los grupos manualmente)'},
+      {type:'fix', text:'Click en un día solo añade ese día a la selección, nunca lo deselecciona — para empezar de cero hay que pulsar «Todos» (que vuelve al estado de 0 días seleccionados = todos los días incluidos)'},
     ]
   },
   {
