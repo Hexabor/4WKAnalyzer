@@ -2,9 +2,15 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.19';
+const APP_VERSION='α 0.20';
 
 const CHANGELOG=[
+  {
+    version:'v0.20', date:'02 may 2026',
+    items:[
+      {type:'new', text:'Columna de rank alterno en el Simulador rápido — al ordenar por una columna distinta de V+C proy. aparece (a la derecha del #) una columna estrecha en azul con el ranking según la métrica elegida (Hoy, Net Sales, Buys, Exch., Refunds o Members); desaparece al volver a V+C proy. para mantener limpio el caso por defecto'},
+    ]
+  },
   {
     version:'v0.19', date:'02 may 2026',
     items:[

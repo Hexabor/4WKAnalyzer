@@ -64,11 +64,32 @@ function sortSim(col){
   else{simSortCol=col;simSortDir=-1;}
   recalc();
 }
+const SIM_ALT_LABELS={
+  todayVC:'# Hoy',
+  projSales:'# Sales',
+  projBuys:'# Buys',
+  projExch:'# Exch.',
+  projRefunds:'# Refunds',
+  projMembers:'# Members',
+};
 function renderSimTable(list,targetName,targetVC){
   const tbody=document.getElementById('rankingBody');tbody.innerHTML='';
   const maxDist=Math.max(...list.map(s=>Math.abs(s.projVC-targetVC)))||1;
   document.getElementById('distHeader').textContent=`Dist. ${targetName.split(' ').slice(-1)[0]}`;
   applySimSortHeaders();
+  // Columna alterna: se muestra solo cuando el orden activo no es V+C proy.
+  const altCol=simSortCol==='projVC'?null:simSortCol;
+  const altHeader=document.getElementById('simAltRankHeader');
+  let altRankMap=null;
+  if(altCol){
+    altHeader.style.display='';
+    altHeader.textContent=SIM_ALT_LABELS[altCol]||'#';
+    const byAlt=[...list].sort((a,b)=>(b[altCol]||0)-(a[altCol]||0));
+    altRankMap=new Map(byAlt.map((s,i)=>[s.store,i+1]));
+  }else{
+    altHeader.style.display='none';
+    altHeader.textContent='';
+  }
   const sorted=[...list].sort((a,b)=>((a[simSortCol]||0)-(b[simSortCol]||0))*simSortDir);
   for(const s of sorted){
     const isTgt=s.store===targetName;
@@ -78,8 +99,12 @@ function renderSimTable(list,targetName,targetVC){
     let dist;
     if(isTgt){dist=`<span class="dist-val self">— tú —</span>`;}
     else{const diff=targetVC-s.projVC,pct=Math.min(100,Math.round(Math.abs(diff)/maxDist*100));const cls=diff<0?'above':'below',sign=diff<0?`−${fmt(Math.abs(diff))}`:`+${fmt(diff)}`;dist=`<div class="dist-wrap"><div class="dist-bar-track"><div class="dist-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="dist-val ${cls}">${sign}</span></div>`;}
+    const altCell=altCol
+      ?`<td class="r sim-alt-rank-col"><span class="rank-num alt-rank">${altRankMap.get(s.store)}</span></td>`
+      :`<td class="r sim-alt-rank-col" style="display:none"></td>`;
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
     tr.innerHTML=`<td><span class="rank-num">${s.newR}</span></td>`+
+      altCell+
       `<td><span class="chg ${cc}">${ct}</span></td>`+
       `<td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td>`+
       `<td class="r"><span class="stat-val vc">${fmt(s.projVC)}</span></td>`+
