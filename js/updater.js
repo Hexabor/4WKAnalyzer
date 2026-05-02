@@ -1,11 +1,18 @@
 // ══════════════════════════════════════════════════════
 //  MODE UI
 // ══════════════════════════════════════════════════════
-function setUpdMode(mode){
+function setUpdMode(mode, fromUser=false){
   updMode=mode;
   ['consolidated','current','custom'].forEach(m=>{
     document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active',m===mode);
   });
+  // Los modos por defecto (consolidated/current) son «todas las tiendas»;
+  // al cambiar manualmente desde el UI restablecemos el filtro
+  if(fromUser&&mode!=='custom'&&updStoreFilter!==null){
+    updStoreFilter=null;
+    updateStoreFilterCount();
+    renderUpdStoreChecks();
+  }
   renderUpdater();
 }
 function onCustomStartChange(){

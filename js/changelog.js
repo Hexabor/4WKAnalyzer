@@ -11,6 +11,7 @@ const CHANGELOG=[
       {type:'new', text:'Densidad global ×0.8 — toda la app se renderiza al 80% de tamaño por defecto (texto, paddings, iconos, tablas) para aprovechar mejor el espacio en pantalla; equivale al «zoom 80%» que se aplicaba a mano en el navegador'},
       {type:'fix', text:'Tabla del ranking en «Actualización 4WKS» recupera el alto completo — pasa al patrón flex column para no depender del calc(100vh − Xpx) que se descalibraba con el zoom global'},
       {type:'fix', text:'Cabecera del Simulador rápido más compacta — banner con padding y tipografías reducidas (#proy. 52→36px, cambio 34→24px), textarea de Facturación de hoy a 48px de alto; libera ≈80px de espacio vertical para más filas de tabla'},
+      {type:'fix', text:'Volver a un modo por defecto («4 últimas consolidadas» o «Incl. semana actual») desde un preset de tiendas restablece el filtro a todas las tiendas; los presets personalizados, restauración de backup y navegación entre ventanas siguen respetando el filtro guardado'},
     ]
   },
   {
