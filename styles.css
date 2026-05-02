@@ -480,6 +480,10 @@ td.hito-cell{min-width:200px;}
 #patTable .wk-label{color:var(--text);font-weight:600;}
 .pat-content{flex:1;min-width:0;}
 
+/* ── SIM ROWS (2x2 layout) ── */
+.sim-row{display:flex;gap:12px;margin-bottom:12px;align-items:stretch;}
+.sim-row > *{flex:1 1 0;min-width:0;margin-bottom:0;}
+
 /* ── SIM BASE INFO ── */
 .sim-base-info{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;}
 .sim-base-eyebrow{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);padding:3px 9px;border-radius:20px;}
@@ -532,4 +536,5 @@ td.hito-cell{min-width:200px;}
   .panel{padding:24px 18px;}
   .updday-grid{flex-direction:column;gap:18px;}
   .updday-grid > *{flex:0 0 auto;padding:0;border:none;}
+  .sim-row{flex-direction:column;}
 }

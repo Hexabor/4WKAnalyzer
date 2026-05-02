@@ -10,6 +10,7 @@ const CHANGELOG=[
     items:[
       {type:'new', text:'Simulador rápido amplía el ranking con 5 columnas de proyección — Net Sales, Buys, Exch., Refunds y Members (4WKS base + facturación de hoy), todas ordenables como V+C proy. y Hoy'},
       {type:'new', text:'Cabecera congelada en «Histórico días», «Histórico semanas», «Día a día», «Semana a semana» y «Simulador rápido» — al hacer scroll de la tabla los filtros, totales y títulos de columna permanecen visibles'},
+      {type:'new', text:'Cabecera del Simulador rápido reorganizada en cuadrícula 2×2 — fila superior Base 4WKS + Tienda, fila inferior Posición proyectada + Facturación de hoy; libera la mitad del alto para la tabla del ranking'},
       {type:'fix', text:'Columna HITOS de Histórico días ya no queda truncada — el panel se ensancha a 1400px y el campo se adapta al espacio disponible'},
       {type:'fix', text:'Simulador rápido se ensancha a 1320px para acomodar las nuevas columnas sin estrechar el resto'},
     ]

@@ -615,31 +615,35 @@
     <div class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
     <div><div class="panel-title">Simulador rápido del 4WKS</div><div class="panel-subtitle">Proyección en tiempo real · Base 4WKS + facturación de hoy</div></div>
   </div>
-  <div class="sim-base-info" id="simBaseInfo" style="display:none">
-    <span class="sim-base-eyebrow">Base 4WKS</span>
-    <span class="sim-base-mode" id="simBaseMode">—</span>
-    <span class="sim-base-sep">·</span>
-    <span class="sim-base-weeks" id="simBaseWeeks">—</span>
-    <span class="sim-base-sep">·</span>
-    <span class="sim-base-dates" id="simBaseDates">—</span>
-  </div>
-  <div class="card pad" style="margin-bottom:12px">
-    <div class="card-header"><span class="card-label">Facturación de hoy</span><span class="badge" id="badgeToday">Sin datos</span></div>
-    <textarea id="todayInput" style="height:100px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
-    <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
-  </div>
-  <div class="selector-card"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="targetStore" onchange="recalc()"><input type="text" class="ss-input" data-ss-for="targetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
-  <div class="banner" id="banner">
-    <div class="banner-left">
-      <div class="banner-eyebrow" id="bLabel">Posición proyectada</div>
-      <div class="banner-pos" id="bPos">—</div>
-      <div class="banner-vc" id="bVc"></div>
-      <div class="banner-today" id="bToday"></div>
+  <div class="sim-row sim-row-top">
+    <div class="sim-base-info" id="simBaseInfo" style="display:none">
+      <span class="sim-base-eyebrow">Base 4WKS</span>
+      <span class="sim-base-mode" id="simBaseMode">—</span>
+      <span class="sim-base-sep">·</span>
+      <span class="sim-base-weeks" id="simBaseWeeks">—</span>
+      <span class="sim-base-sep">·</span>
+      <span class="sim-base-dates" id="simBaseDates">—</span>
     </div>
-    <div class="banner-right">
-      <div class="banner-change-label">Cambio</div>
-      <div class="banner-change-val" id="bChange">—</div>
-      <div class="banner-from" id="bFrom"></div>
+    <div class="selector-card"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="targetStore" onchange="recalc()"><input type="text" class="ss-input" data-ss-for="targetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><svg class="ss-caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><div class="ss-dropdown"></div></div></div>
+  </div>
+  <div class="sim-row sim-row-bottom">
+    <div class="banner" id="banner">
+      <div class="banner-left">
+        <div class="banner-eyebrow" id="bLabel">Posición proyectada</div>
+        <div class="banner-pos" id="bPos">—</div>
+        <div class="banner-vc" id="bVc"></div>
+        <div class="banner-today" id="bToday"></div>
+      </div>
+      <div class="banner-right">
+        <div class="banner-change-label">Cambio</div>
+        <div class="banner-change-val" id="bChange">—</div>
+        <div class="banner-from" id="bFrom"></div>
+      </div>
+    </div>
+    <div class="card pad">
+      <div class="card-header"><span class="card-label">Facturación de hoy</span><span class="badge" id="badgeToday">Sin datos</span></div>
+      <textarea id="todayInput" style="height:100px" placeholder="1&#9;Madrid La Vaguada&#9;Chexx Friends S.L.&#9;8,691&#9;2,314&#9;...&#10;2&#9;Valencia Ruzafa&#9;Complete Entertainment&#9;7,610&#9;3,118&#9;..." oninput="onTodayInput()" onpaste="setTimeout(onTodayInput,50)"></textarea>
+      <div class="card-footer"><span class="status-text" id="statusToday">Pega el ranking del día (sin cabecera)</span><button class="btn-reset" onclick="resetToday()">✕ Reset</button></div>
     </div>
   </div>
   <div class="table-card" id="tableCard">
