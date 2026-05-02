@@ -104,8 +104,8 @@ function renderSimTable(list,targetName,targetVC){
       :`<td class="r sim-alt-rank-col" style="display:none"></td>`;
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
     tr.innerHTML=`<td><span class="rank-num">${s.newR}</span></td>`+
-      altCell+
       `<td><span class="chg ${cc}">${ct}</span></td>`+
+      altCell+
       `<td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td>`+
       `<td class="r"><span class="stat-val vc">${fmt(s.projVC)}</span></td>`+
       `<td class="r">${tc}</td>`+
