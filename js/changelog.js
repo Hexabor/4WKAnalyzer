@@ -2,9 +2,18 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.18';
+const APP_VERSION='α 0.19';
 
 const CHANGELOG=[
+  {
+    version:'v0.19', date:'02 may 2026',
+    items:[
+      {type:'new', text:'Filtro de días de la semana en «Ranking por rango» — pills multi-selección (Sáb, Dom, Lun…Vie) + atajos «Fines» y «Laborables» para clasificar el 4WKS solo por los días que te interesen (p. ej. ranking del año únicamente de fines de semana)'},
+      {type:'new', text:'Los presets capturan también el filtro de días — al guardar un preset queda almacenado rango + tiendas + días, y al aplicarlo se restablecen los tres a la vez; los presets antiguos siguen funcionando (no tocan el filtro de días)'},
+      {type:'new', text:'Panel renombrado «Actualización de 4WKS» → «Ranking por rango» — refleja mejor el alcance del módulo ahora que admite rango libre, días y subconjuntos de tiendas; sidebar, home y mensajes de empty-state actualizados'},
+      {type:'fix', text:'Volver a un modo por defecto resetea también el filtro de días (no solo el de tiendas) — los modos «4 últimas consolidadas» e «Incl. semana actual» siempre usan los 7 días'},
+    ]
+  },
   {
     version:'v0.18', date:'02 may 2026',
     items:[

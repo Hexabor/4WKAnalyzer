@@ -13,7 +13,7 @@ function saveBackup(){
     version:6,savedAt:new Date().toISOString(),
     theme:document.documentElement.dataset.theme,
     activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-    cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
+    cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updDayFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
     diarioStoreSel,hitoData,
     dailySelectedDate,dailySortCol,dailySortDir,
     analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisDayFilter2,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
@@ -42,6 +42,7 @@ function loadBackup(event){
       if(b.updCustomStart)updCustomStart=b.updCustomStart;
       if(typeof b.updCustomEndAuto==='boolean')updCustomEndAuto=b.updCustomEndAuto;
       if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
+      if(b.updDayFilter===null||Array.isArray(b.updDayFilter))updDayFilter=b.updDayFilter;
       updPresets=migrateLegacyPresets(b);
       if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
       if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}
@@ -99,7 +100,7 @@ function persistState(){
       version:6,savedAt:new Date().toISOString(),
       theme:document.documentElement.dataset.theme,
       activePanel:document.querySelector('.panel.active')?.id?.replace('panel-','')||'home',
-      cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
+      cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updDayFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
       dailySelectedDate,dailySortCol,dailySortDir,
@@ -126,6 +127,7 @@ function restoreState(){
     if(b.updCustomEnd)updCustomEnd=b.updCustomEnd;
     if(b.updCustomStart)updCustomStart=b.updCustomStart;
     if(b.updStoreFilter===null||Array.isArray(b.updStoreFilter))updStoreFilter=b.updStoreFilter;
+    if(b.updDayFilter===null||Array.isArray(b.updDayFilter))updDayFilter=b.updDayFilter;
     updPresets=migrateLegacyPresets(b);
     if(b.updSortCol){updSortCol=b.updSortCol;updSortDir=b.updSortDir??-1;}
     if(b.wkSortCol){wkSortCol=b.wkSortCol;wkSortDir=b.wkSortDir??-1;}

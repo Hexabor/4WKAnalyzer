@@ -220,7 +220,7 @@ function renderAnalysis(){
 
   if(!Object.keys(dailyData).length){
     summary.style.display='none';
-    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Carga el registro diario en «Actualización 4WKS» para empezar</div></div>';
+    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Carga el registro diario en «Ranking por rango» para empezar</div></div>';
     return;
   }
   if(!analysisMetrics.length){

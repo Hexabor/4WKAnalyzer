@@ -4,7 +4,7 @@
 function rebuildWeekSelect(){
   const sel=document.getElementById('wkSelect'),prev=sel.value;
   const weeks=getWeeks();sel.innerHTML='';
-  if(!weeks.length){sel.innerHTML='<option value="">— sin datos —</option>';document.getElementById('wkBody').innerHTML='<tr><td colspan="7"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el ranking semanal</span></td></tr>';return;}
+  if(!weeks.length){sel.innerHTML='<option value="">— sin datos —</option>';document.getElementById('wkBody').innerHTML='<tr><td colspan="7"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver el ranking semanal</span></td></tr>';return;}
   [...weeks].reverse().forEach(ws=>{const o=document.createElement('option');o.value=ws;o.textContent=weekLabel(ws);if(ws===prev)o.selected=true;sel.appendChild(o);});
   if(!prev||!weeks.includes(prev))sel.value=[...weeks].reverse()[0];
   updateWkNav();

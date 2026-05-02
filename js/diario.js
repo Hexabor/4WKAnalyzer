@@ -40,7 +40,7 @@ function renderDiario(){
   const tbody=document.getElementById('diarioBody');
 
   if(!store||!Object.keys(dailyData).length){
-    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el histórico de días</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="14"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver el histórico de días</span></td></tr>';
     document.getElementById('diarioSummary').style.display='none';
     return;
   }

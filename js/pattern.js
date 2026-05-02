@@ -191,7 +191,7 @@ function renderPattern(){
   const tbody=document.getElementById('patBody');
   const chartTitle=document.getElementById('patChartTitle');
   if(!patStore||!Object.keys(dailyData).length){
-    tbody.innerHTML='<tr><td colspan="8"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver el patrón semanal</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="8"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver el patrón semanal</span></td></tr>';
     if(chartTitle)chartTitle.textContent='Media por día de la semana';
     drawPatternChart([null,null,null,null,null,null,null],meta);
     return;

@@ -60,7 +60,7 @@ function renderDaily(){
   const dates=Object.keys(dailyData);
   if(!dates.length||!dailySelectedDate||!dailyData[dailySelectedDate]){
     if(summary)summary.style.display='none';
-    if(tbody)tbody.innerHTML='<tr><td colspan="10"><span class="empty-state">Carga el registro diario en «Actualización 4WKS» para ver la tabla completa de un día</span></td></tr>';
+    if(tbody)tbody.innerHTML='<tr><td colspan="10"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver la tabla completa de un día</span></td></tr>';
     document.getElementById('dlyMeta').textContent='';
     return;
   }

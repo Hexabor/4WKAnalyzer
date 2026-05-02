@@ -11,6 +11,8 @@ let cexYearStart='2025-12-29';
 let updMode='consolidated', updCustomEnd=null, updCustomStart=null, updCustomEndAuto=false;
 // updStoreFilter: null = sin filtro (todas las tiendas), [] = ninguna, [...] = solo esas
 let updStoreFilter=null;
+// updDayFilter: null = todos los días; [...] = solo esos días (en inglés: 'Saturday','Sunday',...)
+let updDayFilter=null;
 // updPresets: cada preset agrupa rango + tiendas. Modelo:
 //   {name, range: {start,end,endAuto} | null, stores: string[] | null}
 //   range=null: el preset no toca el rango (legacy: solo-tiendas)

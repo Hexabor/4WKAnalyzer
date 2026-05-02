@@ -6,14 +6,53 @@ function setUpdMode(mode, fromUser=false){
   ['consolidated','current','custom'].forEach(m=>{
     document.getElementById('mode'+m.charAt(0).toUpperCase()+m.slice(1)).classList.toggle('active',m===mode);
   });
-  // Los modos por defecto (consolidated/current) son «todas las tiendas»;
-  // al cambiar manualmente desde el UI restablecemos el filtro
-  if(fromUser&&mode!=='custom'&&updStoreFilter!==null){
-    updStoreFilter=null;
-    updateStoreFilterCount();
-    renderUpdStoreChecks();
+  // Los modos por defecto (consolidated/current) son «todas las tiendas, todos los días»;
+  // al cambiar manualmente desde el UI restablecemos los filtros
+  if(fromUser&&mode!=='custom'){
+    if(updStoreFilter!==null){
+      updStoreFilter=null;
+      updateStoreFilterCount();
+      renderUpdStoreChecks();
+    }
+    if(updDayFilter!==null){
+      updDayFilter=null;
+    }
   }
   renderUpdater();
+}
+
+const _DAYS_WEEKEND=['Saturday','Sunday'];
+const _DAYS_WEEKDAY=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+function setUpdDayFilter(action){
+  if(action==='all'){updDayFilter=null;}
+  else if(action==='weekend'){updDayFilter=[..._DAYS_WEEKEND];}
+  else if(action==='weekday'){updDayFilter=[..._DAYS_WEEKDAY];}
+  else{
+    // toggle individual: si filter es null, parte de «todos» y resta este día
+    const ALL=[..._DAYS_WEEKEND,..._DAYS_WEEKDAY];
+    const cur=updDayFilter===null?[...ALL]:[...updDayFilter];
+    const idx=cur.indexOf(action);
+    if(idx>=0)cur.splice(idx,1);else cur.push(action);
+    if(cur.length===0||cur.length===7)updDayFilter=null;
+    else updDayFilter=cur;
+  }
+  renderUpdater();schedulePersist();
+}
+function renderUpdDayFilterPills(){
+  const wrap=document.getElementById('updDayPills');
+  if(!wrap)return;
+  const f=updDayFilter;
+  const isWknd=Array.isArray(f)&&f.length===2&&f.includes('Saturday')&&f.includes('Sunday');
+  const isWkdy=Array.isArray(f)&&f.length===5&&!f.includes('Saturday')&&!f.includes('Sunday');
+  wrap.querySelectorAll('[data-uday]').forEach(b=>{
+    const d=b.dataset.uday;
+    let active=false;
+    if(d==='all')active=f===null;
+    else if(d==='weekend')active=isWknd;
+    else if(d==='weekday')active=isWkdy;
+    else active=Array.isArray(f)&&f.includes(d);
+    b.classList.toggle('active',active);
+  });
 }
 function onCustomStartChange(){
   updCustomStart=document.getElementById('updCustomStartWsel').dataset.value||null;
@@ -124,8 +163,8 @@ function shiftUpdWindow(delta){
 
 // ── PRESETS UNIFICADOS (rango + tiendas) ──
 function isUpdPresetActive(p){
-  // El preset coincide con el estado actual si ambos componentes (rango y tiendas) coinciden
-  // (los componentes con valor null se consideran "no aplican" → solo cuentan los que sí define el preset)
+  // El preset coincide con el estado actual si todos los componentes definidos coinciden
+  // (los componentes ausentes en el preset → no se comprueban)
   if(p.range){
     if(updMode!=='custom')return false;
     if(updCustomStart!==p.range.start)return false;
@@ -138,6 +177,11 @@ function isUpdPresetActive(p){
     const b=cur===null?null:[...cur].sort().join('|');
     if(a!==b)return false;
   }
+  if(p.days!==undefined){
+    const a=p.days===null?null:[...p.days].sort().join('|');
+    const b=updDayFilter===null?null:[...updDayFilter].sort().join('|');
+    if(a!==b)return false;
+  }
   return true;
 }
 function presetSummary(p){
@@ -148,6 +192,12 @@ function presetSummary(p){
   }
   if(p.stores!==undefined){
     parts.push(p.stores===null?'todas':`${p.stores.length} tiendas`);
+  }
+  if(p.days!==undefined){
+    if(p.days===null)parts.push('todos los días');
+    else if(p.days.length===2&&p.days.includes('Saturday')&&p.days.includes('Sunday'))parts.push('fines');
+    else if(p.days.length===5&&!p.days.includes('Saturday')&&!p.days.includes('Sunday'))parts.push('laborables');
+    else parts.push(`${p.days.length} días`);
   }
   return parts.join(' · ')||'sin filtros';
 }
@@ -184,17 +234,21 @@ function applyUpdPreset(i){
     }
     updateStoreFilterCount();renderUpdStoreChecks();
   }
+  if(p.days!==undefined){
+    updDayFilter=p.days===null?null:[...p.days];
+  }
   renderUpdater();schedulePersist();
   toast(`✓ Preset «${p.name}» aplicado`,'ok');
 }
 function saveUpdPreset(){
   if(!updCustomStart||!updCustomEnd){toast('⚠ Configura un rango primero','err');return;}
   const storesSnap=updStoreFilter===null?null:updStoreFilter.slice();
+  const daysSnap=updDayFilter===null?null:updDayFilter.slice();
   const name=prompt('Nombre para el preset:','');
   if(name==null)return;
   const trimmed=name.trim();if(!trimmed){toast('⚠ Nombre vacío','err');return;}
   const idx=updPresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
-  const entry={name:trimmed,range:{start:updCustomStart,end:updCustomEnd,endAuto:updCustomEndAuto},stores:storesSnap};
+  const entry={name:trimmed,range:{start:updCustomStart,end:updCustomEnd,endAuto:updCustomEndAuto},stores:storesSnap,days:daysSnap};
   if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updPresets[idx]=entry;}
   else updPresets.push(entry);
   renderUpdPresets();schedulePersist();
@@ -311,6 +365,7 @@ function renderUpdater(){
   document.getElementById('wksWeeks').textContent=allWeeks.length;
   rebuildCustomSel();
   renderUpdPresets();
+  renderUpdDayFilterPills();
   updateStoreFilterCount();
   renderUpdStoreChecks();
   const{ranking,last4}=compute4WKS();

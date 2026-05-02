@@ -307,6 +307,10 @@ tr.target .rank-num{color:var(--accent);font-weight:700;}
 /* presets row en col 1 */
 .presets-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
+/* pills de filtro de días en el card 4WKS */
+.upd-day-pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1;min-width:0;}
+.upd-day-sep{display:inline-block;width:1px;height:18px;background:var(--border);margin:0 6px;flex-shrink:0;}
+
 /* secciones de filtros (usadas dentro del inspector) */
 .filters-section{display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:8px;}
 .filters-section-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;}

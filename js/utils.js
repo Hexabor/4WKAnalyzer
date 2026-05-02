@@ -33,6 +33,8 @@ function weekLabel(satStr){
 function weekTag(satStr){return `WK${String(cexWeekNum(satStr)).padStart(2,'0')}`;}
 
 const DAY_ES={Saturday:'Sábado',Sunday:'Domingo',Monday:'Lunes',Tuesday:'Martes',Wednesday:'Miércoles',Thursday:'Jueves',Friday:'Viernes'};
+const DAY_NAMES_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function dayFromISO(iso){return DAY_NAMES_EN[new Date(iso+'T12:00:00Z').getUTCDay()];}
 
 
 // ══════════════════════════════════════════════════════
@@ -63,9 +65,11 @@ function getSelected4Weeks(){
 function compute4WKS(){
   const last4=getSelected4Weeks();
   const filterActive=Array.isArray(updStoreFilter)&&updStoreFilter.length>0;
+  const dayActive=Array.isArray(updDayFilter)&&updDayFilter.length>0&&updDayFilter.length<7;
   const agg={};
   for(const [d,stores] of Object.entries(dailyData)){
     if(!last4.includes(weekStart(d)))continue;
+    if(dayActive&&!updDayFilter.includes(dayFromISO(d)))continue;
     for(const [store,s] of Object.entries(stores)){
       if(filterActive&&!updStoreFilter.includes(store))continue;
       if(!agg[store])agg[store]={vc:0,sales:0,buys:0,cashBuys:0,exchBuys:0,members:0,refunds:0};
@@ -103,9 +107,11 @@ function computePrev4WKSRanking(){
   const prev4=getPrevious4Weeks();
   if(!prev4.length)return new Map();
   const filterActive=Array.isArray(updStoreFilter)&&updStoreFilter.length>0;
+  const dayActive=Array.isArray(updDayFilter)&&updDayFilter.length>0&&updDayFilter.length<7;
   const agg={};
   for(const [d,stores] of Object.entries(dailyData)){
     if(!prev4.includes(weekStart(d)))continue;
+    if(dayActive&&!updDayFilter.includes(dayFromISO(d)))continue;
     for(const [store,s] of Object.entries(stores)){
       if(filterActive&&!updStoreFilter.includes(store))continue;
       if(!agg[store])agg[store]={vc:0};

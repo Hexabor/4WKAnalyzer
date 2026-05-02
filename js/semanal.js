@@ -98,7 +98,7 @@ function renderSemanal(){
 
   if(!rows.length){
     summary.style.display='none';
-    tbody.innerHTML='<tr><td colspan="12"><span class="empty-state">'+(Object.keys(dailyData).length?'Sin datos para esta tienda':'Carga el registro diario en «Actualización 4WKS» para ver el histórico de semanas')+'</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="12"><span class="empty-state">'+(Object.keys(dailyData).length?'Sin datos para esta tienda':'Carga el registro diario en «Ranking por rango» para ver el histórico de semanas')+'</span></td></tr>';
     return;
   }
 
