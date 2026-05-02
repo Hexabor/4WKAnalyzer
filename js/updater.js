@@ -154,25 +154,25 @@ function shiftUpdWindow(delta){
 
 // ── PRESETS UNIFICADOS (rango + tiendas) ──
 function isUpdPresetActive(p){
-  // El preset coincide con el estado actual si todos los componentes definidos coinciden
-  // (los componentes ausentes en el preset → no se comprueban)
+  // Comparación estricta: cada componente del estado actual ha de coincidir con
+  // el del preset. Un componente ausente en el preset (legacy) se interpreta como
+  // «sin filtro» (null) — así solo un preset puede estar activo a la vez.
   if(p.range){
     if(updMode!=='custom')return false;
     if(updCustomStart!==p.range.start)return false;
     if(p.range.endAuto){if(!updCustomEndAuto)return false;}
     else if(updCustomEndAuto||updCustomEnd!==p.range.end)return false;
+  }else{
+    if(updMode==='custom')return false;
   }
-  if(p.stores!==undefined){
-    const cur=updStoreFilter;
-    const a=p.stores===null?null:[...p.stores].sort().join('|');
-    const b=cur===null?null:[...cur].sort().join('|');
-    if(a!==b)return false;
-  }
-  if(p.days!==undefined){
-    const a=p.days===null?null:[...p.days].sort().join('|');
-    const b=updDayFilter===null?null:[...updDayFilter].sort().join('|');
-    if(a!==b)return false;
-  }
+  const pStores=p.stores===undefined?null:p.stores;
+  const aS=pStores===null?null:[...pStores].sort().join('|');
+  const bS=updStoreFilter===null?null:[...updStoreFilter].sort().join('|');
+  if(aS!==bS)return false;
+  const pDays=p.days===undefined?null:p.days;
+  const aD=pDays===null?null:[...pDays].sort().join('|');
+  const bD=updDayFilter===null?null:[...updDayFilter].sort().join('|');
+  if(aD!==bD)return false;
   return true;
 }
 function presetSummary(p){
@@ -210,22 +210,23 @@ function renderUpdPresets(){
 }
 function applyUpdPreset(i){
   const p=updPresets[i];if(!p)return;
+  // Aplicación estricta: el preset describe el estado completo. Cualquier
+  // componente ausente (presets legacy) se trata como «sin filtro».
   if(p.range){
     updCustomStart=p.range.start;updCustomEnd=p.range.end;updCustomEndAuto=!!p.range.endAuto;
     setUpdMode('custom');
+  }else{
+    setUpdMode('consolidated');
   }
-  if(p.stores!==undefined){
-    if(p.stores===null){updStoreFilter=null;}
-    else{
-      const all=getAllStoresInData();
-      const filtered=p.stores.filter(s=>all.includes(s));
-      updStoreFilter=filtered.length===all.length?null:filtered;
-    }
-    updateStoreFilterCount();renderUpdStoreChecks();
+  const pStores=p.stores===undefined?null:p.stores;
+  if(pStores===null){updStoreFilter=null;}
+  else{
+    const all=getAllStoresInData();
+    const filtered=pStores.filter(s=>all.includes(s));
+    updStoreFilter=filtered.length===all.length?null:filtered;
   }
-  if(p.days!==undefined){
-    updDayFilter=p.days===null?null:[...p.days];
-  }
+  updateStoreFilterCount();renderUpdStoreChecks();
+  updDayFilter=(p.days===undefined||p.days===null)?null:[...p.days];
   renderUpdater();schedulePersist();
   toast(`✓ Preset «${p.name}» aplicado`,'ok');
 }

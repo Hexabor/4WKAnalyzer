@@ -12,6 +12,7 @@ const CHANGELOG=[
       {type:'new', text:'Mismo rank alterno en «Ranking por rango» — al ordenar por Ventas, Compras, Socios o Devol. aparece la columna azul con el ranking en esa métrica; al ordenar por V+C 4WKS o por Δ vuelve a ocultarse'},
       {type:'new', text:'Filtro de días movido al inspector «Configurar preset» — vive ahora junto a rango y tiendas, no en la cabecera del card; quedan retirados los atajos «Fines» y «Laborables» (compón los grupos manualmente)'},
       {type:'fix', text:'Click en un día solo añade ese día a la selección, nunca lo deselecciona — para empezar de cero hay que pulsar «Todos» (que vuelve al estado de 0 días seleccionados = todos los días incluidos)'},
+      {type:'fix', text:'Solo un preset puede estar activo a la vez — antes, los presets legacy sin campo «días» se quedaban marcados como activos a la vez que un preset más específico que sí lo definía; ahora la comparación trata «componente ausente = sin filtro» y al aplicar un preset el estado pasa a describir exactamente lo que el preset define'},
     ]
   },
   {
