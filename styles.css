@@ -18,7 +18,7 @@
   --shadow:rgba(0,0,0,.1);
 }
 html,body{height:100%;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;overflow:hidden;transition:background .25s,color .25s;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;overflow:hidden;transition:background .25s,color .25s;zoom:0.8;}
 
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sidebar-w);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;flex-shrink:0;z-index:10;transition:background .25s,border-color .25s;}

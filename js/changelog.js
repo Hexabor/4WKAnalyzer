@@ -2,9 +2,15 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.17';
+const APP_VERSION='α 0.18';
 
 const CHANGELOG=[
+  {
+    version:'v0.18', date:'02 may 2026',
+    items:[
+      {type:'new', text:'Densidad global ×0.8 — toda la app se renderiza al 80% de tamaño por defecto (texto, paddings, iconos, tablas) para aprovechar mejor el espacio en pantalla; equivale al «zoom 80%» que se aplicaba a mano en el navegador'},
+    ]
+  },
   {
     version:'v0.17', date:'02 may 2026',
     items:[
