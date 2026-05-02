@@ -204,8 +204,12 @@ function renderUpdPresets(){
     name.textContent=p.name;
     name.title=presetSummary(p);
     name.onclick=()=>applyUpdPreset(i);
+    const edit=document.createElement('span');edit.className='pp-edit';
+    edit.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+    edit.title='Editar preset';
+    edit.onclick=(e)=>{e.stopPropagation();editUpdPreset(i);};
     const del=document.createElement('span');del.className='pp-del';del.textContent='×';del.title='Eliminar';del.onclick=(e)=>{e.stopPropagation();deleteUpdPreset(i);};
-    pill.appendChild(name);pill.appendChild(del);list.appendChild(pill);
+    pill.appendChild(name);pill.appendChild(edit);pill.appendChild(del);list.appendChild(pill);
   });
 }
 function applyUpdPreset(i){
@@ -234,13 +238,20 @@ function saveUpdPreset(){
   if(!updCustomStart||!updCustomEnd){toast('⚠ Configura un rango primero','err');return;}
   const storesSnap=updStoreFilter===null?null:updStoreFilter.slice();
   const daysSnap=updDayFilter===null?null:updDayFilter.slice();
-  const name=prompt('Nombre para el preset:','');
+  const editing=updEditingPresetIdx>=0?updPresets[updEditingPresetIdx]:null;
+  const defaultName=editing?editing.name:'';
+  const name=prompt('Nombre para el preset:',defaultName);
   if(name==null)return;
   const trimmed=name.trim();if(!trimmed){toast('⚠ Nombre vacío','err');return;}
-  const idx=updPresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
   const entry={name:trimmed,range:{start:updCustomStart,end:updCustomEnd,endAuto:updCustomEndAuto},stores:storesSnap,days:daysSnap};
-  if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updPresets[idx]=entry;}
-  else updPresets.push(entry);
+  // Editando y mantenemos el mismo nombre → guardar directo sin pedir confirmación
+  if(editing&&trimmed.toLowerCase()===editing.name.toLowerCase()){
+    updPresets[updEditingPresetIdx]=entry;
+  }else{
+    const idx=updPresets.findIndex(p=>p.name.toLowerCase()===trimmed.toLowerCase());
+    if(idx>=0){if(!confirm(`Sobrescribir «${trimmed}»?`))return;updPresets[idx]=entry;}
+    else updPresets.push(entry);
+  }
   renderUpdPresets();schedulePersist();
   toast(`✓ Preset «${trimmed}» guardado`,'ok');
 }
@@ -251,16 +262,42 @@ function deleteUpdPreset(i){
 }
 
 // ── INSPECTOR (drawer flotante derecho con ambos paneles) ──
+function _setInspectorMode(editingName){
+  const insp=document.getElementById('updInspector');
+  if(!insp)return;
+  const title=insp.querySelector('.inspector-title');
+  const saveBtn=insp.querySelector('.inspector-save');
+  if(editingName){
+    if(title)title.textContent=`Editando «${editingName}»`;
+    if(saveBtn)saveBtn.textContent='Guardar cambios';
+  }else{
+    if(title)title.textContent='Configurar preset';
+    if(saveBtn)saveBtn.textContent='+ guardar preset';
+  }
+}
 function openInspector(){
   const insp=document.getElementById('updInspector');
   if(!insp)return;
+  updEditingPresetIdx=-1;
+  _setInspectorMode(null);
   insp.classList.add('open');
-  // Si no hay datos aún, no tiene sentido abrirlo; pero igual lo dejamos navegable
   renderUpdStoreChecks();
+}
+function editUpdPreset(i){
+  const p=updPresets[i];if(!p)return;
+  applyUpdPreset(i);
+  updEditingPresetIdx=i;
+  const insp=document.getElementById('updInspector');
+  if(!insp)return;
+  insp.classList.add('open');
+  renderUpdStoreChecks();
+  _setInspectorMode(p.name);
 }
 function closeInspector(){
   const insp=document.getElementById('updInspector');
   if(insp)insp.classList.remove('open');
+  updEditingPresetIdx=-1;
+  _setInspectorMode(null);
 }
 
 // ── FILTRO DE TIENDAS ──

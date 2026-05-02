@@ -18,6 +18,8 @@ let updDayFilter=null;
 //   range=null: el preset no toca el rango (legacy: solo-tiendas)
 //   stores=null: aplicar a todas las tiendas (sin filtro) — o legacy solo-rango
 let updPresets=[];
+// Indice del preset que se está editando en el inspector (-1 = creación nueva)
+let updEditingPresetIdx=-1;
 let updSortCol='vc', updSortDir=-1;
 let wkSortCol='vc',  wkSortDir=-1;
 let diarioSortCol='date', diarioSortDir=-1;

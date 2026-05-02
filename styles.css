@@ -404,6 +404,9 @@ td.hito-cell{min-width:200px;}
 .preset-pill{font-size:11px;font-weight:600;padding:4px 6px 4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font);display:inline-flex;align-items:center;gap:4px;transition:all .15s;}
 .preset-pill .pp-name{cursor:pointer;padding:1px 2px;}
 .preset-pill:hover{border-color:var(--accent);color:var(--accent);}
+.preset-pill .pp-edit{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);cursor:pointer;transition:background .15s,color .15s;margin-left:2px;}
+.preset-pill .pp-edit:hover{background:var(--accent);color:#fff;}
+.preset-pill .pp-edit svg{width:9px;height:9px;stroke-width:2.4;}
 .preset-pill .pp-del{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--muted);font-size:13px;line-height:1;cursor:pointer;transition:background .15s,color .15s;}
 .preset-pill .pp-del:hover{background:var(--red);color:#fff;}
 .preset-pill.empty{font-style:italic;opacity:.6;padding:4px 12px;}
