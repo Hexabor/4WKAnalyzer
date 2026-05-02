@@ -100,8 +100,8 @@ function renderSimTable(list,targetName,targetVC){
     if(isTgt){dist=`<span class="dist-val self">— tú —</span>`;}
     else{const diff=targetVC-s.projVC,pct=Math.min(100,Math.round(Math.abs(diff)/maxDist*100));const cls=diff<0?'above':'below',sign=diff<0?`−${fmt(Math.abs(diff))}`:`+${fmt(diff)}`;dist=`<div class="dist-wrap"><div class="dist-bar-track"><div class="dist-bar-fill ${cls}" style="width:${pct}%"></div></div><span class="dist-val ${cls}">${sign}</span></div>`;}
     const altCell=altCol
-      ?`<td class="r sim-alt-rank-col"><span class="rank-num alt-rank">${altRankMap.get(s.store)}</span></td>`
-      :`<td class="r sim-alt-rank-col" style="display:none"></td>`;
+      ?`<td class="r alt-rank-col"><span class="rank-num alt-rank">${altRankMap.get(s.store)}</span></td>`
+      :`<td class="r alt-rank-col" style="display:none"></td>`;
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
     tr.innerHTML=`<td><span class="rank-num">${s.newR}</span></td>`+
       `<td><span class="chg ${cc}">${ct}</span></td>`+

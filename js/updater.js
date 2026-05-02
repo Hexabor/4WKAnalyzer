@@ -399,6 +399,12 @@ function applySortHeaders(prefix,col,dir,cols){
 
 function sortUpd(col){if(updSortCol===col)updSortDir*=-1;else{updSortCol=col;updSortDir=-1;}renderUpdTable();}
 
+const UPD_ALT_LABELS={
+  sales:'# Ventas',
+  buys:'# Compras',
+  members:'# Socios',
+  refunds:'# Devol.',
+};
 function renderUpdTable(){
   const{ranking}=compute4WKS();
   const prevRank=computePrev4WKSRanking();
@@ -414,6 +420,19 @@ function renderUpdTable(){
     return(a[updSortCol]-b[updSortCol])*updSortDir;
   });
   applySortHeaders('upd',updSortCol,updSortDir,['vc','sales','buys','members','refunds','delta']);
+  // Columna alterna: solo si ordenamos por una métrica distinta de V+C (vc) y de delta
+  const altCol=UPD_ALT_LABELS[updSortCol]?updSortCol:null;
+  const altHeader=document.getElementById('updAltRankHeader');
+  let altRankMap=null;
+  if(altCol){
+    altHeader.style.display='';
+    altHeader.textContent=UPD_ALT_LABELS[altCol];
+    const byAlt=[...ranking].sort((a,b)=>(b[altCol]||0)-(a[altCol]||0));
+    altRankMap=new Map(byAlt.map((s,i)=>[s.store,i+1]));
+  }else{
+    altHeader.style.display='none';
+    altHeader.textContent='';
+  }
   const targetRow=sorted.find(s=>s.store===targetName);
   const targetVC=targetRow?targetRow.vc:0;
   const maxDist=Math.max(...sorted.map(s=>Math.abs(s.vc-targetVC)))||1;
@@ -434,8 +453,11 @@ function renderUpdTable(){
       else if(delta<0)trendCell=`<span class="trend down">▼ ${-delta}</span>`;
       else trendCell=`<span class="trend same">—</span>`;
     }
+    const altCell=altCol
+      ?`<td class="r alt-rank-col"><span class="rank-num alt-rank">${altRankMap.get(s.store)}</span></td>`
+      :`<td class="r alt-rank-col" style="display:none"></td>`;
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
-    tr.innerHTML=`<td><span class="rank-num">${s.r}</span></td><td class="r">${trendCell}</td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td><td style="min-width:150px">${dist}</td>`;
+    tr.innerHTML=`<td><span class="rank-num">${s.r}</span></td><td class="r">${trendCell}</td>${altCell}<td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td><td style="min-width:150px">${dist}</td>`;
     tbody.appendChild(tr);
   });
 }

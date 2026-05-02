@@ -8,7 +8,8 @@ const CHANGELOG=[
   {
     version:'v0.20', date:'02 may 2026',
     items:[
-      {type:'new', text:'Columna de rank alterno en el Simulador rápido — al ordenar por una columna distinta de V+C proy. aparece (a la derecha del #) una columna estrecha en azul con el ranking según la métrica elegida (Hoy, Net Sales, Buys, Exch., Refunds o Members); desaparece al volver a V+C proy. para mantener limpio el caso por defecto'},
+      {type:'new', text:'Columna de rank alterno en el Simulador rápido — al ordenar por una columna distinta de V+C proy. aparece (entre Δ y Tienda) una columna estrecha en azul con el ranking según la métrica elegida (Hoy, Net Sales, Buys, Exch., Refunds o Members); desaparece al volver a V+C proy. para mantener limpio el caso por defecto'},
+      {type:'new', text:'Mismo rank alterno en «Ranking por rango» — al ordenar por Ventas, Compras, Socios o Devol. aparece la columna azul con el ranking en esa métrica; al ordenar por V+C 4WKS o por Δ vuelve a ocultarse'},
     ]
   },
   {

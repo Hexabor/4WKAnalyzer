@@ -177,7 +177,7 @@ tr.day-sun:hover td{filter:brightness(.97);}
 tr.target .rank-num{color:var(--accent);font-weight:700;}
 .rank-num.alt-rank{color:var(--blue);font-weight:600;}
 tr.target .rank-num.alt-rank{color:var(--blue);}
-.sim-alt-rank-col{width:78px;color:var(--blue);}
+.alt-rank-col{width:78px;color:var(--blue);}
 .chg{font-size:11px;font-weight:700;font-family:var(--mono);min-width:28px;display:inline-block;text-align:center;}
 .chg.up{color:var(--green);}.chg.down{color:var(--red);}.chg.same{color:var(--muted);}
 .pill{font-size:10px;font-weight:600;font-family:var(--mono);padding:2px 7px;border-radius:20px;background:rgba(76,175,133,.12);color:var(--green);border:1px solid rgba(76,175,133,.2);}
