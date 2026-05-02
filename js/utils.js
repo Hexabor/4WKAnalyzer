@@ -68,8 +68,8 @@ function compute4WKS(){
     if(!last4.includes(weekStart(d)))continue;
     for(const [store,s] of Object.entries(stores)){
       if(filterActive&&!updStoreFilter.includes(store))continue;
-      if(!agg[store])agg[store]={vc:0,sales:0,buys:0,members:0,refunds:0};
-      agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].members+=s.members;agg[store].refunds+=s.refunds;
+      if(!agg[store])agg[store]={vc:0,sales:0,buys:0,cashBuys:0,exchBuys:0,members:0,refunds:0};
+      agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].cashBuys+=(s.cashBuys||0);agg[store].exchBuys+=(s.exchBuys||0);agg[store].members+=s.members;agg[store].refunds+=s.refunds;
     }
   }
   const ranking=Object.entries(agg).map(([store,s])=>({store,...s})).sort((a,b)=>b.vc-a.vc).map((s,i)=>({...s,r:i+1}));

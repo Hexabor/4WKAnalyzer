@@ -76,7 +76,7 @@
       <span>Novedades</span>
     </button>
     <span class="home-stats"><span id="homeKpiDays">—</span> días <span class="home-stats-sep">·</span> <span id="homeKpiRange">sin datos</span></span>
-    <span class="home-version" id="homeAppVersion">α 0.11</span>
+    <span class="home-version" id="homeAppVersion">α 0.17</span>
   </div>
   <div class="modules-section">
     <div class="section-label">4 semanas</div>
@@ -643,8 +643,20 @@
     </div>
   </div>
   <div class="table-card" id="tableCard">
-    <table><thead><tr><th style="width:36px">#</th><th style="width:44px">±</th><th>Tienda</th><th class="r">V+C proy.</th><th class="r">Hoy</th><th class="r" id="distHeader">Distancia</th></tr></thead>
-    <tbody id="rankingBody"><tr><td colspan="6"><span class="empty-state">Carga el 4WKS base para empezar</span></td></tr></tbody></table>
+    <table><thead><tr>
+      <th style="width:36px">#</th>
+      <th style="width:44px">±</th>
+      <th>Tienda</th>
+      <th class="r sortable sort-active" data-simcol="projVC"      onclick="sortSim('projVC')">V+C proy. <em class="sort-arrow" id="simArr-projVC">▼</em></th>
+      <th class="r sortable"             data-simcol="todayVC"     onclick="sortSim('todayVC')">Hoy <em class="sort-arrow" id="simArr-todayVC"></em></th>
+      <th class="r sortable"             data-simcol="projSales"   onclick="sortSim('projSales')">Net Sales <em class="sort-arrow" id="simArr-projSales"></em></th>
+      <th class="r sortable"             data-simcol="projBuys"    onclick="sortSim('projBuys')">Buys <em class="sort-arrow" id="simArr-projBuys"></em></th>
+      <th class="r sortable"             data-simcol="projExch"    onclick="sortSim('projExch')">Exch. <em class="sort-arrow" id="simArr-projExch"></em></th>
+      <th class="r sortable"             data-simcol="projRefunds" onclick="sortSim('projRefunds')">Refunds <em class="sort-arrow" id="simArr-projRefunds"></em></th>
+      <th class="r sortable"             data-simcol="projMembers" onclick="sortSim('projMembers')">Members <em class="sort-arrow" id="simArr-projMembers"></em></th>
+      <th class="r" id="distHeader">Distancia</th>
+    </tr></thead>
+    <tbody id="rankingBody"><tr><td colspan="11"><span class="empty-state">Carga el 4WKS base para empezar</span></td></tr></tbody></table>
   </div>
 </section>
 

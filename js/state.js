@@ -24,3 +24,4 @@ let diarioStoreSel='Madrid Islazul';
 let semanalSortCol='ws', semanalSortDir=-1;
 let semanalStoreSel='Madrid Islazul';
 let semanalColorBy='none';
+let simSortCol='projVC', simSortDir=-1;

@@ -2,9 +2,18 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.16';
+const APP_VERSION='α 0.17';
 
 const CHANGELOG=[
+  {
+    version:'v0.17', date:'02 may 2026',
+    items:[
+      {type:'new', text:'Simulador rápido amplía el ranking con 5 columnas de proyección — Net Sales, Buys, Exch., Refunds y Members (4WKS base + facturación de hoy), todas ordenables como V+C proy. y Hoy'},
+      {type:'new', text:'Cabecera congelada en «Histórico días», «Histórico semanas», «Día a día», «Semana a semana» y «Simulador rápido» — al hacer scroll de la tabla los filtros, totales y títulos de columna permanecen visibles'},
+      {type:'fix', text:'Columna HITOS de Histórico días ya no queda truncada — el panel se ensancha a 1400px y el campo se adapta al espacio disponible'},
+      {type:'fix', text:'Simulador rápido se ensancha a 1320px para acomodar las nuevas columnas sin estrechar el resto'},
+    ]
+  },
   {
     version:'v0.16', date:'27 abr 2026',
     items:[
