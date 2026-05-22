@@ -1,6 +1,25 @@
 // ══════════════════════════════════════════════════════
 //  WEEKLY
 // ══════════════════════════════════════════════════════
+function rebuildWeeklyStore(){
+  const hidden=document.getElementById('weeklyStore');if(!hidden)return;
+  const prev=weeklyStoreSel||hidden.value;
+  const stores=new Set();
+  for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
+  const sorted=[...stores].sort();
+  const options=sorted.map(s=>({value:s,label:s}));
+  ssSetOptions('weeklyStore',options);
+  if(!sorted.length){ssSetValue('weeklyStore','',false);weeklyStoreSel='';return;}
+  const newVal=sorted.includes(prev)?prev:(sorted.includes('Madrid Islazul')?'Madrid Islazul':sorted[0]);
+  ssSetValue('weeklyStore',newVal,false);
+  weeklyStoreSel=newVal;
+}
+
+function onWeeklyStoreChange(){
+  weeklyStoreSel=document.getElementById('weeklyStore').value;
+  renderWeekly();schedulePersist();
+}
+
 function rebuildWeekSelect(){
   const sel=document.getElementById('wkSelect'),prev=sel.value;
   const weeks=getWeeks();sel.innerHTML='';
@@ -25,6 +44,7 @@ function sortWk(col){if(wkSortCol===col)wkSortDir*=-1;else{wkSortCol=col;wkSortD
 function renderWeekly(){
   const sel=document.getElementById('wkSelect'),ws=sel.value;
   updateWkNav();
+  rebuildWeeklyStore();
   applySortHeaders('wk',wkSortCol,wkSortDir,['vc','sales','buys','members','refunds']);
   if(!ws)return;
   const agg={};
@@ -41,7 +61,7 @@ function renderWeekly(){
   document.getElementById('wkMeta').textContent=`${rows.length} tiendas · ${daysInWeek}/7 días`;
   const tbody=document.getElementById('wkBody');tbody.innerHTML='';
   rows.forEach((s,i)=>{
-    const isTgt=s.store==='Madrid Islazul';
+    const isTgt=s.store===weeklyStoreSel;
     const tr=document.createElement('tr');if(isTgt)tr.className='target';
     tr.innerHTML=`<td><span class="rank-num">${i+1}</span></td><td><span class="store-name${isTgt?' target-name':''}">${s.store}</span></td><td class="r"><span class="stat-val vc">${fmt(s.vc)}</span></td><td class="r"><span class="stat-val">${fmt(s.sales)}</span></td><td class="r"><span class="stat-val">${fmt(s.buys)}</span></td><td class="r"><span class="stat-val">${fmtN(s.members)}</span></td><td class="r"><span class="stat-val">${fmt(s.refunds)}</span></td>`;
     tbody.appendChild(tr);

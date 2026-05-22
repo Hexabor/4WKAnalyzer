@@ -76,7 +76,7 @@
       <span>Novedades</span>
     </button>
     <span class="home-stats"><span id="homeKpiDays">—</span> días <span class="home-stats-sep">·</span> <span id="homeKpiRange">sin datos</span></span>
-    <span class="home-version" id="homeAppVersion">α 0.20</span>
+    <span class="home-version" id="homeAppVersion">α 0.21</span>
   </div>
   <div class="modules-section">
     <div class="section-label">4 semanas</div>
@@ -291,6 +291,9 @@
     <input type="hidden" id="dailyDate" onchange="onDailyDateChange()">
     <button type="button" class="dp-btn" data-target="dailyDate" onclick="openDP(this,event)"><span class="dp-val">—</span><svg class="dp-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
     <button class="wk-nav-btn" id="dlyNext" onclick="dailyStep(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <span class="wk-nav-sep"></span>
+    <label class="wk-nav-label">Tu tienda</label>
+    <div class="ss-wrap wk-nav-ss"><input type="hidden" id="dailyStore" onchange="onDailyStoreChange()"><input type="text" class="ss-input" data-ss-for="dailyStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onkeydown="ssKey(this,event)"><div class="ss-dropdown"></div></div>
     <span class="wk-meta" id="dlyMeta"></span>
   </div>
 
@@ -606,6 +609,9 @@
     <button class="wk-nav-btn" id="wkPrev" onclick="wkStep(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
     <select id="wkSelect" onchange="renderWeekly()"></select>
     <button class="wk-nav-btn" id="wkNext" onclick="wkStep(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <span class="wk-nav-sep"></span>
+    <label class="wk-nav-label">Tu tienda</label>
+    <div class="ss-wrap wk-nav-ss"><input type="hidden" id="weeklyStore" onchange="onWeeklyStoreChange()"><input type="text" class="ss-input" data-ss-for="weeklyStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onkeydown="ssKey(this,event)"><div class="ss-dropdown"></div></div>
     <span class="wk-meta" id="wkMeta"></span>
   </div>
   <div class="table-card visible">

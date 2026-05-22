@@ -2,9 +2,19 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.20';
+const APP_VERSION='α 0.21';
 
 const CHANGELOG=[
+  {
+    version:'v0.21', date:'22 may 2026',
+    items:[
+      {type:'new', text:'Selector «Tu tienda» en «Día a día» — antes la columna Distancia y la fila resaltada apuntaban siempre a Madrid Islazul; ahora eliges tu tienda libremente desde la barra superior y la referencia se recalcula al cambiar (fallback a la primera del día si tu tienda no aparece en él)'},
+      {type:'new', text:'Selector «Tu tienda» en «Semana a semana» — resalta la fila de tu tienda elegida en lugar del Madrid Islazul hardcodeado; selección independiente del simulador y persistida en backup/localStorage'},
+      {type:'fix', text:'Dropdown de tienda solo aparece al escribir y muestra únicamente coincidencias — antes desplegaba todas las tiendas y no se podía hacer scroll por un bug del listener global de scroll que cerraba el panel; ahora click/focus selecciona el texto y empezar a escribir abre el dropdown filtrado'},
+      {type:'fix', text:'Caret/flecha del dropdown oculta — coherente con el nuevo modelo «escribir para buscar», quitando la indicación visual de desplegable'},
+      {type:'fix', text:'Si vacías el input de tienda sin escoger, al perder foco se restaura la tienda actual — antes podía quedar visualmente vacío manteniendo internamente la selección previa'},
+    ]
+  },
   {
     version:'v0.20', date:'02 may 2026',
     items:[

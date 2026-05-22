@@ -51,6 +51,8 @@ function loadBackup(event){
       if(typeof b.dailySelectedDate==='string')dailySelectedDate=b.dailySelectedDate;
       if(typeof b.dailySortCol==='string')dailySortCol=b.dailySortCol;
       if(b.dailySortDir===-1||b.dailySortDir===1)dailySortDir=b.dailySortDir;
+      if(typeof b.dailyStoreSel==='string')dailyStoreSel=b.dailyStoreSel;
+      if(typeof b.weeklyStoreSel==='string')weeklyStoreSel=b.weeklyStoreSel;
       if(typeof b.patStore==='string')patStore=b.patStore;
       if(typeof b.patMetric==='string'&&b.patMetric in PAT_METRICS)patMetric=b.patMetric;
       if(typeof b.patStart==='string')patStart=b.patStart;
@@ -78,6 +80,8 @@ function loadBackup(event){
         if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
         if(b.diarioStoreSel&&(_ssOptions['diarioStore']||[]).some(o=>o.value===b.diarioStoreSel))ssSetValue('diarioStore',b.diarioStoreSel,false);
         if(b.semanalStoreSel&&(_ssOptions['semanalStore']||[]).some(o=>o.value===b.semanalStoreSel))ssSetValue('semanalStore',b.semanalStoreSel,false);
+        if(b.dailyStoreSel&&(_ssOptions['dailyStore']||[]).some(o=>o.value===b.dailyStoreSel))ssSetValue('dailyStore',b.dailyStoreSel,false);
+        if(b.weeklyStoreSel&&(_ssOptions['weeklyStore']||[]).some(o=>o.value===b.weeklyStoreSel))ssSetValue('weeklyStore',b.weeklyStoreSel,false);
       }
       if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;onTodayInput();}
       syncSimulator();
@@ -103,7 +107,7 @@ function persistState(){
       cexYearStart,updMode,updCustomEnd,updCustomStart,updCustomEndAuto,updStoreFilter,updDayFilter,updPresets,updSortCol,updSortDir,wkSortCol,wkSortDir,
       diarioSortCol,diarioSortDir,diarioDayFilter,
       diarioStoreSel,hitoData,
-      dailySelectedDate,dailySortCol,dailySortDir,
+      dailySelectedDate,dailySortCol,dailySortDir,dailyStoreSel,weeklyStoreSel,
       semanalStoreSel,semanalSortCol,semanalSortDir,semanalColorBy,
       analysisStore,analysisStore2,analysisMetrics,analysisDayFilter,analysisDayFilter2,analysisGranularity,analysisStart,analysisEnd,analysisPresets,
       patStore,patMetric,patStart,patEnd,patSortCol,patSortDir,patColorWeeks,
@@ -140,6 +144,8 @@ function restoreState(){
     if(typeof b.dailySelectedDate==='string')dailySelectedDate=b.dailySelectedDate;
     if(typeof b.dailySortCol==='string')dailySortCol=b.dailySortCol;
     if(b.dailySortDir===-1||b.dailySortDir===1)dailySortDir=b.dailySortDir;
+    if(typeof b.dailyStoreSel==='string')dailyStoreSel=b.dailyStoreSel;
+    if(typeof b.weeklyStoreSel==='string')weeklyStoreSel=b.weeklyStoreSel;
     if(typeof b.patStore==='string')patStore=b.patStore;
     if(typeof b.patMetric==='string'&&b.patMetric in PAT_METRICS)patMetric=b.patMetric;
     if(typeof b.patStart==='string')patStart=b.patStart;
@@ -170,6 +176,9 @@ function restoreState(){
       if(b.updTargetStore){if((_ssOptions['updTargetStore']||[]).some(o=>o.value===b.updTargetStore)){ssSetValue('updTargetStore',b.updTargetStore,false);renderUpdTable();}}
       if(b.wkWeek){const s=document.getElementById('wkSelect');if([...s.options].some(o=>o.value===b.wkWeek))s.value=b.wkWeek;}
       if(b.diarioStoreSel&&(_ssOptions['diarioStore']||[]).some(o=>o.value===b.diarioStoreSel))ssSetValue('diarioStore',b.diarioStoreSel,false);
+      if(b.semanalStoreSel&&(_ssOptions['semanalStore']||[]).some(o=>o.value===b.semanalStoreSel))ssSetValue('semanalStore',b.semanalStoreSel,false);
+      if(b.dailyStoreSel&&(_ssOptions['dailyStore']||[]).some(o=>o.value===b.dailyStoreSel))ssSetValue('dailyStore',b.dailyStoreSel,false);
+      if(b.weeklyStoreSel&&(_ssOptions['weeklyStore']||[]).some(o=>o.value===b.weeklyStoreSel))ssSetValue('weeklyStore',b.weeklyStoreSel,false);
     }
     if(b.todayRaw){document.getElementById('todayInput').value=b.todayRaw;}
     syncSimulator();

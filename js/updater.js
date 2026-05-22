@@ -411,7 +411,7 @@ function renderUpdater(){
   const newVal=ranking.some(s=>s.store===prev)?prev:(ranking.some(s=>s.store==='Madrid Islazul')?'Madrid Islazul':(ranking[0]?.store||''));
   ssSetValue('updTargetStore',newVal,false);
   document.getElementById('updSelectorCard').style.display='flex';
-  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();rebuildSemanalStore();rebuildAnalysisStore();rebuildDailyDate();rebuildPatStore();rebuildPatRange();
+  renderUpdTable();updateHomeKPI();rebuildWeekSelect();rebuildDiarioStore();rebuildSemanalStore();rebuildAnalysisStore();rebuildDailyDate();rebuildDailyStore();rebuildWeeklyStore();rebuildPatStore();rebuildPatRange();
 }
 
 function applySortHeaders(prefix,col,dir,cols){

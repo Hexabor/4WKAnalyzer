@@ -7,6 +7,8 @@ renderSettingsNote();
 rebuildWeekSelect();
 rebuildDiarioStore();
 rebuildSemanalStore();
+rebuildDailyStore();
+rebuildWeeklyStore();
 rebuildAnalysisStore();
 renderAnalysisPresets();
 restoreState();

@@ -3,6 +3,8 @@
 // ══════════════════════════════════════════════════════
 // dailyData[date][store] = {vc,sales,buys,cashBuys,exchBuys,members,refunds,ranking,day}
 let dailyData={}, dailyCSVRaw='', dailyCSVName='', manualLog=[];
+let dailyStoreSel='Madrid Islazul';
+let weeklyStoreSel='Madrid Islazul';
 // hitoData[date] = string  (store-agnostic — could extend to per-store if needed)
 let hitoData={};
 

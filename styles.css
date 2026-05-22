@@ -127,10 +127,10 @@ textarea::placeholder{color:var(--muted);}
 
 /* ── SEARCHABLE SELECT ── */
 .ss-wrap{position:relative;display:inline-flex;align-items:center;flex:1;min-width:180px;}
-.ss-input{flex:1;padding:7px 30px 7px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:text;transition:background .25s,border-color .15s;width:100%;}
+.ss-input{flex:1;padding:7px 12px;font-size:13px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);cursor:text;transition:background .25s,border-color .15s;width:100%;}
 .ss-input:focus{outline:none;border-color:var(--accent);}
 .ss-input::placeholder{color:var(--muted);font-weight:500;}
-.ss-caret{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:12px;height:12px;color:var(--muted);pointer-events:none;stroke-width:2;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
+.ss-caret{display:none;}
 .ss-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:7px;box-shadow:0 8px 24px var(--shadow);z-index:50;max-height:280px;overflow-y:auto;display:none;}
 .ss-dropdown.show{display:block;}
 .ss-dropdown::-webkit-scrollbar{width:6px;}
@@ -364,6 +364,9 @@ tr.target .rank-num.alt-rank{color:var(--blue);}
 /* ── WEEKLY NAV ── */
 .wk-nav{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .wk-nav select{flex:1;}
+.wk-nav-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 2px;}
+.wk-nav-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.wk-nav-ss{flex:0 1 260px;min-width:200px;}
 .wk-nav-btn{width:32px;height:32px;flex-shrink:0;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
 .wk-nav-btn:hover:not(:disabled){background:var(--surface2);color:var(--text);}
 .wk-nav-btn:disabled{opacity:.3;cursor:default;}

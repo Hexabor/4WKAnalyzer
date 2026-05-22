@@ -3,6 +3,25 @@
 // ══════════════════════════════════════════════════════
 let dailySelectedDate='', dailySortCol='ranking', dailySortDir=1;
 
+function rebuildDailyStore(){
+  const hidden=document.getElementById('dailyStore');if(!hidden)return;
+  const prev=dailyStoreSel||hidden.value;
+  const stores=new Set();
+  for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
+  const sorted=[...stores].sort();
+  const options=sorted.map(s=>({value:s,label:s}));
+  ssSetOptions('dailyStore',options);
+  if(!sorted.length){ssSetValue('dailyStore','',false);dailyStoreSel='';return;}
+  const newVal=sorted.includes(prev)?prev:(sorted.includes('Madrid Islazul')?'Madrid Islazul':sorted[0]);
+  ssSetValue('dailyStore',newVal,false);
+  dailyStoreSel=newVal;
+}
+
+function onDailyStoreChange(){
+  dailyStoreSel=document.getElementById('dailyStore').value;
+  renderDaily();schedulePersist();
+}
+
 function rebuildDailyDate(){
   const dates=Object.keys(dailyData).sort();
   const hidden=document.getElementById('dailyDate');if(!hidden)return;
@@ -54,6 +73,7 @@ function applyDailySortHeaders(){
 
 function renderDaily(){
   rebuildDailyDate();
+  rebuildDailyStore();
   applyDailySortHeaders();
   const tbody=document.getElementById('dailyBody');
   const summary=document.getElementById('dailySummary');
@@ -103,8 +123,11 @@ function renderDaily(){
     return((a[col]||0)-(b[col]||0))*dir;
   });
 
-  // Distancia (a Madrid Islazul si existe; si no, a la primera)
-  const targetName=sorted.some(r=>r.store==='Madrid Islazul')?'Madrid Islazul':sorted[0].store;
+  // Distancia respecto a tu tienda (si existe en el día); fallback Madrid Islazul / primera
+  let targetName=dailyStoreSel;
+  if(!targetName||!sorted.some(r=>r.store===targetName)){
+    targetName=sorted.some(r=>r.store==='Madrid Islazul')?'Madrid Islazul':sorted[0].store;
+  }
   const targetRow=sorted.find(r=>r.store===targetName);
   const targetVC=targetRow?targetRow.vc||0:0;
   const maxDist=Math.max(...sorted.map(r=>Math.abs((r.vc||0)-targetVC)))||1;

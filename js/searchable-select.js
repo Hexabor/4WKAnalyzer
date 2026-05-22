@@ -1,9 +1,11 @@
 // ══════════════════════════════════════════════════════
 //  SEARCHABLE SELECT
+//  El dropdown solo aparece al escribir y muestra solo coincidencias.
+//  Click/focus no despliega: selecciona el texto para que escribir reemplace.
 // ══════════════════════════════════════════════════════
 const _ssOptions={}; // { hiddenId: [{value, label}] }
 let _ssActive=null;  // { id, input, query, highlightIdx }
-const _ssNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const _ssNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 
 function ssSetOptions(id, options){
   _ssOptions[id]=options||[];
@@ -21,19 +23,14 @@ function ssSyncDisplay(id){
   if(!hidden||!input)return;
   const opts=_ssOptions[id]||[];
   const opt=opts.find(o=>o.value===hidden.value);
-  if(_ssActive&&_ssActive.id===id)return; // don't overwrite while user is typing
+  if(_ssActive&&_ssActive.id===id)return; // no sobreescribir mientras el usuario escribe
   input.value=opt?opt.label:'';
 }
 
+// onfocus/onclick: seleccionar el texto (no abre dropdown).
 function ssOpen(input){
   if(input.readOnly)return;
-  const id=input.dataset.ssFor;
-  if(_ssActive&&_ssActive.id===id){ssRenderDropdown();return;}
-  if(_ssActive)ssClose(true);
-  _ssActive={id, input, query:'', highlightIdx:-1};
-  input.select();
-  ssRenderDropdown();
-  setTimeout(()=>document.addEventListener('click', ssOutsideClick, true),0);
+  if(input.value)input.select();
 }
 function ssClose(restoreDisplay=true){
   if(!_ssActive)return;
@@ -49,15 +46,27 @@ function ssOutsideClick(e){
   if(wrap&&wrap.contains(e.target))return;
   ssClose(true);
 }
+// oninput: solo abre dropdown si hay texto; lo cierra si se vacía.
 function ssInput(input){
-  if(!_ssActive||_ssActive.input!==input){ssOpen(input);}
-  _ssActive.query=input.value;
-  _ssActive.highlightIdx=0;
+  const id=input.dataset.ssFor;
+  const q=input.value;
+  if(!q.trim()){
+    if(_ssActive&&_ssActive.input===input)ssClose(false);
+    return;
+  }
+  if(!_ssActive||_ssActive.input!==input){
+    if(_ssActive)ssClose(false);
+    _ssActive={id, input, query:q, highlightIdx:0};
+    setTimeout(()=>document.addEventListener('click', ssOutsideClick, true),0);
+  } else {
+    _ssActive.query=q;
+    _ssActive.highlightIdx=0;
+  }
   ssRenderDropdown();
 }
 function ssKey(input, e){
   if(!_ssActive||_ssActive.input!==input){
-    if(e.key==='ArrowDown'||e.key==='Enter'){e.preventDefault();ssOpen(input);}
+    // Sin dropdown abierto: las flechas/Enter no abren nada — solo se abre al escribir.
     return;
   }
   const filtered=ssFilter(_ssActive.id, _ssActive.query);
@@ -102,7 +111,7 @@ function ssRenderDropdown(){
   const curVal=hidden?.value||'';
   dd.innerHTML='';
   if(!filtered.length){
-    const empty=document.createElement('div');empty.className='ss-empty';empty.textContent='Sin resultados';
+    const empty=document.createElement('div');empty.className='ss-empty';empty.textContent='Sin coincidencias';
     dd.appendChild(empty);
   }else{
     filtered.forEach((o,i)=>{
@@ -124,5 +133,11 @@ function ssScrollHighlight(){
   const hi=wrap.querySelector('.ss-option.ss-highlight');
   if(hi)hi.scrollIntoView({block:'nearest'});
 }
-document.addEventListener('scroll',()=>{if(_ssActive)ssClose(true);},true);
 window.addEventListener('resize',()=>{if(_ssActive)ssClose(true);});
+// Si el input pierde foco sin haberse seleccionado nada, restaurar el display al valor actual.
+document.addEventListener('focusout',e=>{
+  const inp=e.target;
+  if(!inp||!inp.classList||!inp.classList.contains('ss-input'))return;
+  if(_ssActive&&_ssActive.input===inp)return; // sesión activa: lo gestiona ssClose
+  ssSyncDisplay(inp.dataset.ssFor);
+},true);
