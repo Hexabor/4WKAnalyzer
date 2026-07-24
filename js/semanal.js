@@ -14,6 +14,11 @@ function rebuildSemanalStore(){
   semanalStoreSel=newVal;
 }
 
+function onSemanalStoreChange(){
+  semanalStoreSel=document.getElementById('semanalStore').value;
+  renderSemanal();schedulePersist();
+}
+
 function sortSemanal(col){
   if(semanalSortCol===col)semanalSortDir*=-1;
   else{semanalSortCol=col;semanalSortDir=-1;}

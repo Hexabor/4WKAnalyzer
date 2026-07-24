@@ -12,7 +12,7 @@ const ANALYSIS_METRICS={
   ranking:{label:'Ranking',fmt:n=>`#${(Math.round(n*10)/10).toString().replace('.',',')}`,agg:'avg',inverted:true},
 };
 
-let analysisStore='__all__', analysisStore2='', analysisMetrics=['vc'], analysisDayFilter='', analysisDayFilter2='', analysisGranularity='day';
+let analysisStore='', analysisStore2='', analysisMetrics=['vc'], analysisDayFilter='', analysisDayFilter2='', analysisGranularity='day';
 let analysisStart='', analysisEnd='';
 let analysisPresets=[];
 
@@ -22,10 +22,10 @@ function rebuildAnalysisStore(){
   const stores=new Set();
   for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
   const sorted=[...stores].sort();
-  const options=[{value:'__all__',label:sorted.length?'Todas las tiendas':'— sin datos —'}];
+  const options=[{value:'',label:'— selecciona una tienda —'},{value:'__all__',label:sorted.length?'Todas las tiendas':'— sin datos —'}];
   sorted.forEach(s=>options.push({value:s,label:s}));
   ssSetOptions('aStore',options);
-  const newVal=(prev==='__all__'||sorted.includes(prev))?prev:'__all__';
+  const newVal=(prev===''||prev==='__all__'||sorted.includes(prev))?prev:'';
   ssSetValue('aStore',newVal,false);
   analysisStore=newVal;
   // Segundo selector: sin "__all__", con opción vacía. Permite misma tienda que A para comparar consigo misma en distintos días.
@@ -226,6 +226,11 @@ function renderAnalysis(){
   if(!analysisMetrics.length){
     summary.style.display='none';
     wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Selecciona al menos una métrica</div></div>';
+    return;
+  }
+  if(!analysisStore){
+    summary.style.display='none';
+    wrap.innerHTML='<div class="chart-card"><div class="chart-empty">Selecciona una tienda para ver el análisis</div></div>';
     return;
   }
 

@@ -1,7 +1,8 @@
 // ══════════════════════════════════════════════════════
 //  SEARCHABLE SELECT
-//  El dropdown solo aparece al escribir y muestra solo coincidencias.
-//  Click/focus no despliega: selecciona el texto para que escribir reemplace.
+//  Click/foco despliega el listado completo (roll-up); escribir lo filtra en vivo.
+//  Campos con una opción value:'' en su lista admiten quedarse sin selección
+//  al borrar el texto y perder el foco; el resto revierte a la tienda anterior.
 // ══════════════════════════════════════════════════════
 const _ssOptions={}; // { hiddenId: [{value, label}] }
 let _ssActive=null;  // { id, input, query, highlightIdx }
@@ -10,6 +11,9 @@ const _ssNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 function ssSetOptions(id, options){
   _ssOptions[id]=options||[];
   ssSyncDisplay(id);
+}
+function ssAllowsClear(id){
+  return (_ssOptions[id]||[]).some(o=>o.value==='');
 }
 function ssSetValue(id, value, fire=true){
   const hidden=document.getElementById(id);if(!hidden)return;
@@ -21,23 +25,43 @@ function ssSyncDisplay(id){
   const hidden=document.getElementById(id);
   const input=document.querySelector(`input.ss-input[data-ss-for="${id}"]`);
   if(!hidden||!input)return;
+  const wrap=input.closest('.ss-wrap');
+  if(wrap)wrap.classList.toggle('has-value', !!hidden.value);
   const opts=_ssOptions[id]||[];
   const opt=opts.find(o=>o.value===hidden.value);
-  if(_ssActive&&_ssActive.id===id)return; // no sobreescribir mientras el usuario escribe
+  if(_ssActive&&_ssActive.id===id)return; // no sobreescribir mientras el usuario edita
   input.value=opt?opt.label:'';
 }
 
-// onfocus/onclick: seleccionar el texto (no abre dropdown).
+// onfocus/onclick: despliega el listado completo y selecciona el texto (para que escribir lo reemplace).
 function ssOpen(input){
   if(input.readOnly)return;
+  const id=input.dataset.ssFor;
   if(input.value)input.select();
+  _ssActive={id, input, query:'', highlightIdx:ssCurrentIdx(id)};
+  document.removeEventListener('click', ssOutsideClick, true);
+  setTimeout(()=>document.addEventListener('click', ssOutsideClick, true),0);
+  ssRenderDropdown();
 }
-function ssClose(restoreDisplay=true){
+function ssCurrentIdx(id){
+  const hidden=document.getElementById(id);
+  const opts=_ssOptions[id]||[];
+  const i=opts.findIndex(o=>o.value===(hidden?hidden.value:''));
+  return i>=0?i:0;
+}
+// Cierra el dropdown. Si el campo admite quedarse vacío (tiene opción value:'')
+// y el usuario borró el texto sin elegir nada, confirma la deselección.
+function ssClose(restoreDisplay=true, allowCommitEmpty=true){
   if(!_ssActive)return;
-  const id=_ssActive.id;
+  const {id, query}=_ssActive;
   _ssActive=null;
   document.removeEventListener('click', ssOutsideClick, true);
-  document.querySelectorAll('.ss-dropdown.show').forEach(d=>d.classList.remove('show'));
+  document.querySelectorAll('.ss-wrap.open').forEach(w=>w.classList.remove('open'));
+  const hidden=document.getElementById(id);
+  if(allowCommitEmpty&&hidden&&ssAllowsClear(id)&&!(query||'').trim()&&hidden.value!==''){
+    ssSetValue(id,'',true);
+    return;
+  }
   if(restoreDisplay)ssSyncDisplay(id);
 }
 function ssOutsideClick(e){
@@ -46,17 +70,13 @@ function ssOutsideClick(e){
   if(wrap&&wrap.contains(e.target))return;
   ssClose(true);
 }
-// oninput: solo abre dropdown si hay texto; lo cierra si se vacía.
+// oninput: siempre mantiene el dropdown abierto (vacío = listado completo).
 function ssInput(input){
   const id=input.dataset.ssFor;
   const q=input.value;
-  if(!q.trim()){
-    if(_ssActive&&_ssActive.input===input)ssClose(false);
-    return;
-  }
   if(!_ssActive||_ssActive.input!==input){
-    if(_ssActive)ssClose(false);
     _ssActive={id, input, query:q, highlightIdx:0};
+    document.removeEventListener('click', ssOutsideClick, true);
     setTimeout(()=>document.addEventListener('click', ssOutsideClick, true),0);
   } else {
     _ssActive.query=q;
@@ -65,10 +85,7 @@ function ssInput(input){
   ssRenderDropdown();
 }
 function ssKey(input, e){
-  if(!_ssActive||_ssActive.input!==input){
-    // Sin dropdown abierto: las flechas/Enter no abren nada — solo se abre al escribir.
-    return;
-  }
+  if(!_ssActive||_ssActive.input!==input)return;
   const filtered=ssFilter(_ssActive.id, _ssActive.query);
   if(e.key==='ArrowDown'){
     e.preventDefault();
@@ -83,7 +100,7 @@ function ssKey(input, e){
     const opt=filtered[_ssActive.highlightIdx>=0?_ssActive.highlightIdx:0];
     if(opt)ssPick(opt.value);
   }else if(e.key==='Escape'){
-    e.preventDefault();ssClose(true);
+    e.preventDefault();ssClose(true,false); // cancelar edición: siempre revierte, nunca vacía
   }else if(e.key==='Tab'){
     ssClose(true);
   }
@@ -93,8 +110,18 @@ function ssPick(value){
   const id=_ssActive.id;
   _ssActive=null;
   document.removeEventListener('click', ssOutsideClick, true);
-  document.querySelectorAll('.ss-dropdown.show').forEach(d=>d.classList.remove('show'));
+  document.querySelectorAll('.ss-wrap.open').forEach(w=>w.classList.remove('open'));
   ssSetValue(id, value, true);
+}
+// Botón «×»: vacía el texto y reabre el listado completo. Si el campo admite
+// quedarse sin selección, confirma la deselección al instante.
+function ssClearInput(id){
+  const hidden=document.getElementById(id);
+  const input=document.querySelector(`input.ss-input[data-ss-for="${id}"]`);
+  if(!hidden||!input)return;
+  input.value='';
+  input.focus();
+  if(ssAllowsClear(id)&&hidden.value!=='')ssSetValue(id,'',true);
 }
 function ssFilter(id, query){
   const opts=_ssOptions[id]||[];
@@ -105,6 +132,7 @@ function ssFilter(id, query){
 function ssRenderDropdown(){
   if(!_ssActive)return;
   const wrap=_ssActive.input.closest('.ss-wrap');
+  wrap.classList.add('open');
   const dd=wrap.querySelector('.ss-dropdown');
   const filtered=ssFilter(_ssActive.id, _ssActive.query);
   const hidden=document.getElementById(_ssActive.id);
@@ -117,6 +145,7 @@ function ssRenderDropdown(){
     filtered.forEach((o,i)=>{
       const el=document.createElement('div');
       el.className='ss-option';
+      if(o.value==='')el.classList.add('ss-muted');
       if(o.value===curVal)el.classList.add('ss-selected');
       if(i===_ssActive.highlightIdx)el.classList.add('ss-highlight');
       el.textContent=o.label;
@@ -125,7 +154,6 @@ function ssRenderDropdown(){
       dd.appendChild(el);
     });
   }
-  dd.classList.add('show');
 }
 function ssScrollHighlight(){
   if(!_ssActive)return;
@@ -134,7 +162,8 @@ function ssScrollHighlight(){
   if(hi)hi.scrollIntoView({block:'nearest'});
 }
 window.addEventListener('resize',()=>{if(_ssActive)ssClose(true);});
-// Si el input pierde foco sin haberse seleccionado nada, restaurar el display al valor actual.
+// Si el input pierde foco sin haberse gestionado ya (click fuera, Tab, Escape),
+// restaura el display al valor actual como red de seguridad.
 document.addEventListener('focusout',e=>{
   const inp=e.target;
   if(!inp||!inp.classList||!inp.classList.contains('ss-input'))return;

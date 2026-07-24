@@ -2,9 +2,18 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.21';
+const APP_VERSION='α 0.22';
 
 const CHANGELOG=[
+  {
+    version:'v0.22', date:'25 jul 2026',
+    items:[
+      {type:'fix', text:'Selector de tienda en «Histórico semanas» — elegir otra tienda se revertía sola a la anterior; el cambio no actualizaba la variable de selección antes de re-renderizar y el propio render la pisaba con el valor viejo. Ahora sigue el mismo patrón que el resto de tabs'},
+      {type:'new', text:'Roll-up completo en todos los selectores de tienda — click o foco despliega ya el listado entero (con flecha visible), escribir sigue filtrando en vivo; antes el dropdown solo aparecía al escribir'},
+      {type:'new', text:'Botón «×» para vaciar cualquier selector de tienda de un click, además de poder borrar el texto a mano'},
+      {type:'new', text:'Análisis por rango — la Tienda A arranca sin selección en vez de forzar «Todas las tiendas»; «Todas las tiendas» pasa a ser una opción más de la lista. Tanto A como B (comparación) se pueden vaciar del todo — el gráfico muestra «Selecciona una tienda» hasta entonces'},
+    ]
+  },
   {
     version:'v0.21', date:'22 may 2026',
     items:[
