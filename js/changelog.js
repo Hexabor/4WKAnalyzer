@@ -2,9 +2,17 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.22';
+const APP_VERSION='α 0.23';
 
 const CHANGELOG=[
+  {
+    version:'v0.23', date:'29 jul 2026',
+    items:[
+      {type:'new', text:'Rework visual completo con la paleta de KPI Metrics — acento rojo CeX (#E4002B), sidebar slate oscuro y fondo blanco puro; eliminado el modo oscuro, la app pasa a una única paleta clara. Solo cambian colores y tipografía, ningún tamaño, espaciado ni disposición se ha tocado'},
+      {type:'new', text:'Badges, tendencias (Δ), rank-badges y barras de fin de semana actualizados a los nuevos tonos (verde/rojo/azul de KPI, ámbar para el top1, morado para la barra del sábado)'},
+      {type:'new', text:'Tipografía a la fuente de sistema en vez de Sora/DM Mono de Google Fonts — ya no se descarga ningún webfont'},
+    ]
+  },
   {
     version:'v0.22', date:'25 jul 2026',
     items:[
