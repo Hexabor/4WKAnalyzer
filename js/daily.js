@@ -158,3 +158,38 @@ function renderDaily(){
     tbody.appendChild(tr);
   });
 }
+
+function exportDailyCSV(){
+  const dates=Object.keys(dailyData);
+  if(!dates.length||!dailySelectedDate||!dailyData[dailySelectedDate])return;
+  const stores=dailyData[dailySelectedDate];
+  const rows=Object.entries(stores).map(([store,s])=>({store,...s}));
+  if(!rows.length)return;
+  const col=dailySortCol, dir=dailySortDir;
+  const sorted=[...rows].sort((a,b)=>{
+    if(col==='ranking'){const ra=a.ranking||9999, rb=b.ranking||9999;return(ra-rb)*dir;}
+    return((a[col]||0)-(b[col]||0))*dir;
+  });
+  let targetName=dailyStoreSel;
+  if(!targetName||!sorted.some(r=>r.store===targetName)){
+    targetName=sorted.some(r=>r.store==='Madrid Islazul')?'Madrid Islazul':sorted[0].store;
+  }
+  const targetRow=sorted.find(r=>r.store===targetName);
+  const targetVC=targetRow?targetRow.vc||0:0;
+  const header=['Rank','Tienda','V+C','Net Sales','Buys','Cash Buys','Exch. Buys','Refunds','Members',`Diferencia vs ${targetName}`];
+  const rows2=sorted.map((r,i)=>[
+    i+1, r.store, r.vc||0, r.sales||0, r.buys||0, r.cashBuys||'', r.exchBuys||'', r.refunds||0, r.members||0,
+    r.store===targetName?0:((r.vc||0)-targetVC)
+  ]);
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`dia-a-dia_${dailySelectedDate}_${today}.csv`,header,rows2);
+}
+
+function exportDailyPDF(){
+  const dates=Object.keys(dailyData);
+  if(!dates.length||!dailySelectedDate||!dailyData[dailySelectedDate])return;
+  const table=document.getElementById('dailyTable');
+  const rowCount=Object.keys(dailyData[dailySelectedDate]).length;
+  if(!rowCount)return;
+  exportPDF('Día a día',`${DAY_ES[dailyData[dailySelectedDate][Object.keys(dailyData[dailySelectedDate])[0]].day]||''} · ${fmtDate(dailySelectedDate)} · ${rowCount} tiendas`,table);
+}

@@ -256,9 +256,13 @@
       <button class="btn-primary inspector-save" onclick="saveUpdPreset()">+ guardar preset</button>
     </div>
   </aside>
-  <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="updTargetStore" onchange="renderUpdTable()"><input type="text" class="ss-input" data-ss-for="updTargetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('updTargetStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div></div>
+  <div class="selector-card" id="updSelectorCard" style="display:none"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="updTargetStore" onchange="renderUpdTable()"><input type="text" class="ss-input" data-ss-for="updTargetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('updTargetStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportUpdCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportUpdPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
+  </div>
   <div class="table-card visible upd-rank" id="updTableCard">
-    <table>
+    <table id="updTable">
       <thead><tr>
         <th style="width:36px">#</th>
         <th style="width:68px" class="r sortable" data-col="delta" onclick="sortUpd('delta')">Δ <em class="sort-arrow" id="updArr-delta"></em></th>
@@ -293,6 +297,9 @@
     <label class="wk-nav-label">Tu tienda</label>
     <div class="ss-wrap wk-nav-ss"><input type="hidden" id="dailyStore" onchange="onDailyStoreChange()"><input type="text" class="ss-input" data-ss-for="dailyStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('dailyStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div>
     <span class="wk-meta" id="dlyMeta"></span>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportDailyCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportDailyPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>
 
   <!-- SUMMARY -->
@@ -307,7 +314,7 @@
 
   <!-- TABLE -->
   <div class="table-card visible" id="dailyTableCard">
-    <table>
+    <table id="dailyTable">
       <thead><tr>
         <th style="width:36px" class="sortable sort-active" data-dlycol="ranking" onclick="sortDaily('ranking')"># <em class="sort-arrow" id="dlyArr-ranking">▲</em></th>
         <th>Tienda</th>
@@ -350,6 +357,7 @@
     </div>
     <span style="flex:1"></span>
     <button class="btn-mini" onclick="exportDiarioCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportDiarioPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>
 
   <!-- SUMMARY -->
@@ -410,6 +418,9 @@
       <button class="diario-filter-pill" data-col="vc" onclick="setSemanalColorBy(this)">V+C</button>
       <button class="diario-filter-pill" data-col="rolling4" onclick="setSemanalColorBy(this)">4WKS rod.</button>
     </div>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportSemanalCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportSemanalPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>
 
   <!-- SUMMARY -->
@@ -425,7 +436,7 @@
   <!-- TABLE -->
   <div class="diario-table-wrap">
     <div class="table-card visible">
-      <table>
+      <table id="semanalTable">
         <thead><tr>
           <th class="sortable sort-active" data-scol="ws" onclick="sortSemanal('ws')">WK <em class="sort-arrow" id="semArr-ws">▼</em></th>
           <th>Rango</th>
@@ -522,6 +533,9 @@
     <span class="presets-label">Presets</span>
     <div class="presets-list" id="aPresetsList"></div>
     <button class="preset-save-btn" onclick="saveAnalysisPreset()">+ Guardar rango actual</button>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportAnalysisCSV()" title="Exportar los datos del gráfico a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportAnalysisPDF()" title="Exportar los gráficos a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>
 
   <!-- SUMMARY -->
@@ -574,6 +588,11 @@
           <button type="button" class="diario-filter-pill" data-highlight="weeks" onclick="togglePatHighlight(this)">Colorear semanas</button>
         </div>
       </div>
+      <div class="pat-group">
+        <label>Exportar</label>
+        <button class="btn-mini" onclick="exportPatternCSV()" title="Exportar la tabla a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+        <button class="btn-mini" onclick="exportPatternPDF()" title="Exportar gráfico y tabla a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
+      </div>
     </aside>
     <div class="pat-content">
       <div class="chart-card" id="patChartCard">
@@ -613,9 +632,12 @@
     <label class="wk-nav-label">Tu tienda</label>
     <div class="ss-wrap wk-nav-ss"><input type="hidden" id="weeklyStore" onchange="onWeeklyStoreChange()"><input type="text" class="ss-input" data-ss-for="weeklyStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('weeklyStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div>
     <span class="wk-meta" id="wkMeta"></span>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportWeeklyCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportWeeklyPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>
   <div class="table-card visible">
-    <table>
+    <table id="wkTable">
       <thead><tr>
         <th style="width:36px">#</th><th>Tienda</th>
         <th class="r sortable sort-active" data-col="vc"      onclick="sortWk('vc')">V+C <em class="sort-arrow" id="wkArr-vc">▼</em></th>
@@ -644,7 +666,11 @@
       <span class="sim-base-sep">·</span>
       <span class="sim-base-dates" id="simBaseDates">—</span>
     </div>
-    <div class="selector-card"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="targetStore" onchange="recalc()"><input type="text" class="ss-input" data-ss-for="targetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('targetStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div></div>
+    <div class="selector-card"><label>Tienda</label><div class="ss-wrap"><input type="hidden" id="targetStore" onchange="recalc()"><input type="text" class="ss-input" data-ss-for="targetStore" placeholder="Buscar tienda…" autocomplete="off" oninput="ssInput(this)" onfocus="ssOpen(this)" onclick="ssOpen(this)" onkeydown="ssKey(this,event)"><button type="button" class="ss-clear" tabindex="-1" title="Vaciar" onmousedown="event.preventDefault();ssClearInput('targetStore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" stroke-width="2"/></svg></button><svg class="ss-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="ss-dropdown"></div></div>
+    <span style="flex:1"></span>
+    <button class="btn-mini" onclick="exportSimCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
+    <button class="btn-mini" onclick="exportSimPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
+    </div>
   </div>
   <div class="sim-row sim-row-bottom">
     <div class="banner" id="banner">
@@ -667,7 +693,7 @@
     </div>
   </div>
   <div class="table-card" id="tableCard">
-    <table><thead><tr>
+    <table id="simTable"><thead><tr>
       <th style="width:36px">#</th>
       <th style="width:44px">±</th>
       <th class="r alt-rank-col" id="simAltRankHeader" style="display:none"></th>

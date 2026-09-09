@@ -489,6 +489,48 @@ function renderUpdTable(){
   });
 }
 
+function exportUpdCSV(){
+  const{ranking}=compute4WKS();
+  if(!ranking.length)return;
+  const prevRank=computePrev4WKSRanking();
+  ranking.forEach(s=>{const p=prevRank.get(s.store);s.delta=p==null?null:p-s.r;});
+  const targetName=document.getElementById('updTargetStore').value;
+  const sorted=[...ranking].sort((a,b)=>{
+    if(updSortCol==='delta'){
+      if(a.delta==null&&b.delta==null)return 0;
+      if(a.delta==null)return 1;
+      if(b.delta==null)return -1;
+      return(a.delta-b.delta)*updSortDir;
+    }
+    return(a[updSortCol]-b[updSortCol])*updSortDir;
+  });
+  const targetRow=sorted.find(s=>s.store===targetName);
+  const targetVC=targetRow?targetRow.vc:0;
+  const header=['Rank','Tendencia','Tienda','V+C 4WKS','Net Sales','Buys','Members','Refunds',`Diferencia vs ${targetName||'—'}`];
+  const rows=sorted.map(s=>[
+    s.r,
+    s.delta==null?'Nuevo':s.delta,
+    s.store,
+    s.vc,
+    s.sales,
+    s.buys,
+    s.members,
+    s.refunds,
+    s.store===targetName?0:(s.vc-targetVC)
+  ]);
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`ranking-4wks_${today}.csv`,header,rows);
+}
+
+function exportUpdPDF(){
+  const{ranking,last4}=compute4WKS();
+  if(!ranking.length)return;
+  const table=document.getElementById('updTable');
+  const targetName=document.getElementById('updTargetStore').value;
+  const rangeTxt=last4.length?`${weekTag(last4[0])} – ${weekTag(last4[last4.length-1])}`:'';
+  exportPDF('Ranking por rango',`${rangeTxt}${targetName?' · Tu tienda: '+targetName:''}`,table);
+}
+
 function updateHomeKPI(){
   const dates=Object.keys(dailyData).sort();
   document.getElementById('homeKpiDays').textContent=dates.length||'—';

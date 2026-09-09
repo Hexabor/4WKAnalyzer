@@ -159,6 +159,35 @@ function renderSemanal(){
   });
 }
 
+function exportSemanalCSV(){
+  const storeName=semanalStoreSel;
+  const{rows}=collectSemanalRows();
+  if(!rows.length)return;
+  const col=semanalSortCol, dir=semanalSortDir;
+  const sorted=[...rows].sort((a,b)=>{
+    if(col==='ws'){return a.ws<b.ws?-dir:a.ws>b.ws?dir:0;}
+    if(col==='pos'){const aa=a.pos||9999, bb=b.pos||9999;return(aa-bb)*dir;}
+    const va=a[col]??0, vb=b[col]??0;
+    return(va-vb)*dir;
+  });
+  const header=['WK','Desde','Hasta','Días','Rank semana','V+C','Net Sales','Buys','Cash Buys','Exch. Buys','Refunds','Members','4WKS rodante'];
+  const rows2=sorted.map(r=>[
+    weekTag(r.ws), fmtDate(r.ws), fmtDate(weekEnd(r.ws)), `${r.days}/7`, r.pos||'',
+    r.vc, r.sales, r.buys, r.cashBuys, r.exchBuys, r.refunds, r.members, r.rolling4
+  ]);
+  const safeStore=storeName.replace(/[^\w\-]+/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`historico-semanas_${safeStore}_${today}.csv`,header,rows2);
+}
+
+function exportSemanalPDF(){
+  const storeName=semanalStoreSel;
+  const{rows}=collectSemanalRows();
+  if(!rows.length)return;
+  const table=document.getElementById('semanalTable');
+  exportPDF('Histórico semanas',`${storeName} · ${rows.length} semanas`,table);
+}
+
 function applySemanalSortHeaders(){
   const cols=['ws','pos','sales','buys','cashBuys','exchBuys','refunds','members','vc','rolling4'];
   cols.forEach(c=>{

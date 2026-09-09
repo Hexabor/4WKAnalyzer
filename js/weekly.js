@@ -68,3 +68,31 @@ function renderWeekly(){
   });
 }
 
+function exportWeeklyCSV(){
+  const ws=document.getElementById('wkSelect').value;
+  if(!ws)return;
+  const agg={};
+  for(const [d,stores] of Object.entries(dailyData)){
+    if(weekStart(d)!==ws)continue;
+    for(const [store,s] of Object.entries(stores)){
+      if(!agg[store])agg[store]={vc:0,sales:0,buys:0,members:0,refunds:0};
+      agg[store].vc+=s.vc;agg[store].sales+=s.sales;agg[store].buys+=s.buys;agg[store].members+=s.members;agg[store].refunds+=s.refunds;
+    }
+  }
+  const rows=Object.entries(agg).map(([store,s])=>({store,...s}));
+  if(!rows.length)return;
+  rows.sort((a,b)=>(a[wkSortCol]-b[wkSortCol])*wkSortDir);
+  const header=['Rank','Tienda','V+C','Net Sales','Buys','Members','Refunds'];
+  const rows2=rows.map((s,i)=>[i+1,s.store,s.vc,s.sales,s.buys,s.members,s.refunds]);
+  downloadCSV(`semana-a-semana_${ws}.csv`,header,rows2);
+}
+
+function exportWeeklyPDF(){
+  const sel=document.getElementById('wkSelect'),ws=sel.value;
+  if(!ws)return;
+  const table=document.getElementById('wkTable');
+  const rowCount=table.querySelectorAll('tbody tr').length;
+  if(!rowCount)return;
+  exportPDF('Semana a semana',`${weekLabel(ws)} · ${rowCount} tiendas`,table);
+}
+

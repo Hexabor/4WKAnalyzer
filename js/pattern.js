@@ -175,6 +175,38 @@ function drawPatternChart(dailyAvg, meta){
   });
 }
 
+function exportPatternCSV(){
+  if(!patStore)return;
+  const{rows}=collectPatternRows();
+  if(!rows.length)return;
+  const dir=patSortDir;
+  const sorted=[...rows].sort((a,b)=>{
+    if(patSortCol==='ws')return a.ws<b.ws?-dir:a.ws>b.ws?dir:0;
+    const idx=PAT_DAY_KEY.indexOf(patSortCol);
+    const va=a.days[idx], vb=b.days[idx];
+    if(va==null&&vb==null)return 0;
+    if(va==null)return 1;
+    if(vb==null)return -1;
+    return(va-vb)*dir;
+  });
+  const header=['WK',...PAT_DAY_LBL];
+  const rows2=sorted.map(r=>[weekTag(r.ws),...r.days.map(v=>v==null?'':v)]);
+  const meta=PAT_METRICS[patMetric];
+  const safeStore=patStore.replace(/[^\w\-]+/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`patron-semanal_${safeStore}_${meta.label.replace(/[^\w\-]+/g,'_')}_${today}.csv`,header,rows2);
+}
+
+function exportPatternPDF(){
+  if(!patStore)return;
+  const{rows}=collectPatternRows();
+  if(!rows.length)return;
+  const meta=PAT_METRICS[patMetric];
+  const chartCard=document.getElementById('patChartCard');
+  const tableCard=document.getElementById('patTableCard');
+  exportPDF('Patrón semanal',`${patStore} · ${meta.label} · ${weekTag(patStart)} → ${weekTag(patEnd)} · Sáb ${fmtDate(patStart)} → Vie ${fmtDate(weekEnd(patEnd))}`,[chartCard,tableCard]);
+}
+
 function renderPattern(){
   rebuildPatStore();
   rebuildPatRange();

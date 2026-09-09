@@ -181,6 +181,16 @@ function exportDiarioCSV(){
   downloadCSV(`historico-dias_${safeStore}_${today}.csv`,header,rows);
 }
 
+function exportDiarioPDF(){
+  const store=diarioStoreSel;
+  if(!store||!Object.keys(dailyData).length)return;
+  const table=document.getElementById('diarioTable');
+  const rowCount=table.querySelectorAll('tbody tr').length;
+  if(!rowCount)return;
+  const dayTxt=diarioDayFilter?` · ${DAY_ES[diarioDayFilter]||diarioDayFilter}`:'';
+  exportPDF('Histórico días',`${store}${dayTxt} · ${rowCount} días`,table);
+}
+
 function saveHito(input){
   const date=input.dataset.date, val=input.value.trim();
   if(val) hitoData[date]=val; else delete hitoData[date];

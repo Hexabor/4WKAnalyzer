@@ -308,6 +308,57 @@ function renderAnalysis(){
   });
 }
 
+function exportAnalysisCSV(){
+  if(!analysisStore||!analysisMetrics.length)return;
+  const weekMode=analysisGranularity==='week';
+  const compare=!!analysisStore2;
+  const seriesMaps=analysisMetrics.map(m=>{
+    const ser1=collectAnalysisSeries(m,analysisStore,analysisDayFilter);
+    const ser2=compare?collectAnalysisSeries(m,analysisStore2,analysisDayFilter2):[];
+    return{m,map1:new Map(ser1.map(d=>[d.date,d])),map2:new Map(ser2.map(d=>[d.date,d]))};
+  });
+  const allDates=new Set();
+  seriesMaps.forEach(sm=>{for(const k of sm.map1.keys())allDates.add(k);for(const k of sm.map2.keys())allDates.add(k);});
+  const dates=[...allDates].sort();
+  if(!dates.length)return;
+  const label1=analysisStore==='__all__'?'Todas las tiendas':analysisStore;
+  const label2=analysisStore2;
+  const header=[weekMode?'WK':'Fecha'];
+  if(!weekMode)header.push('Día');
+  seriesMaps.forEach(sm=>{
+    header.push(`${ANALYSIS_METRICS[sm.m].label} · ${label1}`);
+    if(compare)header.push(`${ANALYSIS_METRICS[sm.m].label} · ${label2}`);
+  });
+  const rows=dates.map(date=>{
+    const row=[weekMode?weekTag(date):fmtDate(date)];
+    if(!weekMode){
+      let dayName='';
+      for(const sm of seriesMaps){const e=sm.map1.get(date)||sm.map2.get(date);if(e){dayName=e.day;break;}}
+      row.push(DAY_ES[dayName]||dayName||'');
+    }
+    seriesMaps.forEach(sm=>{
+      const v1=sm.map1.get(date);
+      row.push(v1?v1.value:'');
+      if(compare){const v2=sm.map2.get(date);row.push(v2?v2.value:'');}
+    });
+    return row;
+  });
+  const safeA=analysisStore.replace(/[^\w\-]+/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`analisis-rango_${safeA}_${today}.csv`,header,rows);
+}
+
+function exportAnalysisPDF(){
+  if(!analysisStore||!analysisMetrics.length)return;
+  const wrap=document.getElementById('aChartsWrap');
+  const cards=wrap?[...wrap.querySelectorAll('.chart-card')]:[];
+  if(!cards.length)return;
+  const label1=analysisStore==='__all__'?'Todas las tiendas':analysisStore;
+  const label2=analysisStore2?` vs ${analysisStore2}`:'';
+  const rangeTxt=`${fmtDate(analysisStart)} → ${fmtDate(analysisEnd)}`;
+  exportPDF('Análisis por rango',`${label1}${label2} · ${rangeTxt}`,cards);
+}
+
 function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, showMonthNames, label1, label2, weekMode){
   const compare = !!(series2 && series2.length);
   // Si A y B usan filtros de día distintos (p.ej. Sáb vs Dom), agrupar por semana para emparejar visualmente

@@ -54,6 +54,21 @@ function downloadCSV(filename,header,rows){
   URL.revokeObjectURL(url);
 }
 
+// contentEls: un elemento DOM o un array de elementos a clonar en la vista de impresión
+function exportPDF(title,subtitle,contentEls){
+  const els=(Array.isArray(contentEls)?contentEls:[contentEls]).filter(Boolean);
+  if(!els.length)return;
+  let area=document.getElementById('printArea');
+  if(!area){area=document.createElement('div');area.id='printArea';document.body.appendChild(area);}
+  area.innerHTML='';
+  const header=document.createElement('div');
+  header.className='print-header';
+  header.innerHTML=`<h1>${title}</h1>${subtitle?`<div class="print-sub">${subtitle}</div>`:''}<div class="print-date">Generado ${fmtDate(new Date().toISOString().slice(0,10))}</div>`;
+  area.appendChild(header);
+  els.forEach(el=>area.appendChild(el.cloneNode(true)));
+  window.print();
+}
+
 
 // ══════════════════════════════════════════════════════
 //  4WKS SELECTION

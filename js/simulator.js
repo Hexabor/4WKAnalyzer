@@ -155,6 +155,29 @@ function syncSimulator(){
   }
   recalc();
 }
+function exportSimCSV(){
+  if(!BASE.length)return;
+  const sel=document.getElementById('targetStore'),targetName=sel.value;
+  const list=calculate();
+  const td=list.find(s=>s.store===targetName);
+  const targetVC=td?td.projVC:0;
+  const sorted=[...list].sort((a,b)=>((a[simSortCol]||0)-(b[simSortCol]||0))*simSortDir);
+  const header=['Rank','Cambio','Tienda','V+C proy.','Hoy','Net Sales','Buys','Exch. Buys','Refunds','Members',`Diferencia vs ${targetName||'—'}`];
+  const rows=sorted.map(s=>[
+    s.newR,(s.r??s.newR)-s.newR,s.store,s.projVC,s.hasToday?s.todayVC:'',s.projSales,s.projBuys,s.projExch||'',s.projRefunds,s.projMembers,
+    s.store===targetName?0:(s.projVC-targetVC)
+  ]);
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`simulador-4wks_${today}.csv`,header,rows);
+}
+
+function exportSimPDF(){
+  if(!BASE.length)return;
+  const sel=document.getElementById('targetStore'),targetName=sel.value;
+  const table=document.getElementById('simTable');
+  exportPDF('Simulador rápido del 4WKS',`Tu tienda: ${targetName||'—'} · ${BASE.length} tiendas`,table);
+}
+
 function onTodayInput(){
   const text=document.getElementById('todayInput').value;
   if(!text.trim()){todayMap={};resetTodayUI();recalc();return;}

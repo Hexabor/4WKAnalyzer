@@ -2,9 +2,17 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.24';
+const APP_VERSION='α 0.25';
 
 const CHANGELOG=[
+  {
+    version:'v0.25', date:'09 sep 2026',
+    items:[
+      {type:'new', text:'Exportar CSV y PDF en los 8 paneles con datos — Ranking por rango, Día a día, Histórico días, Histórico semanas, Análisis por rango, Patrón semanal, Semana a semana y Simulador rápido tienen ya sus botones «Exportar CSV» / «Exportar PDF» en la barra superior de cada uno'},
+      {type:'new', text:'El CSV exporta siempre lo que ves en pantalla (filtro y orden activos) con valores numéricos en crudo, listos para fórmulas; en los dos paneles de gráfico (Análisis por rango, Patrón semanal) exporta la serie de datos que alimenta el gráfico'},
+      {type:'new', text:'El PDF abre el diálogo de impresión del navegador con una vista limpia solo de esa tabla o gráfico (cabecera con tienda/rango/fecha de generación) — «Guardar como PDF» nativo, sin depender de ninguna librería externa'},
+    ]
+  },
   {
     version:'v0.24', date:'09 sep 2026',
     items:[
