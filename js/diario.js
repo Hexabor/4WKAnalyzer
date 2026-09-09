@@ -7,12 +7,50 @@ function rebuildDiarioStore(){
   const stores=new Set();
   for(const dateStores of Object.values(dailyData))for(const s of Object.keys(dateStores))stores.add(s);
   const sorted=[...stores].sort();
-  if(!sorted.length){ssSetOptions('diarioStore',[]);ssSetValue('diarioStore','',false);diarioStoreSel='';return;}
+  diarioGroupSel=diarioGroupSel.filter(s=>stores.has(s));
+  if(!sorted.length){ssSetOptions('diarioStore',[]);ssSetValue('diarioStore','',false);diarioStoreSel='';syncDiarioGroupUI();return;}
   const options=sorted.map(s=>({value:s,label:s}));
   ssSetOptions('diarioStore',options);
   const newVal=sorted.includes(prev)?prev:sorted[0];
   ssSetValue('diarioStore',newVal,false);
   diarioStoreSel=newVal;
+  syncDiarioGroupUI();
+}
+
+// ── GRUPO DE TIENDAS (solo afecta a exportar CSV) ──
+function syncDiarioGroupUI(){
+  if(document.getElementById('diarioGroupChecks'))renderDiarioGroupChecks();
+}
+function renderDiarioGroupChecks(){
+  const wrap=document.getElementById('diarioGroupChecks');
+  if(!wrap)return;
+  const all=getAllStoresInData();
+  if(!all.length){wrap.innerHTML='<span class="empty-state">Sin datos cargados</span>';updateDiarioGroupLabel();return;}
+  wrap.innerHTML='';
+  const set=new Set(diarioGroupSel);
+  all.forEach(store=>{
+    const lbl=document.createElement('label');lbl.className='store-check';
+    const cb=document.createElement('input');cb.type='checkbox';cb.value=store;cb.checked=set.has(store);
+    cb.onchange=()=>onDiarioGroupCheckChange(cb);
+    const span=document.createElement('span');span.textContent=store;
+    lbl.appendChild(cb);lbl.appendChild(span);wrap.appendChild(lbl);
+  });
+  updateDiarioGroupLabel();
+}
+function onDiarioGroupCheckChange(cb){
+  const store=cb.value;
+  if(cb.checked){if(!diarioGroupSel.includes(store))diarioGroupSel.push(store);}
+  else diarioGroupSel=diarioGroupSel.filter(s=>s!==store);
+  updateDiarioGroupLabel();
+}
+function diarioGroupAll(){diarioGroupSel=getAllStoresInData();renderDiarioGroupChecks();}
+function diarioGroupNone(){diarioGroupSel=[];renderDiarioGroupChecks();}
+function updateDiarioGroupLabel(){
+  const all=getAllStoresInData();
+  const lbl=document.getElementById('diarioGroupLabel');
+  const counter=document.getElementById('diarioGroupCounter');
+  if(lbl)lbl.textContent=diarioGroupSel.length>=2?`Grupo (${diarioGroupSel.length})`:'Grupo';
+  if(counter)counter.textContent=`${diarioGroupSel.length} / ${all.length}`;
 }
 
 function filterDiarioDay(btn){
@@ -131,6 +169,7 @@ function renderDiario(){
 }
 
 function exportDiarioCSV(){
+  if(diarioGroupSel.length>=2){exportDiarioCSVGroup(diarioGroupSel);return;}
   const store=diarioStoreSel;
   if(!store||!Object.keys(dailyData).length)return;
 
@@ -179,6 +218,54 @@ function exportDiarioCSV(){
   const safeStore=store.replace(/[^\w\-]+/g,'_');
   const today=new Date().toISOString().slice(0,10);
   downloadCSV(`historico-dias_${safeStore}_${today}.csv`,header,rows);
+}
+
+function exportDiarioCSVGroup(stores){
+  if(!stores.length||!Object.keys(dailyData).length)return;
+
+  const header=['Tienda','WK','Fecha','Día','Ranking','V+C','Net Sales','Buys','Cash Buys','Exch. Buys','Refunds','Members','7 últimos','Media 7','Hitos'];
+  const rows=[];
+  const sortedStores=[...stores].sort((a,b)=>a.localeCompare(b,'es'));
+
+  for(const store of sortedStores){
+    const days=Object.entries(dailyData)
+      .filter(([,s])=>s[store])
+      .map(([date,s])=>({date,...s[store],wk:weekStart(date)}))
+      .sort((a,b)=>a.date.localeCompare(b.date));
+    if(!days.length)continue;
+
+    days.forEach((d,i)=>{
+      const slice=days.slice(Math.max(0,i-6),i+1);
+      d._roll7=slice.reduce((s,x)=>s+x.vc,0);
+      d._avg7=Math.round(d._roll7/slice.length);
+      d._wkTag=weekTag(d.wk);
+    });
+
+    const filtered=diarioDayFilter?days.filter(d=>d.day===diarioDayFilter):days;
+    filtered.forEach(d=>rows.push([
+      store,
+      d._wkTag,
+      fmtDate(d.date),
+      DAY_ES[d.day]||d.day||'',
+      d.ranking||'',
+      d.vc||0,
+      d.sales||0,
+      d.buys||0,
+      d.cashBuys||'',
+      d.exchBuys||'',
+      d.refunds||0,
+      d.members||0,
+      d._roll7,
+      d._avg7,
+      hitoData[d.date]||''
+    ]));
+  }
+  if(!rows.length)return;
+
+  const all=getAllStoresInData();
+  const scopeTag=stores.length===all.length?'todas':`grupo-${stores.length}tiendas`;
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`historico-dias_${scopeTag}_${today}.csv`,header,rows);
 }
 
 function exportDiarioPDF(){

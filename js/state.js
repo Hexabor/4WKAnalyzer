@@ -27,6 +27,8 @@ let wkSortCol='vc',  wkSortDir=-1;
 let diarioSortCol='date', diarioSortDir=-1;
 let diarioDayFilter='';
 let diarioStoreSel='Madrid Islazul';
+// diarioGroupSel: tiendas marcadas para exportar en grupo (CSV). []/[1 tienda] = usa diarioStoreSel.
+let diarioGroupSel=[];
 let semanalSortCol='ws', semanalSortDir=-1;
 let semanalStoreSel='Madrid Islazul';
 let semanalColorBy='none';

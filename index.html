@@ -356,6 +356,18 @@
       <button class="diario-filter-pill" data-day="Friday" onclick="filterDiarioDay(this)">Vie</button>
     </div>
     <span style="flex:1"></span>
+    <details class="diario-group" id="diarioGroupDetails" ontoggle="if(this.open)renderDiarioGroupChecks()">
+      <summary class="btn-mini" title="Exportar a CSV un grupo de tiendas (o todas)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span id="diarioGroupLabel">Grupo</span></summary>
+      <div class="diario-group-pop">
+        <div class="store-filter-quick">
+          <button type="button" class="btn-mini" onclick="diarioGroupAll()">Todas</button>
+          <button type="button" class="btn-mini" onclick="diarioGroupNone()">Ninguna</button>
+          <span class="store-filter-counter" id="diarioGroupCounter">—</span>
+        </div>
+        <div class="store-filter-checks" id="diarioGroupChecks"></div>
+        <div class="diario-group-note">Solo afecta a «Exportar CSV» (combina las tiendas marcadas en un único fichero). El PDF siempre exporta la tienda seleccionada arriba.</div>
+      </div>
+    </details>
     <button class="btn-mini" onclick="exportDiarioCSV()" title="Exportar la tabla visible a CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>Exportar CSV</button>
     <button class="btn-mini" onclick="exportDiarioPDF()" title="Exportar la tabla visible a PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" style="vertical-align:-2px;margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Exportar PDF</button>
   </div>

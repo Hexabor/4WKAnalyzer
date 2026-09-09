@@ -2,9 +2,16 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.25';
+const APP_VERSION='α 0.26';
 
 const CHANGELOG=[
+  {
+    version:'v0.26', date:'09 sep 2026',
+    items:[
+      {type:'new', text:'Exportar CSV por grupo de tiendas en «Histórico días» — botón «Grupo» junto al selector de tienda abre un checklist de todas las tiendas (con atajos «Todas»/«Ninguna»); al marcar 2 o más, «Exportar CSV» combina esas tiendas en un único fichero con columna Tienda, respetando el filtro de día activo y calculando el rodante 7 días de cada tienda por separado'},
+      {type:'new', text:'El PDF sigue exportando siempre solo la tienda seleccionada arriba — con muchas tiendas y días el documento deja de ser legible, así que el grupo solo aplica al CSV'},
+    ]
+  },
   {
     version:'v0.25', date:'09 sep 2026',
     items:[
