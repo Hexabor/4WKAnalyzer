@@ -36,6 +36,24 @@ const DAY_ES={Saturday:'Sábado',Sunday:'Domingo',Monday:'Lunes',Tuesday:'Martes
 const DAY_NAMES_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function dayFromISO(iso){return DAY_NAMES_EN[new Date(iso+'T12:00:00Z').getUTCDay()];}
 
+// ══════════════════════════════════════════════════════
+//  EXPORT CSV
+// ══════════════════════════════════════════════════════
+function downloadCSV(filename,header,rows){
+  const esc=v=>{
+    const s=v===null||v===undefined?'':String(v);
+    return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  };
+  const lines=[header,...rows].map(r=>r.map(esc).join(','));
+  const csv='﻿'+lines.join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 
 // ══════════════════════════════════════════════════════
 //  4WKS SELECTION

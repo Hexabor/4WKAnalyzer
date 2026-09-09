@@ -130,6 +130,57 @@ function renderDiario(){
   });
 }
 
+function exportDiarioCSV(){
+  const store=diarioStoreSel;
+  if(!store||!Object.keys(dailyData).length)return;
+
+  const days=Object.entries(dailyData)
+    .filter(([,stores])=>stores[store])
+    .map(([date,stores])=>({date,...stores[store],wk:weekStart(date)}))
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  if(!days.length)return;
+
+  days.forEach((d,i)=>{
+    const slice=days.slice(Math.max(0,i-6),i+1);
+    d._roll7=slice.reduce((s,x)=>s+x.vc,0);
+    d._avg7=Math.round(d._roll7/slice.length);
+    d._wkTag=weekTag(d.wk);
+  });
+
+  const filtered=diarioDayFilter?days.filter(d=>d.day===diarioDayFilter):days;
+  if(!filtered.length)return;
+
+  const col=diarioSortCol,dir=diarioSortDir;
+  const sorted=[...filtered].sort((a,b)=>{
+    let va,vb;
+    if(col==='date'){va=a.date;vb=b.date;return va<vb?-dir:va>vb?dir:0;}
+    if(col==='wk'){va=a.wk;vb=b.wk;return va<vb?-dir:va>vb?dir:a.date.localeCompare(b.date);}
+    va=a[col]??0;vb=b[col]??0;return(va-vb)*dir;
+  });
+
+  const header=['WK','Fecha','Día','Ranking','V+C','Net Sales','Buys','Cash Buys','Exch. Buys','Refunds','Members','7 últimos','Media 7','Hitos'];
+  const rows=sorted.map(d=>[
+    d._wkTag,
+    fmtDate(d.date),
+    DAY_ES[d.day]||d.day||'',
+    d.ranking||'',
+    d.vc||0,
+    d.sales||0,
+    d.buys||0,
+    d.cashBuys||'',
+    d.exchBuys||'',
+    d.refunds||0,
+    d.members||0,
+    d._roll7,
+    d._avg7,
+    hitoData[d.date]||''
+  ]);
+
+  const safeStore=store.replace(/[^\w\-]+/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+  downloadCSV(`historico-dias_${safeStore}_${today}.csv`,header,rows);
+}
+
 function saveHito(input){
   const date=input.dataset.date, val=input.value.trim();
   if(val) hitoData[date]=val; else delete hitoData[date];

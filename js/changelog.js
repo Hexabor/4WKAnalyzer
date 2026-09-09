@@ -2,9 +2,15 @@
 //  CHANGELOG
 //  Se actualiza a cada cierre de sesión con novedades y fixes.
 // ══════════════════════════════════════════════════════
-const APP_VERSION='α 0.23';
+const APP_VERSION='α 0.24';
 
 const CHANGELOG=[
+  {
+    version:'v0.24', date:'09 sep 2026',
+    items:[
+      {type:'new', text:'Exportar CSV en «Histórico días» — botón en la barra superior que descarga la tabla visible (respeta filtro de día y tienda elegida) con WK, Fecha, Día, Ranking, V+C, Net Sales, Buys, Cash/Exch. Buys, Refunds, Members, rodante 7 días y Hitos; valores numéricos en crudo para usarlos directamente en hojas de cálculo'},
+    ]
+  },
   {
     version:'v0.23', date:'29 jul 2026',
     items:[
