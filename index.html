@@ -44,6 +44,9 @@
   <button class="nav-item tip" data-panel="pattern" data-tip="Patrón semanal" onclick="navigate(this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
   </button>
+  <a class="nav-item tip" href="docs/mapa-fases.html" data-tip="Árbol de fases" aria-label="Árbol de fases" title="Árbol de fases">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><path d="M12 7v5M5 12h14M5 12v5M19 12v5"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/></svg>
+  </a>
   <div class="sb-spacer"></div>
   <div class="sb-div"></div>
   <div class="theme-wrap tip" data-tip="Modo claro / oscuro" onclick="toggleTheme()"><div class="theme-switch"></div></div>
@@ -69,6 +72,7 @@
 <!-- ══ HOME ══ -->
 <section class="panel active" id="panel-home">
   <div class="home-topbar">
+    <a class="home-news-btn" href="docs/mapa-fases.html" style="text-decoration:none">Árbol de fases</a>
     <button class="home-news-btn" onclick="toggleChangelog()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       <span>Novedades</span>
