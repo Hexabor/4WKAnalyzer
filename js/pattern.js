@@ -16,6 +16,7 @@ const PAT_METRICS={
 const PAT_DAYS=['Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'];
 const PAT_DAY_LBL=['Sáb','Dom','Lun','Mar','Mié','Jue','Vie'];
 const PAT_DAY_KEY=['sat','sun','mon','tue','wed','thu','fri'];
+const PAT_DAY_PLURAL=['sábados','domingos','lunes','martes','miércoles','jueves','viernes'];
 
 function rebuildPatStore(){
   const hidden=document.getElementById('patStore');if(!hidden)return;
@@ -89,7 +90,7 @@ function applyPatSortHeaders(){
 
 function collectPatternRows(){
   // Devuelve [{ws, days:[v_sat, v_sun, ..., v_fri], _weekIntensity}], dailyAvg:[7]
-  if(!patStore||!patStart||!patEnd)return{rows:[],dailyAvg:[]};
+  if(!patStore||!patStart||!patEnd)return{rows:[],dailyAvg:[],dailyCount:[]};
   const allWeeks=getWeeks().filter(ws=>ws>=patStart&&ws<=patEnd);
   const N=allWeeks.length;
   const rows=allWeeks.map((ws,i)=>({ws,days:Array(7).fill(null),_weekIntensity:N>1?i/(N-1):1}));
@@ -104,15 +105,18 @@ function collectPatternRows(){
     if(row)row.days[idx]=v;
   }
   // Media por columna (ignorando nulls)
-  const dailyAvg=Array(7).fill(null);
+  const dailyAvg=Array(7).fill(null), dailyCount=Array(7).fill(0);
   for(let i=0;i<7;i++){
     const vals=rows.map(r=>r.days[i]).filter(v=>v!=null);
     dailyAvg[i]=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+    dailyCount[i]=vals.length;
   }
-  return{rows,dailyAvg};
+  return{rows,dailyAvg,dailyCount};
 }
 
-function drawPatternChart(dailyAvg, meta){
+function drawPatternChart(dailyAvg, meta, dailyCount=[], nWeeks=0){
+  const unit=meta.fmt===fmt?' €':'';
+  const avgFmt=v=>fmtInt(v)+unit;
   const svg=document.getElementById('patChart');
   const tt=document.getElementById('patChartTip');
   if(!svg)return;
@@ -139,7 +143,7 @@ function drawPatternChart(dailyAvg, meta){
     const v=yMin+(yMax-yMin)*i/ticks;
     const y=valueToY(v);
     parts.push(`<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`);
-    parts.push(`<text class="axis-label" x="${pad.l-8}" y="${y+3}" text-anchor="end">${meta.fmt(v)}</text>`);
+    parts.push(`<text class="axis-label" x="${pad.l-8}" y="${y+3}" text-anchor="end">${avgFmt(v)}</text>`);
   }
   parts.push(`<line class="axis-line" x1="${pad.l}" y1="${pad.t+plotH}" x2="${W-pad.r}" y2="${pad.t+plotH}"/>`);
   const compactNum=v=>{
@@ -164,7 +168,7 @@ function drawPatternChart(dailyAvg, meta){
   svg.querySelectorAll('rect.bar').forEach(r=>{
     r.addEventListener('mousemove',e=>{
       const i=+r.dataset.i,v=dailyAvg[i];
-      tt.innerHTML=`<div class="tt-date">${PAT_DAY_LBL[i]}</div>${meta.label}: <strong>${meta.fmt(v)}</strong>`;
+      tt.innerHTML=`<div class="tt-date">${PAT_DAY_LBL[i]}</div>Media ${meta.label}: <strong>${avgFmt(v)}</strong><div style="opacity:.75;margin-top:2px">sobre ${dailyCount[i]} de ${nWeeks} ${PAT_DAY_PLURAL[i]}</div>`;
       const wr=svg.parentElement.getBoundingClientRect();
       let x=e.clientX-wr.left+12,y=e.clientY-wr.top-14;
       if(x+220>wr.width)x=e.clientX-wr.left-228;
@@ -228,9 +232,11 @@ function renderPattern(){
     drawPatternChart([null,null,null,null,null,null,null],meta);
     return;
   }
-  const{rows,dailyAvg}=collectPatternRows();
-  if(chartTitle)chartTitle.textContent=`Media ${meta.label} por día · ${patStore}`;
-  drawPatternChart(dailyAvg,meta);
+  const{rows,dailyAvg,dailyCount}=collectPatternRows();
+  const nW=rows.length;
+  const rangeTxt=patStart&&patEnd?` · ${weekTag(patStart)} → ${weekTag(patEnd)} (${nW} ${nW===1?'semana':'semanas'})`:'';
+  if(chartTitle)chartTitle.textContent=`Media ${meta.label} por día · ${patStore}${rangeTxt}`;
+  drawPatternChart(dailyAvg,meta,dailyCount,nW);
   if(!rows.length){
     tbody.innerHTML='<tr><td colspan="8"><span class="empty-state">Sin semanas en el rango seleccionado</span></td></tr>';
     return;

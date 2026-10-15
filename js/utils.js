@@ -4,6 +4,8 @@
 const pN  = s => parseInt(String(s??'').replace(/[€\s]/g,'').replace(/,/g,''),10)||0;
 const fmt = n => n.toLocaleString('es-ES')+' €';
 const fmtN= n => n.toLocaleString('es-ES');
+// Entero redondeado con punto de miles forzado (es-ES no agrupa números de 4 cifras)
+const fmtInt= n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 
 function parseCSVLine(line){
   const cols=[]; let cur='',inQ=false;

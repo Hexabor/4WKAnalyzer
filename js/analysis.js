@@ -383,7 +383,10 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
   const rect=svg.getBoundingClientRect();
   const W=Math.max(480, Math.round(rect.width||svg.clientWidth||800));
   const H=showMonthNames?360:280;
-  const pad={l:82,r:22,t:20,b:showMonthNames?74:40};
+  // Margen derecho ancho para las etiquetas de media (fuera del área de barras)
+  const pad={l:82,r:104,t:20,b:showMonthNames?74:40};
+  const unit=meta.fmt===fmt?' €':'';
+  const numFmt=v=>meta.inverted?meta.fmt(v):fmtInt(v)+unit;
   svg.style.height=H+'px';
   const plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
@@ -425,7 +428,7 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
     const v=yMin+(yMax-yMin)*i/ticks;
     const y=valueToY(v);
     parts.push(`<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`);
-    const lbl=meta.inverted?`#${Math.round(v)}`:meta.fmt(v);
+    const lbl=meta.inverted?`#${Math.round(v)}`:fmtInt(v)+unit;
     parts.push(`<text class="axis-label" x="${pad.l-8}" y="${y+3}" text-anchor="end">${lbl}</text>`);
   }
   parts.push(`<line class="axis-line" x1="${pad.l}" y1="${pad.t+plotH}" x2="${W-pad.r}" y2="${pad.t+plotH}"/>`);
@@ -451,14 +454,37 @@ function drawAnalysisChart(svg, tooltip, series1, series2, meta, avg1, avg2, sho
   });
 
   // Mean lines
+  // Mean lines + etiquetas en pastilla en el margen derecho
+  const means=[];
   if(compare){
-    if(series1.length){const y=valueToY(avg1);parts.push(`<line class="mean-line mean-a" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="mean-label mean-label-a" x="${pad.l+4}" y="${y-4}" text-anchor="start">A · ${meta.fmt(avg1)}</text>`);}
-    if(series2.length){const y=valueToY(avg2);parts.push(`<line class="mean-line mean-b" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/><text class="mean-label mean-label-b" x="${W-pad.r-4}" y="${y-4}" text-anchor="end">B · ${meta.fmt(avg2)}</text>`);}
-  }else{
-    const y=valueToY(avg1);
-    parts.push(`<line class="mean-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`);
-    parts.push(`<text class="mean-label" x="${W-pad.r-4}" y="${y-4}" text-anchor="end">Media · ${meta.fmt(avg1)}</text>`);
+    if(series1.length)means.push({v:avg1,cls:'a',title:'Media A'});
+    if(series2.length)means.push({v:avg2,cls:'b',title:'Media B'});
+  }else means.push({v:avg1,cls:'',title:'Media'});
+  const PILL_H=26, PILL_W=pad.r-14, pillX=W-pad.r+8;
+  means.forEach(m=>{m.y=valueToY(m.v);m.ly=m.y;});
+  if(means.length===2){
+    // Separar las pastillas si se pisan, manteniendo el centro entre ambas
+    const [hi,lo]=means[0].y<=means[1].y?[means[0],means[1]]:[means[1],means[0]];
+    const gap=PILL_H+4-(lo.ly-hi.ly);
+    if(gap>0){hi.ly-=gap/2;lo.ly+=gap/2;}
   }
+  const minLy=pad.t+PILL_H/2-8, maxLy=pad.t+plotH-PILL_H/2;
+  means.forEach(m=>{m.ly=Math.min(maxLy,Math.max(minLy,m.ly));});
+  if(means.length===2){
+    const [hi,lo]=means[0].ly<=means[1].ly?[means[0],means[1]]:[means[1],means[0]];
+    if(lo.ly-hi.ly<PILL_H+4){if(hi.ly===minLy)lo.ly=hi.ly+PILL_H+4;else hi.ly=lo.ly-PILL_H-4;}
+  }
+  means.forEach(m=>{
+    const lc=m.cls?` mean-${m.cls}`:'', tc=m.cls?` mean-label-${m.cls}`:'';
+    const pc=m.cls?` mean-pill-${m.cls}`:'';
+    parts.push(`<line class="mean-line${lc}" x1="${pad.l}" y1="${m.y}" x2="${W-pad.r}" y2="${m.y}"/>`);
+    // Conector desde el final de la línea hasta la pastilla
+    parts.push(`<line class="mean-line${lc}" x1="${W-pad.r}" y1="${m.y}" x2="${pillX}" y2="${m.ly}"/>`);
+    const top=m.ly-PILL_H/2;
+    parts.push(`<rect class="mean-pill${pc}" x="${pillX}" y="${top.toFixed(2)}" width="${PILL_W}" height="${PILL_H}" rx="5"/>`);
+    parts.push(`<text class="mean-label mean-label-title${tc}" x="${pillX+PILL_W/2}" y="${(top+10).toFixed(2)}" text-anchor="middle">${m.title}</text>`);
+    parts.push(`<text class="mean-label${tc}" x="${pillX+PILL_W/2}" y="${(top+21).toFixed(2)}" text-anchor="middle">${numFmt(m.v)}</text>`);
+  });
 
   // Bar values above each bar (solo en single mode y métricas no invertidas)
   if(!meta.inverted && !compare){

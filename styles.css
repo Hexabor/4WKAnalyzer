@@ -453,6 +453,10 @@ td.hito-cell{min-width:200px;}
 .chart-svg .mean-line.mean-b{stroke:var(--blue);opacity:.7;}
 .chart-svg .mean-label.mean-label-a{fill:var(--accent);opacity:.95;}
 .chart-svg .mean-label.mean-label-b{fill:var(--blue);opacity:.95;}
+.chart-svg .mean-pill{fill:var(--surface,#fff);stroke:var(--text);stroke-width:1;stroke-opacity:.35;}
+.chart-svg .mean-pill.mean-pill-a{stroke:var(--accent);stroke-opacity:.7;}
+.chart-svg .mean-pill.mean-pill-b{stroke:var(--blue);stroke-opacity:.7;}
+.chart-svg .mean-label.mean-label-title{font-size:8.5px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;}
 .chart-legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle;margin:0 4px 1px 0;}
 .chart-legend-dot.dot-a{background:var(--accent);}
 .chart-legend-dot.dot-b{background:var(--blue);}
