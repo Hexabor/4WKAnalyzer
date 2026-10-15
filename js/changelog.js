@@ -9,6 +9,7 @@ const CHANGELOG=[
     version:'v0.27', date:'16 oct 2026',
     items:[
       {type:'new', text:'«Patrón semanal» — el título del gráfico indica el tramo de semanas que se está promediando (p.ej. «WK12 → WK24 (13 semanas)») y se actualiza al cambiar «Desde WK» / «Hasta WK»'},
+      {type:'new', text:'«Patrón semanal» — nueva columna «Total» con la suma semanal de la métrica, ordenable, con su propia escala de color independiente de los días; las semanas incompletas salen atenuadas con marca «5/7» y no cuentan para la escala. Incluida en CSV (con columna Días) y PDF'},
       {type:'new', text:'«Patrón semanal» — el tooltip de cada barra indica sobre cuántos días se calcula la media (p.ej. «sobre 12 de 13 sábados»), para detectar huecos sin datos'},
       {type:'fix', text:'«Análisis por rango» — las etiquetas de media ya no se pintan encima de las barras: pasan a una pastilla en el margen derecho, a la altura de su línea, y se separan solas si A y B están muy cerca'},
       {type:'fix', text:'Eje Y de «Patrón semanal» y «Análisis por rango» con valores enteros y punto de miles (antes salían cosas como «73.230,912 €» o «9306,309 €»)'},

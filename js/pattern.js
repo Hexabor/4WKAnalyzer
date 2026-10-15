@@ -78,7 +78,7 @@ function togglePatHighlight(btn){
   renderPattern();schedulePersist();
 }
 function applyPatSortHeaders(){
-  const cols=['ws',...PAT_DAY_KEY];
+  const cols=['ws',...PAT_DAY_KEY,'total'];
   cols.forEach(c=>{
     const th=document.querySelector(`#patTable [data-pcol="${c}"]`);
     const arr=document.getElementById(`patArr-${c}`);
@@ -104,6 +104,12 @@ function collectPatternRows(){
     const row=rows.find(r=>r.ws===ws);
     if(row)row.days[idx]=v;
   }
+  // Total semanal (suma de los días con dato) y nº de días cubiertos
+  rows.forEach(r=>{
+    const vals=r.days.filter(v=>v!=null);
+    r.dayCount=vals.length;
+    r.total=vals.length?vals.reduce((a,b)=>a+b,0):null;
+  });
   // Media por columna (ignorando nulls)
   const dailyAvg=Array(7).fill(null), dailyCount=Array(7).fill(0);
   for(let i=0;i<7;i++){
@@ -179,22 +185,26 @@ function drawPatternChart(dailyAvg, meta, dailyCount=[], nWeeks=0){
   });
 }
 
-function exportPatternCSV(){
-  if(!patStore)return;
-  const{rows}=collectPatternRows();
-  if(!rows.length)return;
+function sortPatternRows(rows){
   const dir=patSortDir;
-  const sorted=[...rows].sort((a,b)=>{
+  return [...rows].sort((a,b)=>{
     if(patSortCol==='ws')return a.ws<b.ws?-dir:a.ws>b.ws?dir:0;
     const idx=PAT_DAY_KEY.indexOf(patSortCol);
-    const va=a.days[idx], vb=b.days[idx];
+    const va=patSortCol==='total'?a.total:a.days[idx], vb=patSortCol==='total'?b.total:b.days[idx];
     if(va==null&&vb==null)return 0;
     if(va==null)return 1;
     if(vb==null)return -1;
     return(va-vb)*dir;
   });
-  const header=['WK',...PAT_DAY_LBL];
-  const rows2=sorted.map(r=>[weekTag(r.ws),...r.days.map(v=>v==null?'':v)]);
+}
+
+function exportPatternCSV(){
+  if(!patStore)return;
+  const{rows}=collectPatternRows();
+  if(!rows.length)return;
+  const sorted=sortPatternRows(rows);
+  const header=['WK',...PAT_DAY_LBL,'Total','Días'];
+  const rows2=sorted.map(r=>[weekTag(r.ws),...r.days.map(v=>v==null?'':v),r.total==null?'':r.total,r.dayCount]);
   const meta=PAT_METRICS[patMetric];
   const safeStore=patStore.replace(/[^\w\-]+/g,'_');
   const today=new Date().toISOString().slice(0,10);
@@ -227,7 +237,7 @@ function renderPattern(){
   const tbody=document.getElementById('patBody');
   const chartTitle=document.getElementById('patChartTitle');
   if(!patStore||!Object.keys(dailyData).length){
-    tbody.innerHTML='<tr><td colspan="8"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver el patrón semanal</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="9"><span class="empty-state">Carga el registro diario en «Ranking por rango» para ver el patrón semanal</span></td></tr>';
     if(chartTitle)chartTitle.textContent='Media por día de la semana';
     drawPatternChart([null,null,null,null,null,null,null],meta);
     return;
@@ -238,7 +248,7 @@ function renderPattern(){
   if(chartTitle)chartTitle.textContent=`Media ${meta.label} por día · ${patStore}${rangeTxt}`;
   drawPatternChart(dailyAvg,meta,dailyCount,nW);
   if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="8"><span class="empty-state">Sin semanas en el rango seleccionado</span></td></tr>';
+    tbody.innerHTML='<tr><td colspan="9"><span class="empty-state">Sin semanas en el rango seleccionado</span></td></tr>';
     return;
   }
   // Min/max para color (sobre los datos crudos antes de ordenar)
@@ -246,18 +256,11 @@ function renderPattern(){
   const min=allVals.length?Math.min(...allVals):0;
   const max=allVals.length?Math.max(...allVals):1;
   const range=max-min||1;
-  // Sort
-  const sorted=[...rows];
-  const dir=patSortDir;
-  sorted.sort((a,b)=>{
-    if(patSortCol==='ws')return a.ws<b.ws?-dir:a.ws>b.ws?dir:0;
-    const idx=PAT_DAY_KEY.indexOf(patSortCol);
-    const va=a.days[idx], vb=b.days[idx];
-    if(va==null&&vb==null)return 0;
-    if(va==null)return 1;
-    if(vb==null)return -1;
-    return(va-vb)*dir;
-  });
+  // Escala propia del Total, solo con semanas completas (7/7)
+  const fullTotals=rows.filter(r=>r.dayCount===7).map(r=>r.total);
+  const tMin=fullTotals.length?Math.min(...fullTotals):0;
+  const tRange=(fullTotals.length?Math.max(...fullTotals):1)-tMin||1;
+  const sorted=sortPatternRows(rows);
   tbody.innerHTML='';
   sorted.forEach(r=>{
     const tr=document.createElement('tr');
@@ -272,6 +275,14 @@ function renderPattern(){
         html+=`<td class="r" style="${bg}"><span class="stat-val">${meta.fmt(v)}</span></td>`;
       }
     });
+    if(r.total==null){
+      html+=`<td class="r pat-total"><span class="stat-val" style="color:var(--muted);opacity:.4">—</span></td>`;
+    }else if(r.dayCount<7){
+      html+=`<td class="r pat-total" title="Semana incompleta: ${r.dayCount} de 7 días con datos"><span class="pat-partial">${r.dayCount}/7</span><span class="stat-val" style="opacity:.5">${meta.fmt(r.total)}</span></td>`;
+    }else{
+      const ti=(r.total-tMin)/tRange;
+      html+=`<td class="r pat-total" style="background:rgba(${meta.rgb},${(ti*0.45).toFixed(3)})"><span class="stat-val" style="font-weight:700">${meta.fmt(r.total)}</span></td>`;
+    }
     tr.innerHTML=html;
     tbody.appendChild(tr);
   });

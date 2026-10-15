@@ -501,6 +501,8 @@ td.hito-cell{min-width:200px;}
 .pat-highlight-pills .diario-filter-pill{text-align:left;}
 #patTable th,#patTable td{text-align:center;}
 #patTable .wk-label{color:var(--text);font-weight:600;}
+#patTable .pat-total{border-left:2px solid var(--border);}
+#patTable .pat-partial{display:inline-block;margin-right:6px;padding:0 4px;font-size:9px;font-weight:700;color:var(--muted);border:1px solid var(--border);border-radius:4px;vertical-align:1px;}
 .pat-content{flex:1;min-width:0;}
 
 /* ── SIM ROWS (2x2 layout) ── */
