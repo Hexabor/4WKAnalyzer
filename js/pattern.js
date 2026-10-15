@@ -17,6 +17,7 @@ const PAT_DAYS=['Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','F
 const PAT_DAY_LBL=['Sáb','Dom','Lun','Mar','Mié','Jue','Vie'];
 const PAT_DAY_KEY=['sat','sun','mon','tue','wed','thu','fri'];
 const PAT_DAY_PLURAL=['sábados','domingos','lunes','martes','miércoles','jueves','viernes'];
+const PAT_TOTAL_RGB='71,85,105'; // gris pizarra fijo para la columna Total, distinto de todas las métricas
 
 function rebuildPatStore(){
   const hidden=document.getElementById('patStore');if(!hidden)return;
@@ -281,7 +282,7 @@ function renderPattern(){
       html+=`<td class="r pat-total" title="Semana incompleta: ${r.dayCount} de 7 días con datos"><span class="pat-partial">${r.dayCount}/7</span><span class="stat-val" style="opacity:.5">${meta.fmt(r.total)}</span></td>`;
     }else{
       const ti=(r.total-tMin)/tRange;
-      html+=`<td class="r pat-total" style="background:rgba(${meta.rgb},${(ti*0.45).toFixed(3)})"><span class="stat-val" style="font-weight:700">${meta.fmt(r.total)}</span></td>`;
+      html+=`<td class="r pat-total" style="background:rgba(${PAT_TOTAL_RGB},${(ti*0.4).toFixed(3)})"><span class="stat-val" style="font-weight:700">${meta.fmt(r.total)}</span></td>`;
     }
     tr.innerHTML=html;
     tbody.appendChild(tr);
